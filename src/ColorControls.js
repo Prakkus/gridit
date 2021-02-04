@@ -1,4 +1,3 @@
-//todo: can i just compose this outside of here out of a color control, actions, etc?
 const ColorControls = (availableColors) => {
 	let selectedFillColor = 'default';
 
@@ -35,7 +34,6 @@ const ColorControls = (availableColors) => {
 	
 	return {ColorControlsElement, getSelectedFillColor, getSelectedFillColor };
 } 
-
 
 
 export default ColorControls;

@@ -1,4 +1,3 @@
-//todo: can i just compose this outside of here out of a color control, actions, etc?
 const ActionList = (actions) => {
 	const listWrapper = document.createElement('div');
 	listWrapper.classList.add('action-list');
@@ -16,8 +15,4 @@ const ActionList = (actions) => {
 	return listWrapper;
 } 
 
-
-
 export default ActionList;
-
-//import { BuildActionList } from './action-list';
