@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>GridViz</title>
+	<style>
+	button {
+		height: 30px;
+	}
+	.control-panel {
+		position: absolute;
+		right: 0px;
+		background: #F1F5F9;
+		padding: 12px;
+	}
+	.control-panel {
+		display: flex;
+		flex-direction: column;;
+	}
+
+	.control-panel > * {
+		margin-bottom: 12px;
+	}
+
+	.control-panel label {
+		display:  flex;
+		justify-content: space-between;
+		margin-bottom: 8px;
+	}
+
+	.control-panel label > input {
+		margin-left: 20px;
+	}
+
+	.control-panel .action-list > button {
+		width: 100%;
+		margin-bottom: 12px;
+	}
+
+	.grid-cell {
+		border: 1px solid transparent;
+		transition:  all .15s ease-in-out;
+		cursor: pointer;
+	}
+
+	.grid-cell:hover {
+		border-color: #666;
+	}
+
+
+	#grid-mount-point {
+		display: grid;
+  	}
+
+	.color-controls {
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+	.color-swatch {
+		width: 36px;
+		height: 36px;
+		display: inline-block;
+		border: 1px solid #ccc;
+		cursor: pointer;
+	}
+	.color-swatch:hover, .active-color {
+		border-color: #666;
+	}
+	</style>
+</head>
+<body>
+
+<div class="grid-container">
+	<div id="control-panel-mount-point"  class="control-panel">
+	</div>
+	<div id="grid-mount-point">
+	</div>
+</div>
+	<script type="module">
+		import GridConfig from './GridConfig.js';
+	    import ActionList from './ActionList.js';
+	    import ColorControls from './ColorControls.js';
+	    import GridData from './GridData.js';
+	    import GridView from './GridView.js';
+	    import { isValidNodeColorDragEvent } from './grid-utils.js';
+	    import defaultProfile from './default-profile.js';
+
+		const Main = () => {
+			let gridRowCountInput = 10;
+			let gridColumnCountInput = 10;
+
+			let gridCellSize = 100;
+			let gridColumnGap = 5;
+
+			const { ColorControlsElement, getSelectedFillColor } = ColorControls(defaultProfile.availableColors);
+			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener} = GridData();
+
+			const setRowCountValue = (newValue) => gridRowCountInput = parseInt(newValue);
+			const setColumnCountValue = (newValue) => gridColumnCountInput = parseInt(newValue);
+
+			const setGridCellSizeValue = (newValue) => gridCellSize = parseInt(newValue);
+			const setGridColumnGapValue = (newValue) => gridColumnGap = parseInt(newValue);
+
+			//Input State
+			let leftMouseDragging = false;
+			//List of nodes moused over during a drag interaction (down->up). This way we don't infinitely toggle them.
+			let draggedNodes = new Set();
+
+			const handleLeftMouseDragStart = (event) => {
+				leftMouseDragging = true;
+				draggedNodes.clear();
+				if (isValidNodeColorDragEvent(event)) {
+					const cellId = event.target.dataset.cellId;
+					updateCellColor(cellId);
+				}
+			}
+			const handleLeftMouseDragEnd = (event) => {
+				leftMouseDragging = false;
+			}
+
+			const handleLeftMouseDrag = (event) => {
+				if (!leftMouseDragging) return;
+				if (!isValidNodeColorDragEvent(event)) return;
+
+				const cellId = event.target.dataset.cellId;
+				if (draggedNodes.has(cellId)) return;
+
+				updateCellColor(cellId);
+			}
+
+
+			const bindMouseEvents = () => {
+				window.addEventListener('mousedown', handleLeftMouseDragStart);
+				window.addEventListener('mousemove', handleLeftMouseDrag)
+				window.addEventListener('mouseup', handleLeftMouseDragEnd);
+			}
+
+			//Config
+			const gridMountElement = document.getElementById("grid-mount-point");
+			const controlPanel = document.getElementById("control-panel-mount-point");
+
+			//Update cellState
+			const updateCellColor = (targetCellId) => {
+				const cellState = getCellStateById(targetCellId);
+				const newFillColor = cellState.fillColor == getSelectedFillColor() ? 'default' : getSelectedFillColor();
+				updateCellStateById(targetCellId, { fillColor: newFillColor });
+				draggedNodes.add(targetCellId);
+			}
+
+			//Build a new grid with a given configuration
+			const buildAndMountGrid = (rowCount, columnCount, cellSize, cellGap) => {
+				initGridData(rowCount, columnCount);
+
+				//Buid/Mount Grid View
+				const { renderCell, initFromCellData } = GridView(gridMountElement, gridRowCountInput, gridColumnCountInput, cellSize, cellGap);
+				addGridUpdateListener(renderCell);
+				initFromCellData(getAllCells());
+			}
+
+			const buildAndMountControlPanel = () =>
+			{
+				const actions = [
+						{
+							title: 'Resize Grid',
+							classNames: ['action'],
+							action: (e) => {
+								buildAndMountGrid(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap);
+							}
+						},
+						{
+							title: 'Reset Grid',
+							classNames: ['action'],
+							action: (e) => {
+								resetAllCellStates();
+							}
+						}
+				];
+				const GridConfigOptions = GridConfig(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap, setRowCountValue, setColumnCountValue, setGridCellSizeValue, setGridColumnGapValue);
+				const ActionListButtons = ActionList(actions);
+				controlPanel.insertAdjacentElement('beforeend', GridConfigOptions);
+				controlPanel.insertAdjacentElement('beforeend', ActionListButtons);
+				controlPanel.insertAdjacentElement('beforeend', ColorControlsElement);
+			}
+
+			const init = function() {
+				buildAndMountControlPanel();
+				buildAndMountGrid(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap);
+
+				bindMouseEvents();
+			}
+
+
+			init();
+		};
+
+
+		document.addEventListener('DOMContentLoaded', Main);
+
+	</script>
+</body>
+</html>
