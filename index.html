@@ -92,6 +92,35 @@
 			let gridCellSize = 100;
 			let gridColumnGap = 5;
 
+			let currentUpdatePosition = -1;
+			let undoStack = [];
+			const undoBufferSize = 8;
+			const incrementUpdateBatch = () => {
+				currentUpdatePosition = Math.min(currentUpdatePosition + 1, undoBufferSize - 1);
+				undoStack.push(new Set());
+
+				// console.log(undoStack);
+				undoStack = undoStack.slice(-undoBufferSize);
+				console.log(currentUpdatePosition, undoStack);
+				// console.log(undoStack);
+			}
+
+			const undo = () => {
+				console.log(currentUpdatePosition);
+				if (currentUpdatePosition < 0) return;
+				const eventActions = undoStack[currentUpdatePosition];
+				eventActions.forEach(({undoUpdate}) => undoUpdate());
+				currentUpdatePosition = Math.max(0, currentUpdatePosition - 1);
+			}
+
+			const redo = () => {
+				if (currentUpdatePosition >= undoStack.length - 1) return;
+				const eventActions = undoStack[currentUpdatePosition];
+				eventActions.forEach(({doUpdate}) => doUpdate());
+				currentUpdatePosition = (currentUpdatePosition + 1) % undoBufferSize;
+			}
+
+
 			const { ColorControlsElement, getSelectedFillColor } = ColorControls(defaultProfile.availableColors);
 			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener} = GridData();
 
@@ -110,6 +139,7 @@
 				leftMouseDragging = true;
 				draggedNodes.clear();
 				if (isValidNodeColorDragEvent(event)) {
+					incrementUpdateBatch();
 					const cellId = event.target.dataset.cellId;
 					updateCellColor(cellId);
 				}
@@ -133,6 +163,10 @@
 				window.addEventListener('mousedown', handleLeftMouseDragStart);
 				window.addEventListener('mousemove', handleLeftMouseDrag)
 				window.addEventListener('mouseup', handleLeftMouseDragEnd);
+				window.addEventListener('keyup', (e) => {
+					if (e.keyCode == 90) undo(); //Z is undo
+					if (e.keyCode == 89) redo(); //Y is redo
+				});
 			}
 
 			//Config
@@ -143,8 +177,14 @@
 			const updateCellColor = (targetCellId) => {
 				const cellState = getCellStateById(targetCellId);
 				const newFillColor = cellState.fillColor == getSelectedFillColor() ? 'default' : getSelectedFillColor();
-				updateCellStateById(targetCellId, { fillColor: newFillColor });
+				const doUpdate = () => updateCellStateById(targetCellId, { fillColor: newFillColor });
+				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.fillColor })
+
 				draggedNodes.add(targetCellId);
+				doUpdate();
+				console.log("adding event");
+				undoStack[currentUpdatePosition].clear();
+				undoStack[currentUpdatePosition].add({doUpdate, undoUpdate});	
 			}
 
 			//Build a new grid with a given configuration
