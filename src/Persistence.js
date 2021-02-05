@@ -13,10 +13,22 @@ const downloadBlob = (blob, fileName) => {
 	URL.revokeObjectURL(blobUrl);
 }
 
+
+const openFileSelectionWindow = (onSelect) => {
+	let input = document.createElement('input');
+	input.type = 'file';
+	input.accept = 'application/json'
+
+	input.onchange = onSelect;
+
+	input.click();
+}
+
 const Persistence = (dataResolver) => {
 	let currentlyLoadedJson = '';
 	let currentlyLoadedData;
 	let onLoadedFileChangedListeners = new Set();
+	let onMergeFileDroppedListeners = new Set();
 	let onGridNameChangedListeners = new Set();
 	let gridName = 'untitled';
 
@@ -26,6 +38,7 @@ const Persistence = (dataResolver) => {
 	}
 
 	const addOnLoadedFileChangedListener = (callback) => onLoadedFileChangedListeners.add(callback);
+	const addOnMergeFileDroppedListener = (callback) => onMergeFileDroppedListeners.add(callback);
 	const addOnGridNameChangedListener = (callback) => onGridNameChangedListeners.add(callback);
 
 	const onLoadedFileTextChanged = (oldJson, newJson) => {
@@ -62,20 +75,45 @@ const Persistence = (dataResolver) => {
 		});
 	}
 
-	const getCurrentlyLoadedData = () => currentlyLoadedData;
+	const handleMergeSelect = (event) => {
+		let file = event.target.files[0];
+		console.log(file.kind, file.type);
+		if (!file.type.match('^application/json')) return;
+		file.text().then(value => {
+			onMergeFileDroppedListeners.forEach((listener) => listener(value));
+		});
+	}
+
+	const handleMergeDragOver = (event) => {
+		event.preventDefault();
+		console.log('over merge');
+	}
 
 	const handleFileDragOver = (event) => {
 		event.preventDefault();
+		console.log('over import');
 	}
 
-	const openFileSelectionWindow = () => {
-		let input = document.createElement('input');
-		input.type = 'file';
-		input.accept = 'application/json'
+	const handleMergeDrop = (event) => {
+		event.preventDefault();
+		if (!event.dataTransfer.items) return;
 
-		input.onchange = handleFileSelect;
+		//Presumably someone could drag multiple files, but we just grab the first one
+		const droppedItem = event.dataTransfer.items[0];
+		if (droppedItem.kind !== 'file' || !droppedItem.type.match('^application/json')) return;
+		droppedItem.getAsFile().text().then(value => {
+			onMergeFileDroppedListeners.forEach((listener) => listener(value));
+		});
+	}
 
-		input.click();
+	const getCurrentlyLoadedData = () => currentlyLoadedData;
+
+	const openFileImportWindow = () => {
+		openFileSelectionWindow(handleFileSelect);
+	}
+
+	const openFileAddWindow = () => {
+		openFileSelectionWindow(handleMergeSelect);
 	}
 
 	const downloadJsonSave = () => {
@@ -85,7 +123,7 @@ const Persistence = (dataResolver) => {
 		downloadBlob(blob, gridName);
 	}
 
-	return { openFileSelectionWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnLoadedFileChangedListener, addOnGridNameChangedListener, getCurrentlyLoadedData }
+	return { openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleMergeDragOver, handleFileDrop, downloadJsonSave, addOnLoadedFileChangedListener, handleMergeDrop, addOnGridNameChangedListener, addOnMergeFileDroppedListener, getCurrentlyLoadedData }
 }
 
 export default Persistence;

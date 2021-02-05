@@ -164,6 +164,7 @@
 			}
 
 			const undo = () => {
+				console.log(currentUpdatePosition);
 				if (currentUpdatePosition < 0) return;
 				const eventActions = undoStack[currentUpdatePosition];
 				eventActions.forEach(({undo}) => undo());
@@ -183,11 +184,11 @@
 			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
 
 			//Returns a function which will reset the grid to the current state when called.
-			//Only saves the state of cells which have been modified from their defaults.
 			//I don't use this for every state update because it feels heavy, but maybe I should.
 			const getApplyableSnapshot = () => {
+				const cells = getAllCells(); //get and cache the cells now rather than at call time
 				return () => {
-					getNonDefaultCells().forEach((cellData) => {
+					cells.forEach((cellData) => {
 						updateCellStateById(cellData.cellId, cellData);
 					});
 				}
@@ -292,16 +293,15 @@
 				//Save EVERY old grid cell so that we can reapply all of them to undo and have it overwrite.
 				const oldGrid = getAllCells();
 				const newGrid = JSON.parse(json);
-				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, gridCellSize, gridColumnGap);
-
+				const undoAction = getApplyableSnapshot();
 
 				const doAction = () => {
 					newGrid.cells.forEach((cellData) => {
+						console.log('do');
 						updateCellStateById(cellData.cellId, cellData);
 					});
 				}
 
-				const undoAction = getApplyableSnapshot();
 
  				incrementUpdateBatch();
  				doAction();
@@ -324,8 +324,9 @@
 			const buildAndMountControlPanel = () =>
 			{
 				const persistenceData = Persistence(getExportData);
-				const { getCurrentlyLoadedData, addOnLoadedFileChangedListener } = persistenceData;
+				const { getCurrentlyLoadedData, addOnMergeFileDroppedListener, addOnLoadedFileChangedListener } = persistenceData;
 				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromData(newJson));
+				addOnMergeFileDroppedListener((json) => mergeFromJson(json));
 				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView(persistenceData);
 
 				const actions = [

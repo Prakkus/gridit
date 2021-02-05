@@ -79,7 +79,7 @@ const GridData = () => {
 		});
 	}
 
-	const getAllCells = () => cellData;
+	const getAllCells = () => new Map(cellData);
 
 	const getCellStateById = (cellId) => cellData.get(cellId);
 

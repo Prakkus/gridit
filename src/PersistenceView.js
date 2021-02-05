@@ -1,4 +1,4 @@
-const PersistenceView = ({ openFileSelectionWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener }) => {
+const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver }) => {
 	let gridNameInput;
 	addOnGridNameChangedListener((name) => gridNameInput.value = name);
 
@@ -34,7 +34,7 @@ const PersistenceView = ({ openFileSelectionWindow, setGridName, handleFileDragO
 	`
 	<div class="persistence-panel">
 		<div class="title">
-			<input type="text" name="grid_name" placeholder="Title..." />
+			<input type="text" name="grid_name" placeholder="Name your grid..." />
 			<button title="Save as JSON file" id="download-as-json">
 				<span class="material-icons">file_download</span>
 	    	</button>
@@ -54,13 +54,17 @@ const PersistenceView = ({ openFileSelectionWindow, setGridName, handleFileDragO
 	const element = document.createElement('div')
 	element.innerHTML = template;
 
-	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow());
+	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileImportWindow());
 	gridNameInput = element.querySelector("input[name=grid_name]");
 	gridNameInput.addEventListener('change', (e) => { console.log('changeListener'); setGridName(e.target.value); });
 
 	element.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
 	element.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
 	element.querySelector('#download-as-json').addEventListener('click', (e) => downloadJsonSave());
+
+	element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
+	element.querySelector("#add-from-json").addEventListener('drop', handleMergeDrop);
+	element.querySelector("#add-from-json").addEventListener('click', (e) => openFileAddWindow());
 
 	return {defaultStyle, element};
 }
