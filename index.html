@@ -287,7 +287,6 @@
 
 			const buildAndMountControlPanel = () =>
 			{
-
 				const { loadFromJsonFieldElement, addOnLoadedFileChangedListener, GetCurrentlyLoadedJson } = Persistence();
 				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromJson(newJson));
 
@@ -303,13 +302,7 @@
 							title: 'Clear Grid',
 							classNames: ['action'],
 							action: (e) => {
-								console.log('inside pos: ' + currentUpdatePosition);
-								incrementUpdateBatch();
-								const doAction = () => clearGrid();
-								const undoAction = getApplyableSnapshot(); 
-								doAction();
-								console.log('inside pos after increment: ' + currentUpdatePosition);
-								recordAction(doAction, undoAction);
+								clearGrid();
 							}
 						},
 						{
@@ -317,7 +310,7 @@
 							classNames: ['action'],
 							action: (e) => {
 								if (GetCurrentlyLoadedJson() == false) {
-									clearGrid()
+									clearGrid();
 								} else {
 									loadFromJson(GetCurrentlyLoadedJson());
 								}
