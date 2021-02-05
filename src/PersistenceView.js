@@ -1,4 +1,4 @@
-const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver }) => {
+const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
 	let gridNameInput;
 	addOnGridNameChangedListener((name) => gridNameInput.value = name);
 
@@ -40,12 +40,17 @@ const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName,
 	    	</button>
 		</div>
 		<div class="toolbar">
-			
-			<button title="Load from JSON file" id="import-from-json">
+	    	<button title="Reload all cells from the current file" id="reload-file">
+				<span class="material-icons">restore</span>
+	    	</button>
+			<button title="Load a grid from a JSON file" id="import-from-json">
 				<span class="material-icons">upload_file</span>
 	    	</button>
-	    	<button title="Add from JSON file" id="add-from-json">
+	    	<button title="Merge cells from a JSON file" id="add-from-json">
 				<span class="material-icons">note_add</span>
+	    	</button>
+	    	<button title="Clear all cells and history" id="clear-all">
+				<span class="material-icons">delete</span>
 	    	</button>
     	</div>
 	</div>
@@ -65,6 +70,9 @@ const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName,
 	element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
 	element.querySelector("#add-from-json").addEventListener('drop', handleMergeDrop);
 	element.querySelector("#add-from-json").addEventListener('click', (e) => openFileAddWindow());
+
+	element.querySelector("#clear-all").addEventListener('click', handleClearClicked);
+	element.querySelector("#reload-file").addEventListener('click', handleReloadClicked);
 
 	return {defaultStyle, element};
 }

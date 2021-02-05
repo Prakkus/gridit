@@ -325,9 +325,16 @@
 			{
 				const persistenceData = Persistence(getExportData);
 				const { getCurrentlyLoadedData, addOnMergeFileDroppedListener, addOnLoadedFileChangedListener } = persistenceData;
+				const handleReloadClicked = () => {
+					if (getCurrentlyLoadedData() == false) {
+						clearGrid();
+					} else {
+						loadFromData(getCurrentlyLoadedData());
+					}
+				}
 				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromData(newJson));
 				addOnMergeFileDroppedListener((json) => mergeFromJson(json));
-				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView(persistenceData);
+				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( {...persistenceData, handleClearClicked : () => clearGrid(), handleReloadClicked } );
 
 				const actions = [
 						{
@@ -337,24 +344,6 @@
 								buildAndMountGrid(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap);
 							}
 						},
-						{
-							title: 'Clear Grid',
-							classNames: ['action'],
-							action: (e) => {
-								clearGrid();
-							}
-						},
-						{
-							title: 'Reset Grid',
-							classNames: ['action'],
-							action: (e) => {
-								if (getCurrentlyLoadedData() == false) {
-									clearGrid();
-								} else {
-									loadFromData(getCurrentlyLoadedData());
-								}
-							}
-						}
 				];
 				const {defaultStyle: gridConfigStyle, GridConfigElement } = GridConfig(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap, setRowCountValue, setColumnCountValue, setGridCellSizeValue, setGridColumnGapValue);
 				const ActionListButtons = ActionList(actions);
