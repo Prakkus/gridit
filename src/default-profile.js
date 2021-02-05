@@ -1,9 +1,9 @@
 export default {
 	availableColors : {
-		default: "E5E7EB",
-		red: "FECACA", 
-		green: "BBF7D0",
-		blue: "BFDBFE",
-		purple: "E9D5FF"
+		default: "71717A",
+		red: "BE123C", 
+		green: "047857",
+		blue: "0369A1",
+		purple: "A21CAF"
 	}
 };

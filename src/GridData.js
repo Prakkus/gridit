@@ -52,7 +52,7 @@ const GridData = () => {
 	let cellData = new Map();  //Map of cellId->cellState (what is the state of a given cellId?)
 
 	let rowCount;
-	let columnCount; 
+	let columnCount;
 
 	const onCellStateUpdated = (cellState) => {
 		listeners.forEach((listener) => listener(cellState));
@@ -102,7 +102,7 @@ const GridData = () => {
 		return serializeCells(cellData).filter((cellState) => cellState.fillColor != initialCellState.fillColor);
 	}
 
-	const getAsJson = () => {
+	const getExportData = () => {
 		const data = {
 			config: {
 				rowCount,
@@ -110,10 +110,10 @@ const GridData = () => {
 			},
 			cells: getNonDefaultCells()
 		}
-		return JSON.stringify(data);
+		return data;
 	}
 
-	return { initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener, getAsJson, getNonDefaultCells };
+	return { initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener, getExportData, getNonDefaultCells };
 }
 		
 export default GridData;

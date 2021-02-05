@@ -1,22 +1,10 @@
-const camelCaseToDash = (str) => {
-  return str.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase();
-}
-
-const objectToStyleString = (obj) => {
-	let string = '';
-	Object.entries(obj).forEach(([key, value]) => {
-		string += `${camelCaseToDash(key)}: ${value}; `;
-	});
-	return string;
-}
-
-const downloadBlob = (blob) => {
+const downloadBlob = (blob, fileName) => {
 	const blobUrl = URL.createObjectURL(blob);
 
 	const anchor = document.createElement('a');
 	anchor.href = blobUrl;
 	anchor.target = "_blank";
-	anchor.download = `grid-${Date.now()}.json`;
+	anchor.download = `grid-${fileName}.json`;
 
 	// Auto click on a element, trigger the file download
 	anchor.click();
@@ -26,20 +14,19 @@ const downloadBlob = (blob) => {
 }
 
 const Persistence = (dataResolver) => {
-
-	const svgStyle = {
-		fill: "#333",
-	}
-	const svgButtonStyle = {
-		width: "36px",
-		height: "36px",
-		borderRadius: '4px'
-	}
-
 	let currentlyLoadedJson = '';
+	let currentlyLoadedData;
 	let onLoadedFileChangedListeners = new Set();
+	let onGridNameChangedListeners = new Set();
+	let gridName = 'untitled';
+
+	const setGridName = (name) => {
+		gridName = name;
+		onGridNameChangedListeners.forEach((listener) => listener(name));
+	}
 
 	const addOnLoadedFileChangedListener = (callback) => onLoadedFileChangedListeners.add(callback);
+	const addOnGridNameChangedListener = (callback) => onGridNameChangedListeners.add(callback);
 
 	const onLoadedFileTextChanged = (oldJson, newJson) => {
 		if (oldJson === newJson) return;
@@ -47,9 +34,11 @@ const Persistence = (dataResolver) => {
 	}
 
 	const loadJson = (jsonText) => {
-		const oldJson = currentlyLoadedJson;
+		const oldData = currentlyLoadedData;
 		currentlyLoadedJson = jsonText;
-		onLoadedFileTextChanged(oldJson, currentlyLoadedJson);
+		currentlyLoadedData = JSON.parse(currentlyLoadedJson);
+		setGridName(currentlyLoadedData.title);
+		onLoadedFileTextChanged(oldData, currentlyLoadedData);
 	}
 
 	const handleFileDrop = (event) => {
@@ -73,7 +62,7 @@ const Persistence = (dataResolver) => {
 		});
 	}
 
-	const GetCurrentlyLoadedJson = () => currentlyLoadedJson;
+	const getCurrentlyLoadedData = () => currentlyLoadedData;
 
 	const handleFileDragOver = (event) => {
 		event.preventDefault();
@@ -90,31 +79,13 @@ const Persistence = (dataResolver) => {
 	}
 
 	const downloadJsonSave = () => {
-		const jsonData = dataResolver();
+		const gridData = dataResolver();
+		const jsonData = JSON.stringify({ title: gridName, ...gridData });
 		const blob = new Blob([jsonData], {type : 'application/json'});
-		downloadBlob(blob);
+		downloadBlob(blob, gridName);
 	}
 
-	const template = 
-	`
-	<div>
-		<button title="Load from JSON file" id="import-from-json" style="${objectToStyleString(svgButtonStyle)}">
-    		<img id="import-json-input" "${objectToStyleString(svgStyle)}" class="svg-icon" src="./src/icons/upload.svg" />
-    	</button>
-		<button title="Save as JSON file" id="download-as-json" style="${objectToStyleString(svgButtonStyle)}">
-    		<img class="svg-icon" src="./src/icons/download.svg" />
-    	</button>
-	</div>
-	`;
-
-	const loadFromJsonFieldElement = document.createElement('div')
-	loadFromJsonFieldElement.innerHTML = template;
-	loadFromJsonFieldElement.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow());
-	loadFromJsonFieldElement.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
-	loadFromJsonFieldElement.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
-	loadFromJsonFieldElement.querySelector('#download-as-json').addEventListener('click', (e) => downloadJsonSave());
-
-	return { loadFromJsonFieldElement, addOnLoadedFileChangedListener, GetCurrentlyLoadedJson };
+	return { openFileSelectionWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnLoadedFileChangedListener, addOnGridNameChangedListener, getCurrentlyLoadedData }
 }
 
 export default Persistence;

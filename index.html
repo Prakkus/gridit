@@ -1,34 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
 	<title>Gridit</title>
 	<style>
-	button {
-		height: 30px;
+/*	:root {
+		--light: #323232;
+		--dark: #606060;
+		--darker: #424242;
+		--darkest: #1f1f1f;
+	}	*/
+
+
+	:root {
+		--light: #52525B;
+		--dark: #3F3F46;
+		--darker: #27272A;
+		--darkest: #18181B;
+	}	
+
+	* {
+		margin: 0;
+		outline: 0;
+		border: none;
 	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+	  -webkit-appearance: none;
+	  margin: 0;
+	}
+
+	/* Firefox */
+	input[type=number] {
+	  -moz-appearance: textfield;
+	}
+
+	html {
+		background: var(--darkest);
+	}
+
+	button, input {
+		color: rgba(255, 255, 255, 0.87);
+		border: 1px solid var(--light);
+		background: var(--dark);
+		padding: 8px 5px;
+	}
+
+	input:focus {
+		background: var(--light);		
+	}
+
+	button:hover {
+		background: var(--light);		
+	}
+
+
 	.control-panel {
+		color: rgba(255, 255, 255, 0.87);
 		position: absolute;
 		right: 0px;
-		background: #F1F5F9;
+		background: var(--darker);
 		padding: 12px;
-	}
-	.control-panel {
+		width: 320px;
 		display: flex;
 		flex-direction: column;;
 	}
 
 	.control-panel > * {
 		margin-bottom: 12px;
-	}
-
-	.control-panel label {
-		display:  flex;
-		justify-content: space-between;
-		margin-bottom: 8px;
-	}
-
-	.control-panel label > input {
-		margin-left: 20px;
 	}
 
 	.control-panel .action-list > button {
@@ -84,6 +125,7 @@
 	    import GridData from './src/GridData.js';
 	    import GridView from './src/GridView.js';
 	    import Persistence from './src/Persistence.js';
+	    import PersistenceView from './src/PersistenceView.js';
 	    import { isValidNodeColorDragEvent } from './src/grid-utils.js';
 	    import defaultProfile from './src/default-profile.js';
 
@@ -138,7 +180,7 @@
 
 
 			const { ColorControlsElement, getSelectedFillColor } = ColorControls(defaultProfile.availableColors);
-			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getAsJson, getNonDefaultCells } = GridData();
+			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
 
 			//Returns a function which will reset the grid to the current state when called.
 			//Only saves the state of cells which have been modified from their defaults.
@@ -267,12 +309,12 @@
 				recordAction(doAction, undoAction);
 			}
 
-			const loadFromJson = (json) => {
+			const loadFromData = (parsedGridJson) => {
 				//Since we are 'loading' a grid, it makes sense to reset our current grid
 				clearHistory();
 				resetAllCellStates();
 				//Then make a new grid and import the data from our json
-				const newGrid = JSON.parse(json);
+				const newGrid = parsedGridJson;
 				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, gridCellSize, gridColumnGap);
 				newGrid.cells.forEach((cellData) => {
 					updateCellStateById(cellData.cellId, cellData);
@@ -281,8 +323,10 @@
 
 			const buildAndMountControlPanel = () =>
 			{
-				const { loadFromJsonFieldElement, addOnLoadedFileChangedListener, GetCurrentlyLoadedJson, downloadJsonSave } = Persistence(getAsJson);
-				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromJson(newJson));
+				const persistenceData = Persistence(getExportData);
+				const { getCurrentlyLoadedData, addOnLoadedFileChangedListener } = persistenceData;
+				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromData(newJson));
+				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView(persistenceData);
 
 				const actions = [
 						{
@@ -303,21 +347,27 @@
 							title: 'Reset Grid',
 							classNames: ['action'],
 							action: (e) => {
-								if (GetCurrentlyLoadedJson() == false) {
+								if (getCurrentlyLoadedData() == false) {
 									clearGrid();
 								} else {
-									loadFromJson(GetCurrentlyLoadedJson());
+									loadFromData(getCurrentlyLoadedData());
 								}
 							}
 						}
 				];
-				const GridConfigOptions = GridConfig(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap, setRowCountValue, setColumnCountValue, setGridCellSizeValue, setGridColumnGapValue);
+				const {defaultStyle: gridConfigStyle, GridConfigElement } = GridConfig(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap, setRowCountValue, setColumnCountValue, setGridCellSizeValue, setGridColumnGapValue);
 				const ActionListButtons = ActionList(actions);
 
-				controlPanel.insertAdjacentElement('beforeend', GridConfigOptions);
+				controlPanel.insertAdjacentElement('beforeend', persistenceElement)
+				controlPanel.insertAdjacentElement('beforeend', GridConfigElement);
 				controlPanel.insertAdjacentElement('beforeend', ActionListButtons);
 				controlPanel.insertAdjacentElement('beforeend', ColorControlsElement);
-				controlPanel.insertAdjacentElement('beforeend', loadFromJsonFieldElement)
+
+				const styleElement = document.createElement('style');
+				styleElement.insertAdjacentHTML('beforeend', persistenceStyle);
+				styleElement.insertAdjacentHTML('beforeend', gridConfigStyle);
+				document.head.insertAdjacentElement('beforeend', styleElement);
+
 			}
 
 			const init = function() {
