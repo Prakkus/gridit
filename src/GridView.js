@@ -24,9 +24,9 @@ const mountGridToElement = (mountElement, rowCount, columnCount, cellSize, cellG
 
 	mountElement.style.width = `${columnCount * (cellSize + cellGap)}px`;
 	mountElement.style.height = `${rowCount * (cellSize + cellGap)}px`;
-	mountElement.style.gridTemplateColumns = `repeat(auto-fit, ${cellSize}px)`;
+	mountElement.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
 	mountElement.style.gridGap = cellGap + "px";
-	mountElement.style.padding = cellGap + "px";
+	mountElement.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
 }
 
 
