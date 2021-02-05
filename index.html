@@ -84,7 +84,7 @@
 	    import GridData from './src/GridData.js';
 	    import GridView from './src/GridView.js';
 	    import Persistence from './src/Persistence.js';
-	    import { isValidNodeColorDragEvent, downloadBlob } from './src/grid-utils.js';
+	    import { isValidNodeColorDragEvent } from './src/grid-utils.js';
 	    import defaultProfile from './src/default-profile.js';
 
 		const Main = () => {
@@ -279,15 +279,9 @@
 				});
 			}
 
-			const exportToJson = () => {
-				const serializedData = getAsJson();
-				const blob = new Blob([serializedData], {type : 'application/json'});
-				downloadBlob(blob);
-			}
-
 			const buildAndMountControlPanel = () =>
 			{
-				const { loadFromJsonFieldElement, addOnLoadedFileChangedListener, GetCurrentlyLoadedJson } = Persistence();
+				const { loadFromJsonFieldElement, addOnLoadedFileChangedListener, GetCurrentlyLoadedJson, downloadJsonSave } = Persistence(getAsJson);
 				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromJson(newJson));
 
 				const actions = [
@@ -314,13 +308,6 @@
 								} else {
 									loadFromJson(GetCurrentlyLoadedJson());
 								}
-							}
-						},
-						{
-							title: 'Save',
-							classNames: ['action'],
-							action: (e) => {
-								exportToJson();
 							}
 						}
 				];
