@@ -21,9 +21,38 @@ const constructCellMap = (rows, columns) => {
 	return cellData;
 }
 
+const serializeCells = (cellData) => {
+	return Array.from(cellData.values());
+}
+
+//ES6 map's aren't serialized by default, so we have to do that manually.
+//Plus it's just nice to be able to customize how we serialize our grid values.
+// const gridJsonReplacer = (key, value) => {
+//   if(value instanceof Map) {
+//     return {
+//       dataType: 'Map',
+//       value: value.entries().map(([key, value]) => value), // or with spread: value: [...value]
+//     };
+//   } else {
+//     return value;
+//   }
+// }
+
+// const gridJsonReviver = (key, value) => {
+// 	if(typeof value === 'object' && value !== null) {
+//     	if (value.dataType === 'Map') {
+//       		return new Map(value.value);
+//     	}
+//   	}
+//   	return value;
+// }
+
 const GridData = () => {
 	let listeners = new Set();
 	let cellData = new Map();  //Map of cellId->cellState (what is the state of a given cellId?)
+
+	let rowCount;
+	let columnCount; 
 
 	const onCellStateUpdated = (cellState) => {
 		listeners.forEach((listener) => listener(cellState));
@@ -56,7 +85,9 @@ const GridData = () => {
 
 	const addUpdateListener = (callback) => listeners.add(callback);
 
-	const initGridData = (rowCount, columnCount) => {
+	const initGridData = (rows, cols) => {
+		rowCount = rows;
+		columnCount = cols;
 		listeners.clear();
 		//If this grid was previously initalized, copy the state of any cells which still exist to the resized grid
 		const newMap = constructCellMap(rowCount, columnCount, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
@@ -67,7 +98,22 @@ const GridData = () => {
 		cellData = newMap;
 	}
 
-	return { initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener };
+	const getNonDefaultCells = () => {
+		return serializeCells(cellData).filter((cellState) => cellState.fillColor != initialCellState.fillColor);
+	}
+
+	const getAsJson = () => {
+		const data = {
+			config: {
+				rowCount,
+				columnCount
+			},
+			cells: getNonDefaultCells()
+		}
+		return JSON.stringify(data);
+	}
+
+	return { initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener, getAsJson, getNonDefaultCells };
 }
 		
 export default GridData;

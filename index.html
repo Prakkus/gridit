@@ -77,12 +77,14 @@
 	</div>
 </div>
 	<script type="module">
+
 		import GridConfig from './src/GridConfig.js';
 	    import ActionList from './src/ActionList.js';
 	    import ColorControls from './src/ColorControls.js';
 	    import GridData from './src/GridData.js';
 	    import GridView from './src/GridView.js';
-	    import { isValidNodeColorDragEvent } from './src/grid-utils.js';
+	    import Persistence from './src/Persistence.js';
+	    import { isValidNodeColorDragEvent, downloadBlob } from './src/grid-utils.js';
 	    import defaultProfile from './src/default-profile.js';
 
 		const Main = () => {
@@ -117,7 +119,7 @@
 
 			const recordAction = (execute, undo) => {
 				undoStack[currentUpdatePosition].add({execute, undo});	
-			} 
+			}
 
 			const undo = () => {
 				if (currentUpdatePosition < 0) return;
@@ -136,7 +138,18 @@
 
 
 			const { ColorControlsElement, getSelectedFillColor } = ColorControls(defaultProfile.availableColors);
-			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener} = GridData();
+			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getAsJson, getNonDefaultCells } = GridData();
+
+			//Returns a function which will reset the grid to the current state when called.
+			//Only saves the state of cells which have been modified from their defaults.
+			//I don't use this for every state update because it feels heavy, but maybe I should.
+			const getApplyableSnapshot = () => {
+				return () => {
+					getNonDefaultCells().forEach((cellData) => {
+						updateCellStateById(cellData.cellId, cellData);
+					});
+				}
+			}
 
 			const setRowCountValue = (newValue) => gridRowCountInput = parseInt(newValue);
 			const setColumnCountValue = (newValue) => gridColumnCountInput = parseInt(newValue);
@@ -217,6 +230,11 @@
 				recordAction(doUpdate, undoUpdate);
 			}
 
+			const clearGrid = () => {
+				resetAllCellStates();
+				clearHistory();
+			}
+
 			//Build a new grid with a given configuration
 			const buildAndMountGrid = (rowCount, columnCount, cellSize, cellGap) => {
 				initGridData(rowCount, columnCount);
@@ -227,8 +245,52 @@
 				initFromCellData(getAllCells());
 			}
 
+			const mergeFromJson = (json) => {
+				//If they want, they can also merge an existing grid file with this one. This might get weird if the bounds don't match up.
+				//Save EVERY old grid cell so that we can reapply all of them to undo and have it overwrite.
+				const oldGrid = getAllCells();
+				const newGrid = JSON.parse(json);
+				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, gridCellSize, gridColumnGap);
+
+
+				const doAction = () => {
+					newGrid.cells.forEach((cellData) => {
+						updateCellStateById(cellData.cellId, cellData);
+					});
+				}
+
+				const undoAction = getApplyableSnapshot();
+
+ 				incrementUpdateBatch();
+ 				doAction();
+				//Add this import as a history action in case they want to undo it
+				recordAction(doAction, undoAction);
+			}
+
+			const loadFromJson = (json) => {
+				//Since we are 'loading' a grid, it makes sense to reset our current grid
+				clearHistory();
+				resetAllCellStates();
+				//Then make a new grid and import the data from our json
+				const newGrid = JSON.parse(json);
+				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, gridCellSize, gridColumnGap);
+				newGrid.cells.forEach((cellData) => {
+					updateCellStateById(cellData.cellId, cellData);
+				});
+			}
+
+			const exportToJson = () => {
+				const serializedData = getAsJson();
+				const blob = new Blob([serializedData], {type : 'application/json'});
+				downloadBlob(blob);
+			}
+
 			const buildAndMountControlPanel = () =>
 			{
+
+				const { loadFromJsonFieldElement, addOnLoadedFileChangedListener, GetCurrentlyLoadedJson } = Persistence();
+				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromJson(newJson));
+
 				const actions = [
 						{
 							title: 'Resize Grid',
@@ -238,19 +300,44 @@
 							}
 						},
 						{
+							title: 'Clear Grid',
+							classNames: ['action'],
+							action: (e) => {
+								console.log('inside pos: ' + currentUpdatePosition);
+								incrementUpdateBatch();
+								const doAction = () => clearGrid();
+								const undoAction = getApplyableSnapshot(); 
+								doAction();
+								console.log('inside pos after increment: ' + currentUpdatePosition);
+								recordAction(doAction, undoAction);
+							}
+						},
+						{
 							title: 'Reset Grid',
 							classNames: ['action'],
 							action: (e) => {
-								resetAllCellStates();
-								clearHistory();
+								if (GetCurrentlyLoadedJson() == false) {
+									clearGrid()
+								} else {
+									loadFromJson(GetCurrentlyLoadedJson());
+								}
+							}
+						},
+						{
+							title: 'Save',
+							classNames: ['action'],
+							action: (e) => {
+								exportToJson();
 							}
 						}
 				];
 				const GridConfigOptions = GridConfig(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap, setRowCountValue, setColumnCountValue, setGridCellSizeValue, setGridColumnGapValue);
 				const ActionListButtons = ActionList(actions);
+
 				controlPanel.insertAdjacentElement('beforeend', GridConfigOptions);
 				controlPanel.insertAdjacentElement('beforeend', ActionListButtons);
 				controlPanel.insertAdjacentElement('beforeend', ColorControlsElement);
+				controlPanel.insertAdjacentElement('beforeend', loadFromJsonFieldElement)
 			}
 
 			const init = function() {
