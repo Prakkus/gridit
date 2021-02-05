@@ -101,10 +101,18 @@
 				currentUpdatePosition = -1;
 			}
 			const incrementUpdateBatch = () => {
+				console.log('increment batch');
 				currentUpdatePosition = Math.min(currentUpdatePosition + 1, undoBufferSize - 1);
-				undoStack.push(new Set());
-
-				undoStack = undoStack.slice(-undoBufferSize);
+				if (currentUpdatePosition == undoStack.length) {
+					//index is currently at 'head' so we push new history items on 
+					undoStack.push(new Set());
+					undoStack = undoStack.slice(-undoBufferSize);
+				} else {
+					//otherwise we are replaying over history, so we just need to clear the history for this and future index
+					undoStack[currentUpdatePosition].clear();
+					undoStack = undoStack.slice(0, currentUpdatePosition + 1);
+				}
+				console.log("new pos: " + currentUpdatePosition);
 			}
 
 			const recordAction = (execute, undo) => {
@@ -112,7 +120,6 @@
 			} 
 
 			const undo = () => {
-				console.log(currentUpdatePosition);
 				if (currentUpdatePosition < 0) return;
 				const eventActions = undoStack[currentUpdatePosition];
 				eventActions.forEach(({undo}) => undo());
@@ -122,6 +129,7 @@
 			const redo = () => {
 				if (currentUpdatePosition >= undoStack.length - 1) return;
 				currentUpdatePosition = currentUpdatePosition + 1;
+
 				const eventActions = undoStack[currentUpdatePosition];
 				eventActions.forEach(({execute}) => execute());
 			}
@@ -144,9 +152,12 @@
 			const handleLeftMouseDragStart = (event) => {
 				leftMouseDragging = true;
 				draggedNodes.clear();
+				//If we started dragging over a node, we want to capture and update that node immediately, as well as starting an 'update batch'.
+				//If they then release their mouse without moving, this is our 'click' behavior.
 				if (isValidNodeColorDragEvent(event)) {
 					incrementUpdateBatch();
 					const cellId = event.target.dataset.cellId;
+					draggedNodes.add(cellId);
 					updateCellColor(cellId);
 				}
 			}
@@ -158,10 +169,21 @@
 				if (!leftMouseDragging) return;
 				if (!isValidNodeColorDragEvent(event)) return;
 
+				//At this point, they are either dragging over a valid node in an existing batch (they started dragging on a node),
+				//or just hit the first valid node in their drag event (they started dragging outside a node).
 				const cellId = event.target.dataset.cellId;
-				if (draggedNodes.has(cellId)) return;
 
+				//If we already handled this node in the DragStart or otherwise, we can just do nothing
+				if (draggedNodes.has(cellId)) return;
+				//Otherwise, is this the first valid node which would be added to this batch?
+				//If so, we need to actually start the batch. We don't want to do that if they are dragging but never hit a valid node.
+				if (draggedNodes.size == 0) {
+					//this is our first node we are adding
+					incrementUpdateBatch();
+				}
+				//Update the node and record it as handled in this drag event.
 				updateCellColor(cellId);
+				draggedNodes.add(cellId);
 			}
 
 
@@ -177,7 +199,6 @@
 					//Y is redo
 					redo();
 				}
-				console.log(currentUpdatePosition);
 				});
 			}
 
@@ -192,7 +213,6 @@
 				const doUpdate = () => updateCellStateById(targetCellId, { fillColor: newFillColor });
 				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.fillColor })
 
-				draggedNodes.add(targetCellId);
 				doUpdate();
 				recordAction(doUpdate, undoUpdate);
 			}
