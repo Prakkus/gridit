@@ -2,7 +2,10 @@ const initialCellState = {
 	cellId: '-1,-1',
 	x: -1,
 	y: -1,
-	fillColor: 'default'
+	attributes: {
+		fillColor: 'default',
+		symbol: ''
+	}
 }
 
 const constructCellMap = (rows, columns) => {
@@ -63,10 +66,13 @@ const GridData = () => {
 		updateCellState(currentState, propUpdates);
 	}
 
-	const updateCellState = (cellState, { fillColor } = propUpdates) => {
+	const updateCellState = (cellState, propUpdates) => {
 		const newState = { 
 			...cellState,
-			fillColor: fillColor
+			attributes: {
+				...cellState.attributes,
+				...propUpdates
+			}
 		};
 		cellData.set(cellState.cellId, newState);
 		onCellStateUpdated(newState);
@@ -75,7 +81,7 @@ const GridData = () => {
 
 	const resetAllCellStates = () => {
 		cellData.forEach((cellState, cellId) => {
-			updateCellState(cellState, initialCellState);
+			updateCellState(cellState, initialCellState.attributes);
 		});
 	}
 
@@ -99,7 +105,7 @@ const GridData = () => {
 	}
 
 	const getNonDefaultCells = () => {
-		return serializeCells(cellData).filter((cellState) => cellState.fillColor != initialCellState.fillColor);
+		return serializeCells(cellData).filter((cellState) => cellState.attributes.fillColor != initialCellState.attributes.fillColor || cellState.attributes.symbol != initialCellState.attributes.symbol);
 	}
 
 	const getExportData = () => {

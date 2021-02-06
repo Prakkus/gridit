@@ -81,6 +81,10 @@
 		border: 1px solid transparent;
 		transition:  all .125s ease;
 		cursor: pointer;
+		user-select: none;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
 	}
 
 	.grid-cell:hover {
@@ -180,7 +184,7 @@
 			}
 
 
-			const { ColorControlsElement, getSelectedFillColor } = ColorControls(defaultProfile.availableColors);
+			const { ColorControlsElement, getSelectedWriteValue, getSelectedWriteProperty } = ColorControls(defaultProfile.availableColors, defaultProfile.availableSymbols);
 			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
 
 			//Returns a function which will reset the grid to the current state when called.
@@ -265,9 +269,23 @@
 			//Update cellState
 			const updateCellColor = (targetCellId) => {
 				const cellState = getCellStateById(targetCellId);
-				const newFillColor = cellState.fillColor == getSelectedFillColor() ? 'default' : getSelectedFillColor();
-				const doUpdate = () => updateCellStateById(targetCellId, { fillColor: newFillColor });
-				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.fillColor })
+				const updateProperty = { key: getSelectedWriteProperty(), value: getSelectedWriteValue() };
+				let updateToApply;
+				if (updateProperty.key == 'fillColor') {
+					const newFillColor = cellState.attributes.fillColor == updateProperty.value ? 'default' : updateProperty.value;
+					updateToApply = {
+						[updateProperty.key]: newFillColor,
+					}
+				} else {
+					updateToApply = {
+						[updateProperty.key]: updateProperty.value,
+					}
+				}
+
+				console.log(updateToApply);
+
+				const doUpdate = () => updateCellStateById(targetCellId, updateToApply );
+				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.attributes.fillColor, symbol: cellState.attributes.symbol })
 
 				doUpdate();
 				recordAction(doUpdate, undoUpdate);
@@ -283,7 +301,11 @@
 				initGridData(rowCount, columnCount);
 
 				//Buid/Mount Grid View
-				const { renderCell, initFromCellData } = GridView(gridMountElement, gridRowCountInput, gridColumnCountInput, cellSize, cellGap);
+				const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(gridMountElement, gridRowCountInput, gridColumnCountInput, cellSize, cellGap);
+				const styleElement = document.createElement('style');
+				styleElement.insertAdjacentHTML('beforeend', gridViewStyles);
+				document.head.insertAdjacentElement('beforeend', styleElement);
+
 				addGridUpdateListener(renderCell);
 				initFromCellData(getAllCells());
 			}
@@ -317,7 +339,7 @@
 				const newGrid = parsedGridJson;
 				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, gridCellSize, gridColumnGap);
 				newGrid.cells.forEach((cellData) => {
-					updateCellStateById(cellData.cellId, cellData);
+					updateCellStateById(cellData.cellId, cellData.attributes);
 				});
 			}
 
@@ -352,10 +374,10 @@
 				controlPanel.insertAdjacentElement('beforeend', GridConfigElement);
 				controlPanel.insertAdjacentElement('beforeend', ActionListButtons);
 				controlPanel.insertAdjacentElement('beforeend', ColorControlsElement);
-
+				
 				const styleElement = document.createElement('style');
-				styleElement.insertAdjacentHTML('beforeend', persistenceStyle);
 				styleElement.insertAdjacentHTML('beforeend', gridConfigStyle);
+				styleElement.insertAdjacentHTML('beforeend', persistenceStyle);
 				document.head.insertAdjacentElement('beforeend', styleElement);
 
 			}

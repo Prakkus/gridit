@@ -62,7 +62,7 @@ const Persistence = (dataResolver) => {
 		const droppedItem = event.dataTransfer.items[0];
 		if (droppedItem.kind !== 'file' || !droppedItem.type.match('^application/json')) return;
 		droppedItem.getAsFile().text().then(value => {
-			loadJson(value)
+			loadJson(value);
 		});
 	}
 
@@ -71,7 +71,7 @@ const Persistence = (dataResolver) => {
 		console.log(file.kind, file.type);
 		if (!file.type.match('^application/json')) return;
 		file.text().then(value => {
-			loadJson(value)
+			loadJson(value);
 		});
 	}
 
