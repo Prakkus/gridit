@@ -172,7 +172,7 @@
 
 
 			const { defaultStyle: controlPanelStyles, ColorControlsElement, getSelectedWriteValue, getSelectedWriteProperty } = ColorControls(defaultProfile.availableColors, defaultProfile.availableSymbols);
-			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
+			const { initialCellState, initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
 
 			//Returns a function which will reset the grid to the current state when called.
 			//I don't use this for every state update because it feels heavy, but maybe I should.
@@ -258,18 +258,11 @@
 				const cellState = getCellStateById(targetCellId);
 				const updateProperty = { key: getSelectedWriteProperty(), value: getSelectedWriteValue() };
 				let updateToApply;
-				if (updateProperty.key == 'fillColor') {
-					const newFillColor = cellState.attributes.fillColor == updateProperty.value ? 'default' : updateProperty.value;
-					updateToApply = {
-						[updateProperty.key]: newFillColor,
-					}
-				} else {
-					updateToApply = {
-						[updateProperty.key]: updateProperty.value,
-					}
-				}
 
-				console.log(updateToApply);
+				const newValue = cellState.attributes[updateProperty.key] === updateProperty.value ? initialCellState.attributes[updateProperty.key] : updateProperty.value;
+				updateToApply = {
+					[updateProperty.key]: newValue,
+				}
 
 				const doUpdate = () => updateCellStateById(targetCellId, updateToApply );
 				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.attributes.fillColor, symbol: cellState.attributes.symbol })
@@ -306,7 +299,6 @@
 
 				const doAction = () => {
 					newGrid.cells.forEach((cellData) => {
-						console.log('do');
 						updateCellStateById(cellData.cellId, cellData);
 					});
 				}

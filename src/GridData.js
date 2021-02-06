@@ -1,11 +1,13 @@
+const defaultAttributes = {
+	fillColor: 'default',
+	symbol: ''
+}
+
 const initialCellState = {
 	cellId: '-1,-1',
 	x: -1,
 	y: -1,
-	attributes: {
-		fillColor: 'default',
-		symbol: ''
-	}
+	attributes: defaultAttributes
 }
 
 const constructCellMap = (rows, columns) => {
@@ -119,7 +121,7 @@ const GridData = () => {
 		return data;
 	}
 
-	return { initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener, getExportData, getNonDefaultCells };
+	return { initialCellState, initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener, getExportData, getNonDefaultCells };
 }
 		
 export default GridData;
