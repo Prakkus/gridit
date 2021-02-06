@@ -8,7 +8,7 @@ export default {
 	},
 	availableSymbols : {
 		'': {
-			display: '',
+			display: '&nbsp;',
 			xOffset: 0,
 			yOffset: 0,
 		},

@@ -3,7 +3,9 @@
 <head>
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet">
-	<title>Gridit</title>
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet"> 
+<title>Gridit</title>
 	<style>
 /*	:root {
 		--light: #323232;
@@ -18,10 +20,11 @@
 		--dark: #3F3F46;
 		--darker: #27272A;
 		--darkest: #18181B;
-	}	
+	}
 
 	* {
-		margin: 0;
+        font-family: 'Manrope', sans-serif;
+        margin: 0;
 		outline: 0;
 		border: none;
 	}
@@ -95,22 +98,6 @@
 	#grid-mount-point {
 		display: grid;
   	}
-
-	.color-controls {
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-	}
-	.color-swatch {
-		width: 36px;
-		height: 36px;
-		display: inline-block;
-		border: 1px solid #ccc;
-		cursor: pointer;
-	}
-	.color-swatch:hover, .active-color {
-		border-color: #666;
-	}
 	</style>
 </head>
 <body>
@@ -184,7 +171,7 @@
 			}
 
 
-			const { ColorControlsElement, getSelectedWriteValue, getSelectedWriteProperty } = ColorControls(defaultProfile.availableColors, defaultProfile.availableSymbols);
+			const { defaultStyle: controlPanelStyles, ColorControlsElement, getSelectedWriteValue, getSelectedWriteProperty } = ColorControls(defaultProfile.availableColors, defaultProfile.availableSymbols);
 			const { initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
 
 			//Returns a function which will reset the grid to the current state when called.
@@ -378,6 +365,7 @@
 				const styleElement = document.createElement('style');
 				styleElement.insertAdjacentHTML('beforeend', gridConfigStyle);
 				styleElement.insertAdjacentHTML('beforeend', persistenceStyle);
+				styleElement.insertAdjacentHTML('beforeend', controlPanelStyles);
 				document.head.insertAdjacentElement('beforeend', styleElement);
 
 			}
