@@ -7,7 +7,7 @@ const defaultStyle =
 		display: block;
 	}
 
-	.color-swatch:nth-child(6) {
+	.color-swatch:nth-child(6n) {
 		margin-right: 0;
 	}
 
@@ -17,11 +17,12 @@ const defaultStyle =
 		margin-right: 4px;
 		margin-bottom: 4px;
 		display: inline-block;
-		border: 1px solid #ccc;
+		border: 1px solid rgba(255,255,255, .5);
 		cursor: pointer;
+		font-size: 24px;
 	}
 	.color-swatch:hover, .active-color {
-		border-color: #666;
+		border-color: rgba(255,255,255, .8);
 	}
 `;
 const template = 

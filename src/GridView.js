@@ -64,6 +64,7 @@ const GridView = (gridMountElement, rowCount, columnCount, cellSize, cellGap) =>
 		symbolNode.innerHTML = symbolData.display;
 		symbolNode.style.left = symbolData.xOffset;
 		symbolNode.style.bottom = symbolData.yOffset;
+		symbolNode.style.fontSize = symbolData.fontSize;
 	}
 
 	//Initialize a view from a set of cells
