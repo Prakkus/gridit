@@ -12,17 +12,15 @@ const defaultStyle =
 	}
 
 	.color-swatch {
-		width: 50px;
-		height: 50px;
-		margin-right: 4px;
-		margin-bottom: 4px;
-		display: inline-block;
-		border: 1px solid rgba(255,255,255, .5);
-		cursor: pointer;
+		width: 48px;
+		height: 48px;
+		margin-right: 6px;
+		margin-bottom: 6px;
+		outline: 1px solid rgba(255,255,255, .5);
 		font-size: 24px;
 	}
 	.color-swatch:hover, .active-color {
-		border-color: rgba(255,255,255, .8);
+		outline: 2px solid rgba(255,255,255, .7);
 	}
 `;
 const template = 
@@ -38,7 +36,7 @@ const template =
 `;
 const ColorControls = (availableColors, availableSymbols) => {
 	let selectedProperty = 'fillColor';
-	let selectedWriteValue = 'default';
+	let selectedWriteValue = 'defaultColor';
 
 	const colorSwatchNodes = new Map(); //Map of colorName->colorSwatchNode so that we can update their active state easily 
 
@@ -54,7 +52,7 @@ const ColorControls = (availableColors, availableSymbols) => {
 		swatchButton.classList.add("color-swatch");
 		swatchButton.classList.add(name);
 		swatchButton.style.backgroundColor = '#' + color;
-		if (name == 'default') {
+		if (name == 'defaultColor') {
 			swatchButton.classList.add('active-color');
 		}
 		swatchButton.addEventListener('click', () => {
@@ -70,6 +68,7 @@ const ColorControls = (availableColors, availableSymbols) => {
 	Object.entries(availableSymbols).map(([name, symbol]) => {
 		let swatchButton = document.createElement('button');
 		swatchButton.classList.add("color-swatch");
+		swatchButton.classList.add(name);
 		swatchButton.innerHTML = symbol.display;
 		swatchButton.addEventListener('click', () => {
 			setSelectedWriteValue('symbol', name);
@@ -78,14 +77,11 @@ const ColorControls = (availableColors, availableSymbols) => {
 		colorSwatchNodes.set(name, swatchButton);
 	});
 
-	// ColorControlsElement.insertAdjacentElement('beforeend', ColorsToolbar);
-	// ColorControlsElement.insertAdjacentElement('beforeend', SymbolsElement);
-
 	const setSelectedWriteValue = (propertyName, value) => {
 		// if (!Object.keys(availableColors).includes(colorName)) return;
-		//Remove the 'active' class from the old color and add it to the new color
-		// colorSwatchNodes.get(selectedWriteValue).classList.remove('active-color');
-		// colorSwatchNodes.get(colorName).classList.add('active-color');
+		// Remove the 'active' class from the old color and add it to the new color
+		colorSwatchNodes.get(selectedWriteValue).classList.remove('active-color');
+		colorSwatchNodes.get(value).classList.add('active-color');
 
 		selectedProperty = propertyName;
 		selectedWriteValue = value;

@@ -1,6 +1,6 @@
 export default {
 	availableColors : {
-		default: "71717A",
+		defaultColor: "71717A",
 		red: "BE123C",
 		green: "047857",
 		yellow: "FDE68A",
@@ -8,7 +8,7 @@ export default {
 		purple: "A21CAF"
 	},
 	availableSymbols : {
-		'': {
+		defaultSymbol: {
 			display: '&nbsp;',
 			xOffset: 0,
 			yOffset: 0,

@@ -1,6 +1,6 @@
 const defaultAttributes = {
-	fillColor: 'default',
-	symbol: ''
+	fillColor: 'defaultColor',
+	symbol: 'defaultSymbol'
 }
 
 const initialCellState = {
