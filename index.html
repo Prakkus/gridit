@@ -62,7 +62,7 @@
 
 	.control-panel {
 		color: rgba(255, 255, 255, 0.87);
-		position: absolute;
+		position: fixed;
 		right: 0px;
 		background: var(--darker);
 		padding: 12px;
@@ -120,11 +120,11 @@
 	    import defaultProfile from './src/default-profile.js';
 
 		const Main = () => {
-			let gridRowCountInput = 10;
-			let gridColumnCountInput = 10;
+			let gridRowCountInput = 12;
+			let gridColumnCountInput = 12;
 
-			let gridCellSize = 100;
-			let gridColumnGap = 5;
+			let gridCellSize = 70;
+			let gridColumnGap = 3;
 
 			let currentUpdatePosition = -1;
 
