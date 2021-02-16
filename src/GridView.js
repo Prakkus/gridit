@@ -1,7 +1,6 @@
-import defaultProfile from './default-profile.js';
-
-const hexColorFromName = (colorName) => defaultProfile.availableColors[colorName];
-const symbolFromName = (symbolName) => defaultProfile.availableSymbols[symbolName];
+// const hexColorFromName = (colorName) => defaultProfile.availableColors[colorName];
+// const symbolFromName = (symbolName) => defaultProfile.availableSymbols[symbolName];
+// const tileFromIndex = (index) => defaultProfile.tileset[index];
 
 const defaultStyle = 
 `
@@ -50,21 +49,23 @@ const mountGridToElement = (mountElement, rowCount, columnCount, cellSize, cellG
 
 
 //Renders cells from Map of cellData
-const GridView = (gridMountElement, rowCount, columnCount, cellSize, cellGap) => {
+const GridView = (gridMountElement, rowCount, columnCount, cellSize, cellGap, resolveCellValue) => {
 	let cellToNodeMap = new Map();
 	mountGridToElement(gridMountElement, rowCount, columnCount, cellSize, cellGap);
 
 	//Update a given cell's DOM node to reflect a given cellState
 	const renderCell = (cellState) => {
 		const cellNode = cellToNodeMap.get(cellState.cellId);
-
-		cellNode.style.backgroundColor = '#' + hexColorFromName(cellState.attributes.fillColor);
+		cellNode.style.backgroundColor = '#' + resolveCellValue(0, cellState.attributes.fillColor).hex;
 		const symbolNode = cellNode.querySelector('.grid-cell-symbol');
-		const symbolData = symbolFromName(cellState.attributes.symbol);
+		const symbolData = resolveCellValue(1, cellState.attributes.symbol);
+		const tileData = resolveCellValue(2, cellState.attributes.backgroundTileIndex);
 		symbolNode.innerHTML = symbolData.display;
 		symbolNode.style.left = symbolData.xOffset;
 		symbolNode.style.bottom = symbolData.yOffset;
 		symbolNode.style.fontSize = symbolData.fontSize;
+		cellNode.style.backgroundImage = `url(${tileData.imageDataUrl})`;
+		cellNode.style.backgroundSize = 'cover';
 	}
 
 	//Initialize a view from a set of cells

@@ -7,19 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet"> 
 <title>Gridit</title>
 	<style>
-/*	:root {
-		--light: #323232;
-		--dark: #606060;
-		--darker: #424242;
-		--darkest: #1f1f1f;
-	}	*/
-
-
 	:root {
 		--light: #52525B;
 		--dark: #3F3F46;
 		--darker: #27272A;
 		--darkest: #18181B;
+		--text-default: rgba(255, 255, 255, 0.87);
 	}
 
 	* {
@@ -45,30 +38,33 @@
 	}
 
 	button, input {
-		color: rgba(255, 255, 255, 0.87);
+		color: var(--text-default);
 		border: 1px solid var(--light);
 		background: var(--dark);
 		padding: 8px 5px;
 	}
 
 	input:focus {
-		background: var(--light);		
+		background-color: var(--light);		
 	}
 
 	button:hover {
-		background: var(--light);		
+		background-color: var(--light);		
 	}
 
 
 	.control-panel {
-		color: rgba(255, 255, 255, 0.87);
+		color: var(--text-default);
 		position: fixed;
 		right: 0px;
 		background: var(--darker);
 		padding: 12px;
-		width: 320px;
+		width: 371px;
 		display: flex;
-		flex-direction: column;;
+		flex-direction: column;
+		max-height: 100vh;
+		overflow-y: auto;
+		box-sizing: border-box; /* specfically so that the scroll bar doesn't mess with the inner width */
 	}
 
 	.control-panel > * {
@@ -81,7 +77,6 @@
 	}
 
 	.grid-cell {
-		border: 1px solid transparent;
 		transition:  all .125s ease;
 		user-select: none;
 		display: flex;
@@ -90,7 +85,7 @@
 	}
 
 	.grid-cell:hover {
-		border-color: rgba(255, 255, 255, .6);
+		outline: 1px solid rgba(255, 255, 255, .6);
 	}
 
 
@@ -114,6 +109,8 @@
 	    import ColorControls from './src/ColorControls.js';
 	    import GridData from './src/GridData.js';
 	    import GridView from './src/GridView.js';
+	    import ModalView from './src/ModalView.js';
+	    import TilesetView from './src/TilesetView.js';
 	    import Persistence from './src/Persistence.js';
 	    import PersistenceView from './src/PersistenceView.js';
 	    import { isValidNodeColorDragEvent } from './src/grid-utils.js';
@@ -170,7 +167,9 @@
 			}
 
 
-			const { defaultStyle: controlPanelStyles, ColorControlsElement, getSelectedWriteValue, getSelectedWriteProperty } = ColorControls(defaultProfile.availableColors, defaultProfile.availableSymbols);
+			const { defaultStyle: controlPanelStyles, ColorControlsElement, loadValuesIntoSchema, getSelectedUpdateKVP, getSchemaValue } = ColorControls(defaultProfile);
+			const { defaultStyle: tilesetStyles, element: TilesetViewElement } = TilesetView(loadValuesIntoSchema);
+			const { defaultStyle: modalStyles, element: ModalElement } = ModalView({title: 'Import a tileset', content: TilesetViewElement, onConfirm: () => {}});
 			const { initialCellState, initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
 
 			//Returns a function which will reset the grid to the current state when called.
@@ -255,7 +254,7 @@
 			//Update cellState
 			const updateCellColor = (targetCellId) => {
 				const cellState = getCellStateById(targetCellId);
-				const updateProperty = { key: getSelectedWriteProperty(), value: getSelectedWriteValue() };
+				const updateProperty = getSelectedUpdateKVP();
 				let updateToApply;
 
 				const newValue = cellState.attributes[updateProperty.key] === updateProperty.value ? initialCellState.attributes[updateProperty.key] : updateProperty.value;
@@ -264,7 +263,7 @@
 				}
 
 				const doUpdate = () => updateCellStateById(targetCellId, updateToApply );
-				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.attributes.fillColor, symbol: cellState.attributes.symbol })
+				const undoUpdate = () => updateCellStateById(targetCellId, { fillColor: cellState.attributes.fillColor, symbol: cellState.attributes.symbol, tileIndex_background: cellState.attributes.tileIndex_background })
 
 				doUpdate();
 				recordAction(doUpdate, undoUpdate);
@@ -280,7 +279,7 @@
 				initGridData(rowCount, columnCount);
 
 				//Buid/Mount Grid View
-				const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(gridMountElement, gridRowCountInput, gridColumnCountInput, cellSize, cellGap);
+				const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(gridMountElement, gridRowCountInput, gridColumnCountInput, cellSize, cellGap, getSchemaValue);
 				const styleElement = document.createElement('style');
 				styleElement.insertAdjacentHTML('beforeend', gridViewStyles);
 				document.head.insertAdjacentElement('beforeend', styleElement);
@@ -352,11 +351,14 @@
 				controlPanel.insertAdjacentElement('beforeend', GridConfigElement);
 				controlPanel.insertAdjacentElement('beforeend', ActionListButtons);
 				controlPanel.insertAdjacentElement('beforeend', ColorControlsElement);
+				document.body.insertAdjacentElement('beforeend', ModalElement);
 				
 				const styleElement = document.createElement('style');
 				styleElement.insertAdjacentHTML('beforeend', gridConfigStyle);
 				styleElement.insertAdjacentHTML('beforeend', persistenceStyle);
 				styleElement.insertAdjacentHTML('beforeend', controlPanelStyles);
+				styleElement.insertAdjacentHTML('beforeend', modalStyles);
+				styleElement.insertAdjacentHTML('beforeend', tilesetStyles);
 				document.head.insertAdjacentElement('beforeend', styleElement);
 
 			}

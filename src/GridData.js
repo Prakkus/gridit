@@ -1,7 +1,6 @@
-const defaultAttributes = {
-	fillColor: 'defaultColor',
-	symbol: 'defaultSymbol'
-}
+import dataTypes, { getDefaultAttributes } from './default-profile.js';
+
+const defaultAttributes = getDefaultAttributes();
 
 const initialCellState = {
 	cellId: '-1,-1',
@@ -107,7 +106,9 @@ const GridData = () => {
 	}
 
 	const getNonDefaultCells = () => {
-		return serializeCells(cellData).filter((cellState) => cellState.attributes.fillColor != initialCellState.attributes.fillColor || cellState.attributes.symbol != initialCellState.attributes.symbol);
+		//Get any cells where the cellState's attributes don't match the default attributes
+		const attributeKeys = Object.keys(defaultAttributes);
+		return serializeCells(cellData).filter((cellState) => attributeKeys.some(key => cellState.attributes[key] !== defaultAttributes[key]));
 	}
 
 	const getExportData = () => {
