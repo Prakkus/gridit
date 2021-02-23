@@ -62,7 +62,7 @@
 		</div>
 	</div>
 	`;
-const GridConfig = (updateGridConfig) => {
+const GridConfigView = (updateGridConfig) => {
 	const GridConfigElement = document.createElement('div');
 	GridConfigElement.innerHTML = template;
 
@@ -91,4 +91,4 @@ const GridConfig = (updateGridConfig) => {
 	return {defaultStyle, GridConfigElement, render};
 }
 
-export default GridConfig;
+export default GridConfigView;

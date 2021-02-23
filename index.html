@@ -104,7 +104,7 @@
 </div>
 	<script type="module">
 
-		import GridConfig from './src/GridConfig.js';
+		import GridConfigView from './src/GridConfigView.js';
 	    import ActionList from './src/ActionList.js';
 	    import ColorControls from './src/ColorControls.js';
 	    import GridData from './src/GridData.js';
@@ -162,7 +162,7 @@
 			}
 
 
-			const { defaultStyle: controlPanelStyles, ColorControlsElement, loadValuesIntoSchema, getSelectedUpdateKVP, getSchemaValue } = ColorControls(defaultProfile);
+			const { defaultStyle: controlPanelStyles, readData: readColorControlsData, ColorControlsElement, importAndLoadProfile, loadValuesIntoSchema, getSelectedUpdateKVP, getSchemaValue } = ColorControls(defaultProfile);
 			const { defaultStyle: tilesetStyles, element: TilesetViewElement } = TilesetView(loadValuesIntoSchema);
 			//export styles from the import, not the object creation. Then move the modalview and the TilesetView into the controls. Each schema should have its own modal view. Maybe generate those? 
 			const { defaultStyle: modalStyles, element: ModalElement } = ModalView({title: 'Import a tileset', content: TilesetViewElement, onModalClosed: () => {}});
@@ -304,17 +304,22 @@
 				//Since we are 'loading' a grid, it makes sense to reset our current grid
 				clearHistory();
 				resetAllCellStates();
+				//Now we should import our schemas so that our grid knows how to render
+				const schemas = parsedGridJson;
+				importAndLoadProfile(parsedGridJson);
+				//As well as our display settings
+				updateGridConfig(parsedGridJson.config);
 				//Then make a new grid and import the data from our json
 				const newGrid = parsedGridJson;
-				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, gridCellSize, gridColumnGap);
-				newGrid.cells.forEach((cellData) => {
+				buildAndMountGrid(newGrid.config.rowCount, newGrid.config.columnCount, newGrid.config.cellSize, newGrid.config.cellGap);
+				newGrid.cellData.forEach((cellData) => {
 					updateCellStateById(cellData.cellId, cellData.attributes);
 				});
 			}
 
 			const buildAndMountControlPanel = () =>
 			{
-				const persistenceData = Persistence(getExportData);
+				const persistenceData = Persistence(getExportData, readGridConfigData, readColorControlsData);
 				const { getCurrentlyLoadedData, addOnMergeFileDroppedListener, addOnLoadedFileChangedListener } = persistenceData;
 				const handleReloadClicked = () => {
 					if (getCurrentlyLoadedData() == false) {
@@ -337,7 +342,8 @@
 							}
 						},
 				];
-				const {defaultStyle: gridConfigStyle, GridConfigElement, render: renderGridConfig } = GridConfig(updateGridConfig);
+				//Instantiate the config view, subscribe it to rerender when the grid config data updates, and do its initial render
+				const {defaultStyle: gridConfigStyle, GridConfigElement, render: renderGridConfig } = GridConfigView(updateGridConfig);
 				subscribeToGridConfig((updatedProperty) => renderGridConfig(readGridConfigData()));
 				renderGridConfig(readGridConfigData());
 

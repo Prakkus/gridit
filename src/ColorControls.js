@@ -79,9 +79,12 @@ const ColorControls = (schemaProfile) => {
 	}
 
 	const activateSelectionHighlight = (schemaIndex, valueIndex) => {
+		if (loadedSchemas.length < 1) return;
 		ColorControlsElement.querySelector(`[data-selection-id=${getSchemaValueId(loadedSchemas[schemaIndex], valueIndex)}]`).classList.add('active-color');
 	}
 	const deactivateSelectionHighlight = (schemaIndex, valueIndex) => {
+		if (loadedSchemas.length < 1) return;
+		console.log(loadedSchemas);
 		ColorControlsElement.querySelector(`[data-selection-id=${getSchemaValueId(loadedSchemas[schemaIndex], valueIndex)}]`).classList.remove('active-color');
 	}
 
@@ -183,11 +186,16 @@ const ColorControls = (schemaProfile) => {
 		buildAndRenderSectionForSchema(newIndex);
 	}
 
-	const loadProfile = (profile) => {
-		schemaProfile.forEach((schema) => {
-			loadSchema(schema);
+	const clearCurrentProfile = () => {
+		loadedSchemas = [];
+		setSelectedWriteValue(0, 0);	
+	}
+
+	const importAndLoadProfile = ({schema}) => {
+		clearCurrentProfile();
+		schema.forEach((schemaDef) => {
+			loadSchema(schemaDef);
 		});
-		setSelectedWriteValue(0, 0);
 	}
 
 	//should i just have this potentially return multiple pairs?
@@ -198,7 +206,14 @@ const ColorControls = (schemaProfile) => {
 		};
 	}
 
-	loadProfile(schemaProfile);
+	//We want to export everything except the first value in each schema, since those are the defaults which we generate when loading a schema
+	const readData = () => {
+		return loadedSchemas.map(schema => {
+			return {...schema, values: [...schema.values.slice(1)] }
+		});
+	}
+
+	importAndLoadProfile(schemaProfile);
 
 
 	// const button = 
@@ -208,7 +223,7 @@ const ColorControls = (schemaProfile) => {
 	// const buttonNode = document.querySelector('.tile_index_background-toolbar-section-title').insertAdjacentHTML('beforeend', button);
 	// buttonNode.addEventListener('click', () => {} );
 	
-	return { defaultStyle, ColorControlsElement, getSelectedUpdateKVP, loadValuesIntoSchema, getSchemaValue };
+	return { defaultStyle, readData, ColorControlsElement, importAndLoadProfile, getSelectedUpdateKVP, loadValuesIntoSchema, getSchemaValue };
 } 
 
 

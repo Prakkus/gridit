@@ -108,9 +108,7 @@ const GridData = () => {
 
 	//all the cell data for this grid
 	const getExportData = () => {
-		const data = getNonDefaultCells();
-
-		return data;
+		return [...getNonDefaultCells()];
 	}
 
 	return { initialCellState, initGridData, resetAllCellStates, getCellStateById, updateCellStateById, getAllCells, addUpdateListener, getExportData, getNonDefaultCells };

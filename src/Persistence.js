@@ -24,7 +24,7 @@ const openFileSelectionWindow = (onSelect) => {
 	input.click();
 }
 
-const Persistence = (gridDataResolver, schemaDataResolver) => {
+const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) => {
 	let currentlyLoadedJson = '';
 	let currentlyLoadedData;
 	let onLoadedFileChangedListeners = new Set();
@@ -68,7 +68,6 @@ const Persistence = (gridDataResolver, schemaDataResolver) => {
 
 	const handleFileSelect = (event) => {
 		let file = event.target.files[0];
-		console.log(file.kind, file.type);
 		if (!file.type.match('^application/json')) return;
 		file.text().then(value => {
 			loadJson(value);
@@ -118,8 +117,9 @@ const Persistence = (gridDataResolver, schemaDataResolver) => {
 
 	const downloadJsonSave = () => {
 		const gridData = gridDataResolver();
+		const configData = configDataResolver();
 		const schemaData = schemaDataResolver();
-		const jsonData = JSON.stringify({ title: gridName, schema: schemaData, data: gridData });
+		const jsonData = JSON.stringify({ title: gridName, config: configData, schema: schemaData, cellData: gridData });
 		const blob = new Blob([jsonData], {type : 'application/json'});
 		downloadBlob(blob, gridName);
 	}

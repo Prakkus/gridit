@@ -1,4 +1,3 @@
-const ModalView = ({ title, content, onModalClosed }) => {
 	const defaultStyle = 
 	`
 		.modal-wrapper {
@@ -54,6 +53,7 @@ const ModalView = ({ title, content, onModalClosed }) => {
 		}
 
 	`
+const ModalView = ({ title, content, onModalClosed }) => {
 	if (content instanceof HTMLElement === false) {
 		const string = content;
 		content = document.createElement('div');
