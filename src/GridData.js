@@ -55,9 +55,6 @@ const GridData = () => {
 	let listeners = new Set();
 	let cellData = new Map();  //Map of cellId->cellState (what is the state of a given cellId?)
 
-	let rowCount;
-	let columnCount;
-
 	const onCellStateUpdated = (cellState) => {
 		listeners.forEach((listener) => listener(cellState));
 	}
@@ -93,11 +90,9 @@ const GridData = () => {
 	const addUpdateListener = (callback) => listeners.add(callback);
 
 	const initGridData = (rows, cols) => {
-		rowCount = rows;
-		columnCount = cols;
 		listeners.clear();
 		//If this grid was previously initalized, copy the state of any cells which still exist to the resized grid
-		const newMap = constructCellMap(rowCount, columnCount, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
+		const newMap = constructCellMap(rows, cols, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
 		cellData.forEach((oldCell, oldId) => {
 			if (!newMap.has(oldId)) return;
 			newMap.set(oldId, oldCell);
@@ -111,14 +106,10 @@ const GridData = () => {
 		return serializeCells(cellData).filter((cellState) => attributeKeys.some(key => cellState.attributes[key] !== defaultAttributes[key]));
 	}
 
+	//all the cell data for this grid
 	const getExportData = () => {
-		const data = {
-			config: {
-				rowCount,
-				columnCount
-			},
-			cells: getNonDefaultCells()
-		}
+		const data = getNonDefaultCells();
+
 		return data;
 	}
 

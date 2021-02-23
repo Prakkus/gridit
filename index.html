@@ -115,14 +115,9 @@
 	    import PersistenceView from './src/PersistenceView.js';
 	    import { isValidNodeColorDragEvent } from './src/grid-utils.js';
 	    import defaultProfile from './src/default-profile.js';
+	    import GridConfigData from './src/GridConfigData.js';
 
 		const Main = () => {
-			let gridRowCountInput = 12;
-			let gridColumnCountInput = 12;
-
-			let gridCellSize = 70;
-			let gridColumnGap = 3;
-
 			let currentUpdatePosition = -1;
 
 			let undoStack = [];
@@ -169,8 +164,10 @@
 
 			const { defaultStyle: controlPanelStyles, ColorControlsElement, loadValuesIntoSchema, getSelectedUpdateKVP, getSchemaValue } = ColorControls(defaultProfile);
 			const { defaultStyle: tilesetStyles, element: TilesetViewElement } = TilesetView(loadValuesIntoSchema);
-			const { defaultStyle: modalStyles, element: ModalElement } = ModalView({title: 'Import a tileset', content: TilesetViewElement, onConfirm: () => {}});
+			//export styles from the import, not the object creation. Then move the modalview and the TilesetView into the controls. Each schema should have its own modal view. Maybe generate those? 
+			const { defaultStyle: modalStyles, element: ModalElement } = ModalView({title: 'Import a tileset', content: TilesetViewElement, onModalClosed: () => {}});
 			const { initialCellState, initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
+			const { read: readGridConfigData, subscribe: subscribeToGridConfig, update: updateGridConfig } = GridConfigData(12, 12, 70, 3);
 
 			//Returns a function which will reset the grid to the current state when called.
 			//I don't use this for every state update because it feels heavy, but maybe I should.
@@ -182,12 +179,6 @@
 					});
 				}
 			}
-
-			const setRowCountValue = (newValue) => gridRowCountInput = parseInt(newValue);
-			const setColumnCountValue = (newValue) => gridColumnCountInput = parseInt(newValue);
-
-			const setGridCellSizeValue = (newValue) => gridCellSize = parseInt(newValue);
-			const setGridColumnGapValue = (newValue) => gridColumnGap = parseInt(newValue);
 
 			//Input State
 			let leftMouseDragging = false;
@@ -276,10 +267,11 @@
 
 			//Build a new grid with a given configuration
 			const buildAndMountGrid = (rowCount, columnCount, cellSize, cellGap) => {
+				console.log(rowCount, columnCount, cellSize, cellGap);
 				initGridData(rowCount, columnCount);
 
 				//Buid/Mount Grid View
-				const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(gridMountElement, gridRowCountInput, gridColumnCountInput, cellSize, cellGap, getSchemaValue);
+				const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(gridMountElement, rowCount, columnCount, cellSize, cellGap, getSchemaValue);
 				const styleElement = document.createElement('style');
 				styleElement.insertAdjacentHTML('beforeend', gridViewStyles);
 				document.head.insertAdjacentElement('beforeend', styleElement);
@@ -340,11 +332,15 @@
 							title: 'Resize Grid',
 							classNames: ['action'],
 							action: (e) => {
-								buildAndMountGrid(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap);
+								const { rowCount, columnCount, cellSize, cellGap } = readGridConfigData();
+								buildAndMountGrid(rowCount, columnCount, cellSize, cellGap);
 							}
 						},
 				];
-				const {defaultStyle: gridConfigStyle, GridConfigElement } = GridConfig(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap, setRowCountValue, setColumnCountValue, setGridCellSizeValue, setGridColumnGapValue);
+				const {defaultStyle: gridConfigStyle, GridConfigElement, render: renderGridConfig } = GridConfig(updateGridConfig);
+				subscribeToGridConfig((updatedProperty) => renderGridConfig(readGridConfigData()));
+				renderGridConfig(readGridConfigData());
+
 				const ActionListButtons = ActionList(actions);
 
 				controlPanel.insertAdjacentElement('beforeend', persistenceElement)
@@ -364,8 +360,9 @@
 			}
 
 			const init = function() {
+				const { rowCount, columnCount, cellSize, cellGap } = readGridConfigData();
 				buildAndMountControlPanel();
-				buildAndMountGrid(gridRowCountInput, gridColumnCountInput, gridCellSize, gridColumnGap);
+				buildAndMountGrid(rowCount, columnCount, cellSize, cellGap);
 
 				bindMouseEvents();
 			}

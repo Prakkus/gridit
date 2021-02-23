@@ -24,7 +24,7 @@ const openFileSelectionWindow = (onSelect) => {
 	input.click();
 }
 
-const Persistence = (dataResolver) => {
+const Persistence = (gridDataResolver, schemaDataResolver) => {
 	let currentlyLoadedJson = '';
 	let currentlyLoadedData;
 	let onLoadedFileChangedListeners = new Set();
@@ -117,8 +117,9 @@ const Persistence = (dataResolver) => {
 	}
 
 	const downloadJsonSave = () => {
-		const gridData = dataResolver();
-		const jsonData = JSON.stringify({ title: gridName, ...gridData });
+		const gridData = gridDataResolver();
+		const schemaData = schemaDataResolver();
+		const jsonData = JSON.stringify({ title: gridName, schema: schemaData, data: gridData });
 		const blob = new Blob([jsonData], {type : 'application/json'});
 		downloadBlob(blob, gridName);
 	}

@@ -1,5 +1,3 @@
-const GridConfig = (rowCount, columnCount, cellSize, cellGap, SetRowCount, SetColumnCount, SetGridCellSizeValue, SetGridColumnGapValue) => {
-	const GridConfigElement = document.createElement('div');
 	const defaultStyle = 
 	`
 		.grid-config > div {
@@ -30,6 +28,7 @@ const GridConfig = (rowCount, columnCount, cellSize, cellGap, SetRowCount, SetCo
 			text-align: center;
 		}
 	`;
+
 	const template =
 	`
 	<div class="grid-config">
@@ -38,13 +37,13 @@ const GridConfig = (rowCount, columnCount, cellSize, cellGap, SetRowCount, SetCo
 				<span>
 					Rows:
 				</span>
-				<input name="rowCount" type="number" step="1" value=${rowCount} />
+				<input name="rowCount" type="number" step="1" />
 			</label>
 			<label>
 				<span>
 					Columns:
 				</span>
-				<input name="columnCount" type="number" step="1" value=${columnCount} />
+				<input name="columnCount" type="number" step="1" />
 			</label>
 		</div>
 		<div class="cell-config">
@@ -52,24 +51,44 @@ const GridConfig = (rowCount, columnCount, cellSize, cellGap, SetRowCount, SetCo
 				<span>		
 					Cell Size:
 				</span>
-				<input name="cellSize" type="number" step="1" value=${cellSize} />
+				<input name="cellSize" type="number" step="1" />
 			</label>
 			<label>
 				<span>
 					Cell Gap:
 				</span>
-				<input name="cellGap" type="number" step="1" value=${cellGap} />
+				<input name="cellGap" type="number" step="1" />
 			</label>
 		</div>
 	</div>
 	`;
+const GridConfig = (updateGridConfig) => {
+	const GridConfigElement = document.createElement('div');
 	GridConfigElement.innerHTML = template;
-	GridConfigElement.querySelector('input[name=rowCount]').addEventListener('change', (e) => SetRowCount(e.target.value));
-	GridConfigElement.querySelector('input[name=columnCount]').addEventListener('change', (e) => SetColumnCount(e.target.value));
-	GridConfigElement.querySelector('input[name=cellSize]').addEventListener('change', (e) => SetGridCellSizeValue(e.target.value));
-	GridConfigElement.querySelector('input[name=cellGap]').addEventListener('change', (e) => SetGridColumnGapValue(e.target.value));
 
-	return {defaultStyle, GridConfigElement};
+
+	const rowCountInput = GridConfigElement.querySelector('input[name=rowCount]');
+	rowCountInput.addEventListener('change', (e) => updateGridConfig({rowCount: e.target.value}));
+
+	const columnCountInput = GridConfigElement.querySelector('input[name=columnCount]');
+	columnCountInput.addEventListener('change', (e) => updateGridConfig({columnCount: e.target.value}));
+
+	const cellSizeInput = GridConfigElement.querySelector('input[name=cellSize]');
+	cellSizeInput.addEventListener('change', (e) => updateGridConfig({cellSize: e.target.value}));
+
+	const cellGapInput = GridConfigElement.querySelector('input[name=cellGap]');
+	cellGapInput.addEventListener('change', (e) => updateGridConfig({cellGap: e.target.value}));
+
+
+	const render = ({rowCount, columnCount, cellSize, cellGap }) => {
+		rowCountInput.value = rowCount;
+		columnCountInput.value = columnCount;
+		cellSizeInput.value = cellSize;
+		cellGapInput.value = cellGap;
+	}
+
+
+	return {defaultStyle, GridConfigElement, render};
 }
 
 export default GridConfig;

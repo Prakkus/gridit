@@ -6,7 +6,8 @@ const defaultStyle =
 		display: flex;
 		margin-top: 24px;
 		margin-bottom: 8px;
-		display: block;
+		display: flex;
+		justify-content: space-between;
 	}
 
 	.brush-selection-button:nth-child(6n) {
@@ -136,12 +137,18 @@ const ColorControls = (schemaProfile) => {
 	}
 
 	const insertSchemaSection = (schemaIndex) => {
-		//Add the schema title
 		const schema = loadedSchemas[schemaIndex];
-		let title = document.createElement('span');
-		title.classList.add('toolbar-section-title');
-		title.textContent = schema.displayName;
-		ColorControlsElement.appendChild(title);
+
+		const schemaTitle = 	
+		`
+		<span class='toolbar-section-title ${schema.name}-toolbar-section-title'>
+			${schema.displayName}
+		</span>
+
+		`;
+
+		//Add the schema title
+		ColorControlsElement.insertAdjacentHTML('beforeend', schemaTitle);
 		//Add the section
 		const schemaSectionElement = buildSchemaSection(schemaIndex);
 		ColorControlsElement.appendChild(schemaSectionElement);
@@ -192,6 +199,14 @@ const ColorControls = (schemaProfile) => {
 	}
 
 	loadProfile(schemaProfile);
+
+
+	// const button = 
+	// `
+	// 		<button>Import a tileset</button>
+	// `;
+	// const buttonNode = document.querySelector('.tile_index_background-toolbar-section-title').insertAdjacentHTML('beforeend', button);
+	// buttonNode.addEventListener('click', () => {} );
 	
 	return { defaultStyle, ColorControlsElement, getSelectedUpdateKVP, loadValuesIntoSchema, getSchemaValue };
 } 
