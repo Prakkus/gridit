@@ -80,6 +80,7 @@
 		display: grid;
   	}
 
+
   	.grid-coords-hidden .grid-coords-display {
   		display: none;
   	}
@@ -106,7 +107,8 @@
 	    import Persistence from './src/Persistence.js';
 	    import PersistenceView from './src/PersistenceView.js';
 	    import { isValidNodeColorDragEvent } from './src/grid-utils.js';
-	    import defaultProfile from './src/default-profile.js';
+	    import profile from './src/gravetender-profile.js';
+	    // import defaultProfile from './src/default-profile.js';
 	    import GridConfigData from './src/GridConfigData.js';
 
 		const Main = () => {
@@ -154,12 +156,12 @@
 			}
 
 
-			const { defaultStyle: controlPanelStyles, readData: readColorControlsData, ColorControlsElement, importAndLoadProfile, loadValuesIntoSchema, getSelectedUpdateKVP, getSchemaValue } = ColorControls(defaultProfile);
+			const { defaultStyle: controlPanelStyles, readData: readColorControlsData, ColorControlsElement, importAndLoadProfile, loadValuesIntoSchema, getSelectedUpdateKVP, getSchemaValue } = ColorControls(profile);
 			const { defaultStyle: tilesetStyles, element: TilesetViewElement } = TilesetView(loadValuesIntoSchema);
 			//export styles from the import, not the object creation. Then move the modalview and the TilesetView into the controls. Each schema should have its own modal view. Maybe generate those? 
 			const { defaultStyle: modalStyles, element: ModalElement } = ModalView({title: 'Import a tileset', content: TilesetViewElement, onModalClosed: () => {}});
 			const { initialCellState, initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
-			const { read: readGridConfigData, subscribe: subscribeToGridConfig, update: updateGridConfig } = GridConfigData(12, 12, 70, 3, false);
+			const { read: readGridConfigData, subscribe: subscribeToGridConfig, update: updateGridConfig } = GridConfigData(profile.config);
 
 			//Returns a function which will reset the grid to the current state when called.
 			//I don't use this for every state update because it feels heavy, but maybe I should.
@@ -363,7 +365,8 @@
 				controlPanel.insertAdjacentElement('beforeend', GridConfigElement);
 				controlPanel.insertAdjacentElement('beforeend', ActionListButtons);
 				controlPanel.insertAdjacentElement('beforeend', ColorControlsElement);
-				document.body.insertAdjacentElement('beforeend', ModalElement);
+				// enable this again to show the tileset import modal
+				// document.body.insertAdjacentElement('beforeend', ModalElement);
 				
 				const styleElement = document.createElement('style');
 				styleElement.insertAdjacentHTML('beforeend', gridConfigStyle);

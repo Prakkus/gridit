@@ -1,12 +1,12 @@
 const defaultProfile = {
-	title: "Example Grid",
+	title: "Gravetender Terrain Editor",
 	config :
 		{ 
 			columnCount: 8,
-			rowCount: 8, 
-			cellSize: 54,
+			rowCount: 5, 
+			cellSize: 100,
 			cellGap: 2,
-			showCoords: false
+			showCoords: true
 		},
 	schema: [
 		//Colors
@@ -16,24 +16,8 @@ const defaultProfile = {
 			cellAttribute: 'fillColor',
 			values : [
 				{
-					name: 'red',
-					hex: 'BE123C'
-				},
-						{
-					name: 'green',
-					hex: '047857'
-				},
-						{
-					name: 'yellow',
-					hex: 'FDE68A'
-				},
-						{
-					name: 'blue',
-					hex: '0369A1'
-				},
-						{
-					name: 'purple',
-					hex: 'A21CAF'
+					name: 'brown',
+					hex: '6F4E37'
 				}
 			]
 		},
@@ -144,9 +128,6 @@ const defaultProfile = {
 			displayName: 'Tiles: ',
 			cellAttribute: 'backgroundTileIndex',
 			values : [
-				{
-					imageDataUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAABj0lEQVR4nO3bIU4EQRRF0VkagmTWhMOxHjR+tgUeMS2g8qv7HnH9q+Son9Tt6/31W91u0wMEgAAQAAJAAAgAAaB/6/Pt5WkAXDwA4gEQD4B4AMQDIB4A8fIAHh/3p03vmw6ADTYCAAAAAAAAAAAAAAAAAACcCMDRoWH6gVfvr8ABOHkAxAMgHgDxAIgHQDwA4o0DWP0Ah5y1ARAPgHgAxAMgHgDxAIgHQLw8gPohCwAAAAAAAAAAAAAAAAAAAAAA1AmAeADEAyAeAPEAiAdAPADiLQew+pAjAASAABAAAkAACADtA0B7B0A8AOIBEA+AeADEAyAeAPHyAHwM2WAEAAAAAAAAAAAAAAAAAAAAAAAIAAEgAASAABAAAkAA/Gr6kHP2jy8AADA/AgAAAAAAAAAAAAAAAADYCcDZH7h7R4BXAwcAAAAAAAAAAAAAAAAAAAAAAAEgAASAABAAAkAACABdLwDiARAPgHgAxAMgHgDxAIgHwEGrDzHTAQDA/IidAyAeAPEAiAdAPADiXR3ADyZ3hBKgbhxYAAAAAElFTkSuQmCC'
-				}
 			]
 		}
 	]

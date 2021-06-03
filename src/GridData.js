@@ -11,9 +11,8 @@ const initialCellState = {
 
 const constructCellMap = (rows, columns) => {
 	let cellData = new Map();
-	// We loop in a specific order so that the grid ends up with 0,0 on at the bottom left instead of top left
-	for (var y = columns - 1; y >= 0; y--) {
-		for (var x = 0; x < rows; x++) {
+	for (var y = 0; y < rows; y++) {
+		for (var x = 0; x < columns; x++) {
 			const cellState = {
 				...initialCellState,
 				cellId: x + ',' + y,

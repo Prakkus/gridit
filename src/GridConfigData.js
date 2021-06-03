@@ -1,11 +1,11 @@
-const GridConfigData = (initialRowCount, initialColumnCount,initialCellSize, initialCellGap, initialShowCoords) => {
+const GridConfigData = ({ rowCount, columnCount,cellSize, cellGap, showCoords }) => {
 	let listeners = new Set();
 	let data = {
-		rowCount: initialRowCount,
-		columnCount: initialColumnCount,
-		cellSize: initialCellSize,
-		cellGap: initialCellGap,
-		showCoords: initialShowCoords
+		rowCount,
+		columnCount,
+		cellSize,
+		cellGap,
+		showCoords
 	}
 
 	const onValuesUpdated = (newValues) => {

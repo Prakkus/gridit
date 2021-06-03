@@ -35,15 +35,15 @@
 		<div class="size-config">
 			<label>
 				<span>
-					Rows:
-				</span>
-				<input name="rowCount" type="number" step="1" />
-			</label>
-			<label>
-				<span>
 					Columns:
 				</span>
 				<input name="columnCount" type="number" step="1" />
+			</label>
+			<label>
+				<span>
+					Rows:
+				</span>
+				<input name="rowCount" type="number" step="1" />
 			</label>
 		</div>
 		<div class="cell-config">
