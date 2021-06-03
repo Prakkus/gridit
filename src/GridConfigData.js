@@ -1,10 +1,11 @@
-const GridConfigData = (initialRowCount, initialColumnCount,initialCellSize, initialCellGap) => {
+const GridConfigData = (initialRowCount, initialColumnCount,initialCellSize, initialCellGap, initialShowCoords) => {
 	let listeners = new Set();
 	let data = {
 		rowCount: initialRowCount,
 		columnCount: initialColumnCount,
 		cellSize: initialCellSize,
-		cellGap: initialCellGap
+		cellGap: initialCellGap,
+		showCoords: initialShowCoords
 	}
 
 	const onValuesUpdated = (newValues) => {
@@ -20,8 +21,14 @@ const GridConfigData = (initialRowCount, initialColumnCount,initialCellSize, ini
 				if (data[property] === value) return false;
 				return true;
 		}));
+		// Todo: properly handle input types here. Right now this will only work if
+		// all the data here is ints and bools
 		Object.entries(validUpdates).forEach(([property, value]) => {
-			data[property] = parseInt(value);
+			if (typeof value == 'boolean') {
+				data[property] = value;
+			} else {
+				data[property] = parseInt(value);
+			}
 		});
 		onValuesUpdated(validUpdates);
 	}

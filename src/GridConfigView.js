@@ -60,6 +60,12 @@
 				<input name="cellGap" type="number" step="1" />
 			</label>
 		</div>
+					<label>
+				<span>
+					Show Coords:
+				</span>
+				<input name="showCoords" type="checkbox" />
+			</label>
 	</div>
 	`;
 const GridConfigView = (updateGridConfig) => {
@@ -79,12 +85,15 @@ const GridConfigView = (updateGridConfig) => {
 	const cellGapInput = GridConfigElement.querySelector('input[name=cellGap]');
 	cellGapInput.addEventListener('change', (e) => updateGridConfig({cellGap: e.target.value}));
 
+	const showCoordsInput = GridConfigElement.querySelector('input[name=showCoords]');
+	showCoordsInput.addEventListener('change', (e) => updateGridConfig({showCoords: e.target.checked}));
 
-	const render = ({rowCount, columnCount, cellSize, cellGap }) => {
+	const render = ({rowCount, columnCount, cellSize, cellGap, showCoords }) => {
 		rowCountInput.value = rowCount;
 		columnCountInput.value = columnCount;
 		cellSizeInput.value = cellSize;
 		cellGapInput.value = cellGap;
+		showCoordsInput.checked = showCoords;
 	}
 
 

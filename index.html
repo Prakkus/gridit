@@ -76,22 +76,14 @@
 		margin-bottom: 12px;
 	}
 
-	.grid-cell {
-		transition:  all .125s ease;
-		user-select: none;
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
-	}
-
-	.grid-cell:hover {
-		outline: 1px solid rgba(255, 255, 255, .6);
-	}
-
-
 	#grid-mount-point {
 		display: grid;
   	}
+
+  	.grid-coords-hidden .grid-coords-display {
+  		display: none;
+  	}
+
 	</style>
 </head>
 <body>
@@ -167,7 +159,7 @@
 			//export styles from the import, not the object creation. Then move the modalview and the TilesetView into the controls. Each schema should have its own modal view. Maybe generate those? 
 			const { defaultStyle: modalStyles, element: ModalElement } = ModalView({title: 'Import a tileset', content: TilesetViewElement, onModalClosed: () => {}});
 			const { initialCellState, initGridData, resetAllCellStates, getCellStateById, getAllCells, updateCellStateById, addUpdateListener: addGridUpdateListener, getExportData, getNonDefaultCells } = GridData();
-			const { read: readGridConfigData, subscribe: subscribeToGridConfig, update: updateGridConfig } = GridConfigData(12, 12, 70, 3);
+			const { read: readGridConfigData, subscribe: subscribeToGridConfig, update: updateGridConfig } = GridConfigData(12, 12, 70, 3, false);
 
 			//Returns a function which will reset the grid to the current state when called.
 			//I don't use this for every state update because it feels heavy, but maybe I should.
@@ -265,6 +257,10 @@
 				clearHistory();
 			}
 
+			const setCoordsVisiblility = (visibility) => {
+				visibility ? document.body.classList.remove("grid-coords-hidden") : document.body.classList.add("grid-coords-hidden");
+			}
+
 			//Build a new grid with a given configuration
 			const buildAndMountGrid = (rowCount, columnCount, cellSize, cellGap) => {
 				console.log(rowCount, columnCount, cellSize, cellGap);
@@ -332,6 +328,7 @@
 				addOnMergeFileDroppedListener((json) => mergeFromJson(json));
 				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( {...persistenceData, handleClearClicked : () => clearGrid(), handleReloadClicked } );
 
+
 				const actions = [
 						{
 							title: 'Resize Grid',
@@ -342,10 +339,23 @@
 							}
 						},
 				];
-				//Instantiate the config view, subscribe it to rerender when the grid config data updates, and do its initial render
+				// Instantiate the config view, subscribe it to rerender when the grid config data updates, and do its initial render
 				const {defaultStyle: gridConfigStyle, GridConfigElement, render: renderGridConfig } = GridConfigView(updateGridConfig);
+				
+				// Hide or show the coordinates based on the toggled GridConfigData value
+				subscribeToGridConfig(({showCoords}) => {
+					if (typeof showCoords === 'undefined') return;
+					setCoordsVisiblility(showCoords);
+				});
+
+				// Render the grid on config update
 				subscribeToGridConfig((updatedProperty) => renderGridConfig(readGridConfigData()));
+
+				// Render the grid intitially and sync the coord visibility
 				renderGridConfig(readGridConfigData());
+				setCoordsVisiblility(readGridConfigData().showCoords);
+
+
 
 				const ActionListButtons = ActionList(actions);
 
