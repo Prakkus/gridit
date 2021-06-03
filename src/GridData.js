@@ -11,7 +11,7 @@ const initialCellState = {
 
 const constructCellMap = (rows, columns) => {
 	let cellData = new Map();
-	for (var y = 0; y < rows; y++) {
+	for (var y = rows - 1; y >= 0; y--) {
 		for (var x = 0; x < columns; x++) {
 			const cellState = {
 				...initialCellState,
