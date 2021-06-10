@@ -328,7 +328,11 @@
 				}
 				addOnLoadedFileChangedListener((oldJson, newJson) => loadFromData(newJson));
 				addOnMergeFileDroppedListener((json) => mergeFromJson(json));
-				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( {...persistenceData, handleClearClicked : () => clearGrid(), handleReloadClicked } );
+				const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( {...persistenceData, handleClearClicked : () => {
+					if (confirm("This will completely reset the grid and its history. Are you sure?")) { 
+						clearGrid();
+					}
+				}, handleReloadClicked } );
 
 
 				const actions = [
