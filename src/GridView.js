@@ -24,6 +24,7 @@ const defaultStyle =
 			line-height: 1;
 			padding: 4px;
 			background-color: var(--darker);
+			pointer-events: none;
 		}
 
 		.grid-cell {

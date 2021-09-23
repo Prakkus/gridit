@@ -119,7 +119,7 @@ const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) =
 		const gridData = gridDataResolver();
 		const configData = configDataResolver();
 		const schemaData = schemaDataResolver();
-		const jsonData = JSON.stringify({ title: gridName, config: configData, schema: schemaData, cellData: gridData });
+		const jsonData = JSON.stringify({ title: gridName, config: configData, schema: schemaData, cellData: gridData }) + '\n';
 		const blob = new Blob([jsonData], {type : 'application/json'});
 		downloadBlob(blob, gridName);
 	}
