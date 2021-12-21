@@ -80,9 +80,11 @@ const mountGridToElement = (mountElement, rowCount, columnCount, cellSize, cellG
 
 
 //Renders cells from Map of cellData
-const GridView = (gridMountElement, rowCount, columnCount, cellSize, cellGap, resolveCellValue) => {
+const GridView = (rowCount, columnCount, cellSize, cellGap, resolveCellValue) => {
 	let cellToNodeMap = new Map();
-	mountGridToElement(gridMountElement, rowCount, columnCount, cellSize, cellGap);
+	const element = document.createElement('div');
+
+	mountGridToElement(element, rowCount, columnCount, cellSize, cellGap);
 
 	//Update a given cell's DOM node to reflect a given cellState
 	const renderCell = (cellState) => {
@@ -102,8 +104,8 @@ const GridView = (gridMountElement, rowCount, columnCount, cellSize, cellGap, re
 
 	//Initialize a view from a set of cells
 	const initFromCellData = (cellData) => {
-		cellToNodeMap = renderGridFromCells(gridMountElement, cellData);
-		cellData.forEach((cellState) => renderCell(cellState));
+		cellToNodeMap = renderGridFromCells(element, cellData.all);
+		cellData.all.forEach((cellState) => renderCell(cellState));
 	}
 
 	return { defaultStyle, renderCell, initFromCellData };

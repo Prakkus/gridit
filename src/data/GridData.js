@@ -1,4 +1,4 @@
-import dataTypes, { getDefaultAttributes } from './default-profile.js';
+import { getDefaultAttributes } from './default-profile.js';
 
 const defaultAttributes = getDefaultAttributes();
 
@@ -59,33 +59,33 @@ const GridData = () => {
 		listeners.forEach((listener) => listener(cellState));
 	}
 
-	const updateCellStateById = (cellId, propUpdates) => {
-		const currentState = cellData.get(cellId);
-		updateCellState(currentState, propUpdates);
-	}
+	// const updateCellStateById = (cellId, propUpdates) => {
+	// 	const currentState = cellData.get(cellId);
+	// 	updateCellState(currentState, propUpdates);
+	// }
 
-	const updateCellState = (cellState, propUpdates) => {
-		const newState = { 
-			...cellState,
-			attributes: {
-				...cellState.attributes,
-				...propUpdates
-			}
-		};
-		cellData.set(cellState.cellId, newState);
-		onCellStateUpdated(newState);
-	}
+	// const updateCellState = (cellState, propUpdates) => {
+	// 	const newState = { 
+	// 		...cellState,
+	// 		attributes: {
+	// 			...cellState.attributes,
+	// 			...propUpdates
+	// 		}
+	// 	};
+	// 	cellData.set(cellState.cellId, newState);
+	// 	onCellStateUpdated(newState);
+	// }
 
 
-	const resetAllCellStates = () => {
-		cellData.forEach((cellState, cellId) => {
-			updateCellState(cellState, initialCellState.attributes);
-		});
-	}
+	// const resetAllCellStates = () => {
+	// 	cellData.forEach((cellState, cellId) => {
+	// 		updateCellState(cellState, initialCellState.attributes);
+	// 	});
+	// }
 
-	const getAllCells = () => new Map(cellData);
+	// const getAllCells = () => new Map(cellData);
 
-	const getCellStateById = (cellId) => cellData.get(cellId);
+	// const getCellStateById = (cellId) => cellData.get(cellId);
 
 	const addUpdateListener = (callback) => listeners.add(callback);
 

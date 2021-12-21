@@ -1,6 +1,6 @@
 const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
 	let gridNameInput;
-	addOnGridNameChangedListener((name) => gridNameInput.value = name);
+	// addOnGridNameChangedListener((name) => gridNameInput.value = name);
 
 	const defaultStyle = 
 	`
@@ -59,20 +59,20 @@ const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName,
 	const element = document.createElement('div')
 	element.innerHTML = template;
 
-	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileImportWindow());
-	gridNameInput = element.querySelector("input[name=grid_name]");
-	gridNameInput.addEventListener('change', (e) => { console.log('changeListener'); setGridName(e.target.value); });
+	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileImportWindow(e));
+	// gridNameInput = element.querySelector("input[name=grid_name]");
+	// gridNameInput.addEventListener('change', (e) => { console.log('changeListener'); setGridName(e.target.value); });
 
-	element.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
-	element.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
-	element.querySelector('#download-as-json').addEventListener('click', (e) => downloadJsonSave());
+	// element.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
+	// element.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
+	// element.querySelector('#download-as-json').addEventListener('click', (e) => downloadJsonSave());
 
-	element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
-	element.querySelector("#add-from-json").addEventListener('drop', handleMergeDrop);
-	element.querySelector("#add-from-json").addEventListener('click', (e) => openFileAddWindow());
+	// element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
+	// element.querySelector("#add-from-json").addEventListener('drop', handleMergeDrop);
+	// element.querySelector("#add-from-json").addEventListener('click', (e) => openFileAddWindow());
 
-	element.querySelector("#clear-all").addEventListener('click', handleClearClicked);
-	element.querySelector("#reload-file").addEventListener('click', handleReloadClicked);
+	// element.querySelector("#clear-all").addEventListener('click', handleClearClicked);
+	// element.querySelector("#reload-file").addEventListener('click', handleReloadClicked);
 
 	return {defaultStyle, element};
 }

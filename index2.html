@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet"> 
+<title>Gridit</title>
+	<style>
+	:root {
+		--light: #52525B;
+		--dark: #3F3F46;
+		--darker: #27272A;
+		--darkest: #18181B;
+		--text-default: rgba(255, 255, 255, 0.87);
+	}
+
+	* {
+        font-family: 'Manrope', sans-serif;
+        margin: 0;
+		outline: 0;
+		border: none;
+	}
+
+	input::-webkit-outer-spin-button,
+	input::-webkit-inner-spin-button {
+	  -webkit-appearance: none;
+	  margin: 0;
+	}
+
+	/* Firefox */
+	input[type=number] {
+	  -moz-appearance: textfield;
+	}
+
+	html {
+		background: var(--darkest);
+	}
+
+	button, input {
+		color: var(--text-default);
+		border: 1px solid var(--light);
+		background: var(--dark);
+		padding: 8px 5px;
+	}
+
+	input:focus {
+		background-color: var(--light);		
+	}
+
+	button:hover {
+		background-color: var(--light);		
+	}
+
+
+	.control-panel {
+		color: var(--text-default);
+		position: fixed;
+		right: 0px;
+		background: var(--darker);
+		padding: 12px;
+		width: 371px;
+		display: flex;
+		flex-direction: column;
+		max-height: 100vh;
+		overflow-y: auto;
+		box-sizing: border-box; /* specfically so that the scroll bar doesn't mess with the inner width */
+	}
+
+	.control-panel > * {
+		margin-bottom: 12px;
+	}
+
+	.control-panel .action-list > button {
+		width: 100%;
+		margin-bottom: 12px;
+	}
+
+	#grid-mount-point {
+		display: grid;
+  	}
+
+
+  	.grid-coords-hidden .grid-coords-display {
+  		display: none;
+  	}
+
+	</style>
+</head>
+<body>
+
+<div class="grid-container">
+	<div id="control-panel-mount-point"  class="control-panel">
+	</div>
+	<div id="grid-mount-point">
+	</div>
+</div>
+	<script type="module">
+		import initStore from './src/data/store.js'
+		import profile from './src/config/gravetender-profile.js';
+		import PersistenceView from './src/components/PersistenceView.js'
+		import GridView from './src/components/GridView.js'
+		import { openFileSelectionWindow } from './src/data/Persistence.js';
+
+
+		const Main = () => {
+
+			// const instance = buildObject();
+			// store.getTestValue();
+	
+			const store = initStore();
+
+			store.loadGridProfile(profile);
+
+			const controlPanel = document.getElementById("control-panel-mount-point");
+			const styleElement = document.createElement('style');
+
+			// Buid/Mount Grid View
+			const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(store.grid.size.x, store.grid.size.y, 80, 5, store.schema.getValue);
+
+			const handleFileSelect = (event) => {
+				let file = event.target.files[0];
+				if (!file.type.match('^application/json')) return;
+				file.text().then(value => {
+					console.log(store.getSomeValue());
+					store.loadGridJsonData(value);
+					store.refreshGridFromLoadedJson();
+					initFromCellData(store.cellData);
+					console.log(store);
+				});
+			}
+
+
+			const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( 
+				{ openFileImportWindow: () => openFileSelectionWindow(handleFileSelect) } 
+			);
+
+			
+
+			styleElement.insertAdjacentHTML('beforeend', gridViewStyles);
+
+			controlPanel.insertAdjacentElement('beforeend', persistenceElement)
+			styleElement.insertAdjacentHTML('beforeend', persistenceStyle);
+			document.head.insertAdjacentElement('beforeend', styleElement);
+		};
+
+
+		document.addEventListener('DOMContentLoaded', Main);
+
+	</script>
+</body>
+</html>
