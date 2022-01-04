@@ -99,10 +99,11 @@
 		import initStore from './src/data/store.js'
 		import profile from './src/config/gravetender-profile.js';
 		import PersistenceView from './src/components/PersistenceView.js'
+		import GridConfigView from './src/components/GridConfigView.js';
 		import GridView from './src/components/GridView.js'
 		import { openFileSelectionWindow } from './src/data/Persistence.js';
 		import { 
-			loadGridProfile, loadGridJsonData, 
+			loadGridProfile, loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize,
 			SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, SelectLoadedJsonData, SelectSchemaValue } from './src/data/store.js';
 
 
@@ -111,45 +112,79 @@
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const styleMountElement = document.createElement('style');
 			const gridMountElement = document.querySelector("#grid-mount-point");
+			// Helpers for adding style and elements to the page.
+			const InjectStyle = (styles) => styleMountElement.insertAdjacentHTML('beforeend', styles);
+			const MountElement = (parent, elementToMount) => parent.insertAdjacentElement('beforeend', elementToMount);	
 			// Create the store which will contain all of our app state.
 			const store = initStore();
-			// Load the default grid profile. This contains default schema information.
-			loadGridProfile(store, profile);
 
+			
+			// Now let's start adding our components to the page.
+			// Initialize the GridView.
+			const { element: gridElement, defaultStyle: gridViewStyles, RenderGridAndCells } = 
+			GridView((schemaIndex, valueIndex) => SelectSchemaValue(store, { schemaIndex, valueIndex } ) );
 
+			// Update the size and display options for a grid and rerenders it with the currently loaded cell data.
+			const RefreshGrid = () => {
+				const gridSize = SelectGridSize(store);
+				const gridDisplayOptions = SelectGridDisplayOptions(store);
+				const cellData = SelectAllCellData(store);
+
+				// Update the view to match the new data. 
+				// Todo: this should be an Effect and be event driven.
+				RenderGridAndCells(gridSize.x, gridSize.y, gridDisplayOptions.cellSize, gridDisplayOptions.cellGap, gridDisplayOptions.showCoords, cellData);
+			}
+
+			// Handle a json file for import being selected in the PersistenceView.
 			const handleFileSelect = (event) => {
 				let file = event.target.files[0];
 				if (!file.type.match('^application/json')) return;
 				file.text().then(value => {
 					// Loads the json and imports the data.
 					loadGridJsonData(store, {jsonText: value});
-					const gridSize = SelectGridSize(store);
-					const gridDisplayOptions = SelectGridDisplayOptions(store);
-					// loadGridProfile(store, SelectLoadedJsonData(store));
-					// Build the grid view.
-					const { element: gridElement, defaultStyle: gridViewStyles, initFromCellData } = 
-					GridView(gridSize.x, gridSize.y, gridDisplayOptions.cellSize, gridDisplayOptions.cellGap, (schemaIndex, valueIndex) => SelectSchemaValue(store, { schemaIndex, valueIndex } ) );
-					initFromCellData(SelectAllCellData(store));
-					// Mount it onto the page.
-					gridMountElement.insertAdjacentElement('beforeend', gridElement);
-					// Add the styles.
-					styleMountElement.insertAdjacentHTML('beforeend', gridViewStyles);
-					console.log(gridElement);
-					console.log(store);
+					RefreshGridConfig();
+					RefreshGrid();
 				});
 			}
 
-			// Build the Persistence View 
+			MountElement(gridMountElement, gridElement);
+			InjectStyle(gridViewStyles);
+			
+
+			// Initialize the Persistence View. 
 			const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( 
 				{ openFileImportWindow: () => openFileSelectionWindow(handleFileSelect) } 
 			);
-			// Mount it to the page.
+			MountElement(controlPanelMountElement, persistenceElement);
+			InjectStyle(persistenceStyle);
 
-			
+			// Update the store value and re-render the panel.
+			const OnSubmit = (data) => {
+				UpdateGridSize(store, { width: data.columnCount, height: data.rowCount });
+				UpdateGridDisplayOptions(store, { cellSize: data.cellSize, cellGap: data.cellGap, showCoords: data.showCoords });
+				RefreshGridConfig();
+				RefreshGrid();
+			}
+			const {defaultStyle: gridConfigStyle, GridConfigElement, render: renderGridConfig} = GridConfigView(OnSubmit);
+			MountElement(controlPanelMountElement, GridConfigElement);
+			InjectStyle(gridConfigStyle);
+
+			const RefreshGridConfig = () => {
+				const gridSize = SelectGridSize(store);
+				const gridDisplayOptions = SelectGridDisplayOptions(store);
+				renderGridConfig({ columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions });
+			}
 
 
-			controlPanelMountElement.insertAdjacentElement('beforeend', persistenceElement)
-			styleMountElement.insertAdjacentHTML('beforeend', persistenceStyle);
+			// Load the default grid profile. This contains default schema information.
+			loadGridProfile(store, profile);
+			// Build the grid now that the profile is loaded.
+			RefreshGrid();
+			// Render grid config
+			RefreshGridConfig();
+
+
+
 			document.head.insertAdjacentElement('beforeend', styleMountElement);
 		};
 

@@ -42,22 +42,23 @@ const defaultStyle =
 		}
 `;
 
-//Update a given cell's DOM node to reflect a given cellState
-const renderCell = (mountElement, cellState, resolveCellValue) => {
-	mountElement.style.backgroundColor = '#' + resolveCellValue(0, cellState.attributes.fillColor).hex;
-	const symbolNode = mountElement.querySelector('.grid-cell-symbol');
-	const coordinatesDisplayNode = mountElement.querySelector('.grid-coords-display');
+// Update a given DOM node to reflect a given cellState.
+const renderCell = (cellElement, cellState, resolveCellValue) => {
+	cellElement.style.backgroundColor = '#' + resolveCellValue(0, cellState.attributes.fillColor).hex;
+	const symbolNode = cellElement.querySelector('.grid-cell-symbol');
+	const coordinatesDisplayNode = cellElement.querySelector('.grid-coords-display');
 	const symbolData = resolveCellValue(1, cellState.attributes.symbol);
 	const tileData = resolveCellValue(2, cellState.attributes.backgroundTileIndex);
 	symbolNode.innerHTML = symbolData.display;
 	symbolNode.style.left = symbolData.xOffset;
 	symbolNode.style.bottom = symbolData.yOffset;
 	symbolNode.style.fontSize = symbolData.fontSize;
-	mountElement.style.backgroundImage = `url(${tileData.imageDataUrl})`;
-	mountElement.style.backgroundSize = 'cover';
+	cellElement.style.backgroundImage = `url(${tileData.imageDataUrl})`;
+	cellElement.style.backgroundSize = 'cover';
 }
 
-const renderGrid = (mountElement, width, height, cellData, resolveCellValue) => {
+// Fills the given (grid) element with cells, each with optional data.
+const populateGridCells = (mountElement, width, height, cellData, resolveCellValue) => {
 	let nodeMap = new Map();
 	for (var y = height - 1; y >= 0; y--) {
 		for (var x = 0; x < width; x++) {
@@ -75,39 +76,74 @@ const renderGrid = (mountElement, width, height, cellData, resolveCellValue) => 
 			appendedNode.classList.add('grid-cell');
 			appendedNode.dataset.cellId = cellId;
 			appendedNode.ondragstart = () => {return false;};
-			// nodeMap.set(cellId, appendedNode);
+			nodeMap.set(cellId, appendedNode);
 			const cellRenderData = cellData.has(cellId) ? cellData.get(cellId) : initialCellState;
 			renderCell(appendedNode, cellRenderData, resolveCellValue);
-
 		}
 	}
 	return nodeMap;
 }
 
-const mountGridToElement = (mountElement, rowCount, columnCount, cellSize, cellGap) => {
-	mountElement.style.width = `${columnCount * (cellSize + cellGap)}px`;
-	mountElement.style.height = `${rowCount * (cellSize + cellGap)}px`;
+// Sets the Grid wrapper css to match the grid properties.
+const updateGridStyle = (mountElement, width, height, cellSize, cellGap, showCoords) => {
+	mountElement.style.width = `${width * (cellSize + cellGap)}px`;
+	mountElement.style.height = `${height * (cellSize + cellGap)}px`;
 	mountElement.style.display = 'grid';
 	mountElement.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
 	mountElement.style.gridGap = cellGap + "px";
 	mountElement.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
 	mountElement.style.fontSize = Math.round(.6 * cellSize) + 'px';
+	if (showCoords) {
+		mountElement.classList.remove('grid-coords-hidden');
+	} else {
+		mountElement.classList.add('grid-coords-hidden');
+	}
 }
 
 
-//Renders cells from Map of cellData
-const GridView = (rowCount, columnCount, cellSize, cellGap, resolveCellValue) => {
+// Renders cells from Map of cellData.
+const GridView = (resolveCellValue) => {
 	let cellToNodeMap = new Map();
-	const element = document.createElement('div');
-
-	mountGridToElement(element, rowCount, columnCount, cellSize, cellGap);
-
-	//Initialize a view from a set of cells
-	const initFromCellData = (cellData) => {
-		cellToNodeMap = renderGrid(element, columnCount, rowCount, cellData, resolveCellValue);
+	let displayOptions = {
+		width: 0,
+		height: 0,
+		cellSize: 0,
+		cellGap: 0,
+		showCoords: false
 	}
 
-	return {element, defaultStyle, renderCell, initFromCellData };
+	const element = document.createElement('div');
+
+	// Empty the grid of cells and remove our references to them.
+	const DeleteGridCells = () => {
+		cellToNodeMap.forEach(node => node.remove());
+		cellToNodeMap.clear();
+	}
+
+	// Populate THIS grid with cells, properly rendering any with pre-existing data.
+	const PopulateGridWithCells = (cellData, resolveCellValue) => {
+		DeleteGridCells();
+		cellToNodeMap = populateGridCells(element, displayOptions.width, displayOptions.height, cellData, resolveCellValue);
+	}
+
+	// Update display options for THIS grid.
+	const UpdateGridConfig = (width, height, cellSize, cellGap, showCoords) => {
+		displayOptions = { width, height, cellSize, cellGap, showCoords };
+		updateGridStyle(element, width, height, cellSize, cellGap, showCoords);
+	}
+
+	// const Init = (width, height, cellSize, cellGap) => {
+	// 	UpdateGridConfig(width, height, cellSize, cellGap);
+	// 	PopulateGridWithCells(new Map(), resolveCellValue);
+	// }
+
+	// Render a view from a set of grid display options and optional cellData.
+	const RenderGridAndCells = (width, height, cellSize, cellGap, showCoords, cellData) => {
+		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
+		PopulateGridWithCells(cellData, resolveCellValue);
+	}
+
+	return {element, defaultStyle, renderCell, RenderGridAndCells };
 }
 
 export default GridView;

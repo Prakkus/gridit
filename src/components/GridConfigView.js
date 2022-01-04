@@ -68,25 +68,43 @@
 			</label>
 	</div>
 	`;
-const GridConfigView = (updateGridConfig) => {
+const GridConfigView = (OnSubmit) => {
 	const GridConfigElement = document.createElement('div');
 	GridConfigElement.innerHTML = template;
 
 
+	const Submit = () => {
+		const data = {
+			rowCount: parseInt(rowCountInput.value),
+			columnCount: parseInt(columnCountInput.value),
+			cellSize: parseInt(cellSizeInput.value),
+			cellGap: parseInt(cellGapInput.value),
+			showCoords: showCoordsInput.checked
+		}
+		OnSubmit(data);
+	}
+
+	// Submit if they press ENTER with this element focused.
+	GridConfigElement.addEventListener("keydown", (e) => {
+		if (e.keyCode == 13) {
+			Submit();
+		}
+	});
+
 	const rowCountInput = GridConfigElement.querySelector('input[name=rowCount]');
-	rowCountInput.addEventListener('change', (e) => updateGridConfig({rowCount: e.target.value}));
+	rowCountInput.addEventListener('blur', Submit);
 
 	const columnCountInput = GridConfigElement.querySelector('input[name=columnCount]');
-	columnCountInput.addEventListener('change', (e) => updateGridConfig({columnCount: e.target.value}));
+	columnCountInput.addEventListener('blur', Submit);
 
 	const cellSizeInput = GridConfigElement.querySelector('input[name=cellSize]');
-	cellSizeInput.addEventListener('change', (e) => updateGridConfig({cellSize: e.target.value}));
+	cellSizeInput.addEventListener('blur', Submit);
 
 	const cellGapInput = GridConfigElement.querySelector('input[name=cellGap]');
-	cellGapInput.addEventListener('change', (e) => updateGridConfig({cellGap: e.target.value}));
+	cellGapInput.addEventListener('blur', Submit);
 
 	const showCoordsInput = GridConfigElement.querySelector('input[name=showCoords]');
-	showCoordsInput.addEventListener('change', (e) => updateGridConfig({showCoords: e.target.checked}));
+	showCoordsInput.addEventListener('change', Submit);
 
 	const render = ({rowCount, columnCount, cellSize, cellGap, showCoords }) => {
 		rowCountInput.value = rowCount;

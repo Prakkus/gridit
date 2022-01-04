@@ -93,16 +93,16 @@ export const loadSchema = (state, { schema }) => {
 
 
 // Grid 
-export const updateGridName = (state, { name }) => {
+export const UpdateGridName = (state, { name }) => {
 	state.grid.name = name;
 }
 
-export const updateGridSize = (state, { width, height }) => {
+export const UpdateGridSize = (state, { width, height }) => {
 	state.grid.size.x = width;
 	state.grid.size.y = height;
 }
 
-export const updateGridDisplayOptions = (state, { cellSize, cellGap, showCoords }) => {
+export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords }) => {
 	state.grid.displayOptions.cellSize = cellSize;
 	state.grid.displayOptions.cellGap = cellGap;
 	state.grid.displayOptions.showCoords = showCoords;
@@ -136,9 +136,9 @@ export const loadGridProfile = (state, {title, config, schema}) => {
 	// Clear the current profile.
 	clearCurrentProfile(state);
 	// Update grid attributes.
-	updateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoord: config.showCoords });
-	updateGridSize(state, { width: config.rowCount, height: config.columnCount });
-	updateGridName(state, { name: title });
+	UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
+	UpdateGridSize(state, { width: config.rowCount, height: config.columnCount });
+	UpdateGridName(state, { name: title });
 	// Load schema.
 	schema.forEach((schemaDef) => {
 		loadSchema(state, { schema: schemaDef });
