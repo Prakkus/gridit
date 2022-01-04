@@ -73,11 +73,11 @@ export const SelectSchemaValue = (state, { schemaIndex, valueIndex }) => {
 	return state.schema.tables[schemaIndex].values[valueIndex];
 }
 
-export const clearCurrentProfile = (state) => {
+export const ClearCurrentProfile = (state) => {
 	state.schema.tables = [];
-	setSelectedSchema(state, { schemaIndex: 0, valueIndex: 0 });	
+	SetSelectedSchemaValue(state, { schemaIndex: 0, valueIndex: 0 });	
 }
-export const setSelectedSchema = (state, { schemaIndex, valueIndex }) => {
+export const SetSelectedSchemaValue = (state, { schemaIndex, valueIndex }) => {
 	state.schema.selectedSchemaIndex = schemaIndex;
 	state.schema.selectedValueIndex = valueIndex;
 }
@@ -134,7 +134,7 @@ export const loadCellData = (state, { cellData, gridSize }) => {
 // Loads a configuration profile (not a grid save file!).
 export const loadGridProfile = (state, {title, config, schema}) => {
 	// Clear the current profile.
-	clearCurrentProfile(state);
+	ClearCurrentProfile(state);
 	// Update grid attributes.
 	UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
 	UpdateGridSize(state, { width: config.rowCount, height: config.columnCount });

@@ -1,4 +1,4 @@
-import { getSchemaValueId } from './default-profile.js';
+import { getSchemaValueId } from '../config/default-profile.js';
 
 const defaultStyle =
 `
@@ -38,34 +38,34 @@ const template =
 
 `;
 
-// const defaultSymbolValue = {
-// 				name: 'defaultSymbol',
-// 				display: '',
-// 				xOffset: 0,
-// 				yOffset: 0,
-// 				fontSize: '100%' 
-// 			};
+const defaultSymbolValue = {
+				name: 'defaultSymbol',
+				display: '',
+				xOffset: 0,
+				yOffset: 0,
+				fontSize: '100%' 
+			};
 
-// const defaultColorValue = {
-// 				name: 'defaultColor',
-// 				hex: '71717A'
-// 			};
+const defaultColorValue = {
+				name: 'defaultColor',
+				hex: '71717A'
+			};
 
-// const defaultTileValue = {
-// 				imageDataUrl: ''
-// 			};
+const defaultTileValue = {
+				imageDataUrl: ''
+			};
 
-// const schemaDefaultMap = {
-// 	background_color: defaultColorValue,
-// 	symbol: defaultSymbolValue,
-// 	tile_index_background: defaultTileValue
-// }
+const schemaDefaultMap = {
+	background_color: defaultColorValue,
+	symbol: defaultSymbolValue,
+	tile_index_background: defaultTileValue
+}
 
 
-const ColorControls = (schemaProfile) => {
-	// let loadedSchemas = [];
-	// let selectedSchemaIndex = 0;
-	// let selectedValueIndex = 0;
+const ColorControls = () => {
+	let loadedSchemas = [];
+	let selectedSchemaIndex = 0;
+	let selectedValueIndex = 0;
 
 	const colorSwatchNodes = new Map(); //Map of colorName->colorSwatchNode so that we can update their active state easily 
 
@@ -74,9 +74,9 @@ const ColorControls = (schemaProfile) => {
 	ColorControlsElement.classList.add('cursor-controls');
 
 
-	// const getSchemaValue = (schemaIndex, valueIndex) => {
-	// 	return loadedSchemas[schemaIndex].values[valueIndex];
-	// }
+	const getSchemaValue = (schemaIndex, valueIndex) => {
+		return loadedSchemas[schemaIndex].values[valueIndex];
+	}
 
 	const activateSelectionHighlight = (schemaIndex, valueIndex) => {
 		if (loadedSchemas.length < 1) return;
@@ -88,12 +88,12 @@ const ColorControls = (schemaProfile) => {
 		ColorControlsElement.querySelector(`[data-selection-id=${getSchemaValueId(loadedSchemas[schemaIndex], valueIndex)}]`).classList.remove('active-color');
 	}
 
-	// const setSelectedWriteValue = (schemaIndex, valueIndex) => {
-	// 	deactivateSelectionHighlight(selectedSchemaIndex, selectedValueIndex);
-	// 	selectedSchemaIndex = schemaIndex;
-	// 	selectedValueIndex = valueIndex;
-	// 	activateSelectionHighlight(selectedSchemaIndex, selectedValueIndex);
-	// }
+	const setSelectedWriteValue = (schemaIndex, valueIndex) => {
+		deactivateSelectionHighlight(selectedSchemaIndex, selectedValueIndex);
+		selectedSchemaIndex = schemaIndex;
+		selectedValueIndex = valueIndex;
+		activateSelectionHighlight(selectedSchemaIndex, selectedValueIndex);
+	}
 
 	const buildBrushSelectionButton = (schemaIndex, valueIndex) => {
 		let swatchButton = document.createElement('button');
@@ -171,20 +171,20 @@ const ColorControls = (schemaProfile) => {
 	}
 
 	//Load values into an existing schema by index
-	// const loadValuesIntoSchema = (schemaIndex, schemaValues) => {
-	// 	const schema = loadedSchemas[schemaIndex];
-	// 	const defaultValue = schemaDefaultMap[schema.name];	
-	// 	loadedSchemas[schemaIndex] = {...schema, values: [defaultValue, ...schemaValues]};
-	// 	buildAndRenderSectionForSchema(schemaIndex);
+	const loadValuesIntoSchema = (schemaIndex, schemaValues) => {
+		const schema = loadedSchemas[schemaIndex];
+		const defaultValue = schemaDefaultMap[schema.name];	
+		loadedSchemas[schemaIndex] = {...schema, values: [defaultValue, ...schemaValues]};
+		buildAndRenderSectionForSchema(schemaIndex);
 
-	// }
+	}
 
-	// //Load a schema from a profile
-	// const loadSchema = (schema) => {
-	// 	const newIndex = loadedSchemas.push({...schema}) - 1;
-	// 	loadValuesIntoSchema(newIndex, schema.values);
-	// 	buildAndRenderSectionForSchema(newIndex);
-	// }
+	//Load a schema from a profile
+	const loadSchema = (schema) => {
+		const newIndex = loadedSchemas.push({...schema}) - 1;
+		loadValuesIntoSchema(newIndex, schema.values);
+		buildAndRenderSectionForSchema(newIndex);
+	}
 
 	const clearCurrentProfile = () => {
 		loadedSchemas = [];
@@ -212,8 +212,6 @@ const ColorControls = (schemaProfile) => {
 			return {...schema, values: [...schema.values.slice(1)] }
 		});
 	}
-
-	importAndLoadProfile(schemaProfile);
 
 
 	// const button = 
