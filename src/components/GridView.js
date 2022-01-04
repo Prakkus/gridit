@@ -104,7 +104,7 @@ const GridView = (rowCount, columnCount, cellSize, cellGap, resolveCellValue) =>
 
 	//Initialize a view from a set of cells
 	const initFromCellData = (cellData) => {
-		cellToNodeMap = renderGrid(element, columnCount, rowCount, cellData.all, resolveCellValue);
+		cellToNodeMap = renderGrid(element, columnCount, rowCount, cellData, resolveCellValue);
 	}
 
 	return {element, defaultStyle, renderCell, initFromCellData };

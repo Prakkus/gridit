@@ -52,6 +52,21 @@ const constructCellMap = (rows, columns) => {
 	return cellData;
 }
 
+export const SelectAllCellData = (state) => {
+	return state.cellData.all;
+}
+
+export const SelectLoadedJsonData = (state) => {
+	return state.loadedJson.parsedJson;
+}
+
+export const SelectGridDisplayOptions = (state) => {
+	return state.grid.displayOptions;
+}
+
+export const SelectGridSize = (state) => {
+	return state.grid.size;
+}
 
 // Schema
 export const SelectSchemaValue = (state, { schemaIndex, valueIndex }) => {
@@ -96,16 +111,17 @@ export const updateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 // Commands
 // Load a grid save file into the store.
 export const loadGridJsonData = (state, { jsonText }) => {
+	const refreshGridFromLoadedJson = (state) => {
+		const profile = state.loadedJson.parsedJson;
+		loadGridProfile(state, profile);
+		loadCellData(state, { cellData: profile.cellData, gridSize: state.grid.size });
+	}
 	state.loadedJson.rawJson = jsonText;
 	state.loadedJson.parsedJson = JSON.parse(jsonText);
 	state.loadedJson.title = state.loadedJson.parsedJson.title;
+	refreshGridFromLoadedJson(state);
 }
-// Updates the grid data to match the currently loaded json.
-export const refreshGridFromLoadedJson = (state) => {
-	const profile = state.loadedJson.parsedJson;
-	loadGridProfile(state, profile);
-	loadCellData(state, { cellData: profile.cellData, gridSize: state.grid.size });
-}
+
 export const loadCellData = (state, { cellData, gridSize }) => {
 	//If this grid was previously initalized, copy the state of any cells which still exist to the resized grid
 	const newMap = constructCellMap(gridSize.x, gridSize.y, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
