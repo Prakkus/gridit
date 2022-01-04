@@ -42,30 +42,6 @@ const defaultStyle =
 		}
 `;
 
-const renderGridFromCells = (mountElement, cellData) => {
-	let nodeMap = new Map();
-	let sorted = [...cellData]; //sort(cell => cell.Id);
-	console.log(sorted);
-	sorted.forEach(([cellId, cellState]) => {
-		const thisCell = document.createElement('div');
-		const symbol = document.createElement('span');
-		symbol.classList.add('grid-cell-symbol');
-		const coords = document.createElement('span');
-		coords.classList.add('grid-coords-display');
-		coords.innerHTML = `(${cellState.x}, ${cellState.y})`;
-		thisCell.insertAdjacentElement('beforeend', symbol);
-		thisCell.insertAdjacentElement('beforeend', coords);
-
-		const appendedNode = mountElement.appendChild(thisCell);
-		appendedNode.classList.add('grid-cell');
-		appendedNode.dataset.cellId = cellId;
-		appendedNode.ondragstart = () => {return false;};
-		nodeMap.set(cellId, appendedNode);				
-	});
-
-	return nodeMap;
-}
-
 //Update a given cell's DOM node to reflect a given cellState
 const renderCell = (mountElement, cellState, resolveCellValue) => {
 	mountElement.style.backgroundColor = '#' + resolveCellValue(0, cellState.attributes.fillColor).hex;
@@ -128,18 +104,10 @@ const GridView = (rowCount, columnCount, cellSize, cellGap, resolveCellValue) =>
 
 	//Initialize a view from a set of cells
 	const initFromCellData = (cellData) => {
-		// cellToNodeMap = renderGridFromCells(element, cellData.all);
-		cellToNodeMap = renderGrid(element, cellData.all);
-		cellData.all.forEach((cellState) => renderCell(cellState));
-	}
-
-	const init = (cellData) => {
-		// cellToNodeMap = renderGridFromCells(element, cellData.all);
 		cellToNodeMap = renderGrid(element, columnCount, rowCount, cellData.all, resolveCellValue);
-		console.log(cellToNodeMap);
 	}
 
-	return {element, defaultStyle, renderCell, init, initFromCellData };
+	return {element, defaultStyle, renderCell, initFromCellData };
 }
 
 export default GridView;

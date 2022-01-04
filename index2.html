@@ -117,7 +117,7 @@
 			const styleElement = document.createElement('style');
 
 			// Buid/Mount Grid View
-			const { element: gridElement, defaultStyle: gridViewStyles, renderCell, init: initGrid, initFromCellData } = GridView(store.grid.size.x, store.grid.size.y, 80, 5,
+			const { element: gridElement, defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(store.grid.size.x, store.grid.size.y, 80, 5,
 				(schemaIndex, valueIndex) => SelectSchemaValue(store, { schemaIndex, valueIndex } ) );
 
 			const handleFileSelect = (event) => {
@@ -127,7 +127,7 @@
 					// console.log(store.getSomeValue());
 					loadGridJsonData(store, {jsonText: value});
 					refreshGridFromLoadedJson(store);
-					initGrid({all: new Map()});
+					initFromCellData({all: new Map()});
 					console.log(gridElement);
 					document.querySelector("#grid-mount-point").insertAdjacentElement('beforeend', gridElement);
 					console.log(store);
