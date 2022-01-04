@@ -101,6 +101,7 @@
 		import PersistenceView from './src/components/PersistenceView.js'
 		import GridView from './src/components/GridView.js'
 		import { openFileSelectionWindow } from './src/data/Persistence.js';
+		import { loadGridProfile, refreshGridFromLoadedJson, loadGridJsonData, SelectSchemaValue } from './src/data/store.js';
 
 
 		const Main = () => {
@@ -110,22 +111,25 @@
 	
 			const store = initStore();
 
-			store.loadGridProfile(profile);
+			loadGridProfile(store, profile);
 
 			const controlPanel = document.getElementById("control-panel-mount-point");
 			const styleElement = document.createElement('style');
 
 			// Buid/Mount Grid View
-			const { defaultStyle: gridViewStyles, renderCell, initFromCellData } = GridView(store.grid.size.x, store.grid.size.y, 80, 5, store.schema.getValue);
+			const { element: gridElement, defaultStyle: gridViewStyles, renderCell, init: initGrid, initFromCellData } = GridView(store.grid.size.x, store.grid.size.y, 80, 5,
+				(schemaIndex, valueIndex) => SelectSchemaValue(store, { schemaIndex, valueIndex } ) );
 
 			const handleFileSelect = (event) => {
 				let file = event.target.files[0];
 				if (!file.type.match('^application/json')) return;
 				file.text().then(value => {
-					console.log(store.getSomeValue());
-					store.loadGridJsonData(value);
-					store.refreshGridFromLoadedJson();
-					initFromCellData(store.cellData);
+					// console.log(store.getSomeValue());
+					loadGridJsonData(store, {jsonText: value});
+					refreshGridFromLoadedJson(store);
+					initGrid({all: new Map()});
+					console.log(gridElement);
+					document.querySelector("#grid-mount-point").insertAdjacentElement('beforeend', gridElement);
 					console.log(store);
 				});
 			}

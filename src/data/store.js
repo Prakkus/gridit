@@ -28,7 +28,7 @@ import { getDefaultAttributes } from '../config/default-profile.js';
 
 const defaultAttributes = getDefaultAttributes();
 
-const initialCellState = {
+export const initialCellState = {
 	cellId: '-1,-1',
 	x: -1,
 	y: -1,
@@ -52,6 +52,83 @@ const constructCellMap = (rows, columns) => {
 	return cellData;
 }
 
+
+// Schema
+export const SelectSchemaValue = (state, { schemaIndex, valueIndex }) => {
+	return state.schema.tables[schemaIndex].values[valueIndex];
+}
+
+export const clearCurrentProfile = (state) => {
+	state.schema.tables = [];
+	setSelectedSchema(state, { schemaIndex: 0, valueIndex: 0 });	
+}
+export const setSelectedSchema = (state, { schemaIndex, valueIndex }) => {
+	state.schema.selectedSchemaIndex = schemaIndex;
+	state.schema.selectedValueIndex = valueIndex;
+}
+export const loadValuesIntoSchema = (state, { schemaIndex, schemaValues }) => {
+	const schema = state.schema.tables[schemaIndex];
+	const defaultValue = schemaDefaultMap[schema.name];	
+	state.schema.tables[schemaIndex] = {...schema, values: [defaultValue, ...schemaValues]};
+}
+export const loadSchema = (state, { schema }) => {
+	const newIndex = state.schema.tables.push({...schema}) - 1;
+	loadValuesIntoSchema(state, { schemaIndex: newIndex, schemaValues: schema.values });
+}
+
+
+// Grid 
+export const updateGridName = (state, { name }) => {
+	state.grid.name = name;
+}
+
+export const updateGridSize = (state, { width, height }) => {
+	state.grid.size.x = width;
+	state.grid.size.y = height;
+}
+
+export const updateGridDisplayOptions = (state, { cellSize, cellGap, showCoords }) => {
+	state.grid.displayOptions.cellSize = cellSize;
+	state.grid.displayOptions.cellGap = cellGap;
+	state.grid.displayOptions.showCoords = showCoords;
+}
+
+// Commands
+// Load a grid save file into the store.
+export const loadGridJsonData = (state, { jsonText }) => {
+	state.loadedJson.rawJson = jsonText;
+	state.loadedJson.parsedJson = JSON.parse(jsonText);
+	state.loadedJson.title = state.loadedJson.parsedJson.title;
+}
+// Updates the grid data to match the currently loaded json.
+export const refreshGridFromLoadedJson = (state) => {
+	const profile = state.loadedJson.parsedJson;
+	loadGridProfile(state, profile);
+	loadCellData(state, { cellData: profile.cellData, gridSize: state.grid.size });
+}
+export const loadCellData = (state, { cellData, gridSize }) => {
+	//If this grid was previously initalized, copy the state of any cells which still exist to the resized grid
+	const newMap = constructCellMap(gridSize.x, gridSize.y, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
+	cellData.forEach((oldCell, oldId) => {
+		if (!newMap.has(oldId)) return;
+		newMap.set(oldId, oldCell);
+	});
+	state.cellData.setCellData(newMap);
+}
+// Loads a configuration profile (not a grid save file!).
+export const loadGridProfile = (state, {title, config, schema}) => {
+	// Clear the current profile.
+	clearCurrentProfile(state);
+	// Update grid attributes.
+	updateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoord: config.showCoords });
+	updateGridSize(state, { width: config.rowCount, height: config.columnCount });
+	updateGridName(state, { name: title });
+	// Load schema.
+	schema.forEach((schemaDef) => {
+		loadSchema(state, { schema: schemaDef });
+	});		
+}
+
 const initStore = () => {
 	return {
 		isDirty: true,
@@ -70,44 +147,12 @@ const initStore = () => {
 				cellSize: 0,
 				cellGap: 0,
 				showCoords: false			
-			},
-			updateName: function(name) {
-				this.name = name;
-			},
-			updateGridSize: function(width, height) {
-				this.size.x = width;
-				this.size.y = width;
-			},
-			updateGridDisplayOptions: function(cellSize, cellGap, showCoords) {
-				this.displayOptions.cellSize = cellSize;
-				this.displayOptions.cellGap = cellGap;
-				this.displayOptions.showCoords = showCoords;
 			}
 		},
 		schema: {
 			tables: [],
 			selectedSchemaIndex: 0,
 			selectedValueIndex: 0,
-			getValue: (schemaIndex, valueIndex) => {
-				return this.tables[schemaIndex].values[valueIndex];
-			},
-			clearCurrentProfile: function() {
-				this.tables = [];
-				this.setSelected(0, 0);	
-			},
-			setSelected: function(schemaIndex, valueIndex) {
-				this.selectedSchemaIndex = schemaIndex;
-				this.selectedValueIndex = valueIndex;
-			},
-			loadValuesIntoSchema: function(schemaIndex, schemaValues) {
-				const schema = this.tables[schemaIndex];
-				const defaultValue = schemaDefaultMap[schema.name];	
-				this.tables[schemaIndex] = {...schema, values: [defaultValue, ...schemaValues]};
-			},
-			loadSchema: function(schema) {
-				const newIndex = this.tables.push({...schema}) - 1;
-				this.loadValuesIntoSchema(newIndex, schema.values);
-			}
 		},
 		cellData: {
 			all: new Map(),
@@ -139,45 +184,6 @@ const initStore = () => {
 			setCellData: function(cellData) {
 				this.all = cellData;
 			}
-		},
-
-
-
-
-		// Commands
-		// Load a grid save file into the store.
-		loadGridJsonData : function(jsonText) {
-			this.loadedJson.rawJson = jsonText;
-			this.loadedJson.parsedJson = JSON.parse(jsonText);
-			this.loadedJson.title = this.loadedJson.parsedJson.title;
-		},
-		// Updates the grid data to match the currently loaded json.
-		refreshGridFromLoadedJson: function() {
-			const profile = this.loadedJson.parsedJson;
-			this.loadGridProfile(profile);
-			this.loadCellData(profile.cellData, this.grid.size);
-		},
-		loadCellData: function(cellData, gridSize) {
-			//If this grid was previously initalized, copy the state of any cells which still exist to the resized grid
-			const newMap = constructCellMap(gridSize.x, gridSize.y, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
-			cellData.forEach((oldCell, oldId) => {
-				if (!newMap.has(oldId)) return;
-				newMap.set(oldId, oldCell);
-			});
-			this.cellData.setCellData(newMap);
-		},
-		// Loads a configuration profile (not a grid save file!).
-		loadGridProfile : function({title, config, schema}) {
-			// Clear the current profile.
-			this.schema.clearCurrentProfile();
-			// Update grid attributes.
-			this.grid.updateGridDisplayOptions(config.cellSize, config.cellGap, config.showCoords);
-			this.grid.updateGridSize(config.rowCount, config.columnCount);
-			this.grid.updateName(title);
-			// Load schema.
-			schema.forEach((schemaDef) => {
-				this.schema.loadSchema(schemaDef);
-			});		
 		}
 	}
 }
