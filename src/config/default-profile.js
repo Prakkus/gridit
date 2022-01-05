@@ -152,7 +152,7 @@ const defaultProfile = {
 	]
 };
 
-const getSchemaValueId = (schema, index) => `${schema.name}-${index}`;
+const buildSchemaValueId = (schemaName, index) => `${schemaName}-${index}`;
 const getDefaultAttributes = () => {
 	const types = {};
 	defaultProfile.schema.forEach((schema) => {
@@ -163,4 +163,4 @@ const getDefaultAttributes = () => {
 }
 
 export default defaultProfile;
-export { getSchemaValueId, getDefaultAttributes };
+export { buildSchemaValueId, getDefaultAttributes };

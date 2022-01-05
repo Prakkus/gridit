@@ -69,8 +69,26 @@ export const SelectGridSize = (state) => {
 }
 
 // Schema
+export const SelectLoadedSchemas = (state) => {
+	return state.schema.tables;
+} 
+export const SelectSchema = (state, { schemaIndex }) => {
+	return state.schema.tables[schemaIndex];
+}
+export const SelectSchemaDisplayName = (state, { schemaIndex }) => {
+	return SelectSchema(state, { schemaIndex }).displayName;
+}
 export const SelectSchemaValue = (state, { schemaIndex, valueIndex }) => {
-	return state.schema.tables[schemaIndex].values[valueIndex];
+	return SelectSchema(state, { schemaIndex }).values[valueIndex];
+}
+export const SelectSchemaValues = (state, { schemaIndex, valueIndex }) => {
+	return SelectSchema(state, { schemaIndex }).values;
+}
+export const SelectSchemaName = (state, { schemaIndex }) => {
+	return SelectSchema(state, { schemaIndex }).name;
+}
+export const SelectSchemaTables = (state, { schemaIndex }) => {
+	return SelectSchema(state, { schemaIndex }).tables;
 }
 
 export const ClearCurrentProfile = (state) => {
@@ -80,6 +98,12 @@ export const ClearCurrentProfile = (state) => {
 export const SetSelectedSchemaValue = (state, { schemaIndex, valueIndex }) => {
 	state.schema.selectedSchemaIndex = schemaIndex;
 	state.schema.selectedValueIndex = valueIndex;
+}
+export const SelectCurrentlySelectedSchemaValue = (state) => {
+	return {
+		selectedSchemaIndex: state.schema.selectedSchemaIndex,
+		selectedValueIndex: state.schema.selectedValueIndex
+	}
 }
 export const loadValuesIntoSchema = (state, { schemaIndex, schemaValues }) => {
 	const schema = state.schema.tables[schemaIndex];
@@ -146,7 +170,7 @@ export const loadGridProfile = (state, {title, config, schema}) => {
 }
 
 const initStore = () => {
-	return {
+	let store =  {
 		isDirty: true,
 		loadedJson: {
 			title: '',
@@ -202,5 +226,7 @@ const initStore = () => {
 			}
 		}
 	}
+	const UseSelector = (selector) => selector(store);
+	return { UseSelector, store }
 }
 export default initStore;
