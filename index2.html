@@ -105,8 +105,8 @@
 		import { openFileSelectionWindow } from './src/data/Persistence.js';
 		import GridDrag from './src/components/GridDrag.js';
 		import { 
-			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize, UpdateCells,
-			SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
+			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells,
+			SelectCurrentlySelectedAttributeUpdate, SelectGridName, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
 			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
 
 
@@ -177,9 +177,19 @@
 			
 
 			// Initialize the Persistence View. 
-			const {defaultStyle: persistenceStyle, element: persistenceElement} = PersistenceView( 
-				{ openFileImportWindow: () => openFileSelectionWindow(handleFileSelect) } 
+			const {defaultStyle: persistenceStyle, element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
+				{ 
+					openFileImportWindow: () => openFileSelectionWindow(handleFileSelect),
+					onSubmit: (data) => {
+						UpdateGridName(store, { name: data.gridName });
+						RefreshPersistenceView()
+					}
+				} 
 			);
+			const RefreshPersistenceView = () => {
+				const gridName = UseSelector(SelectGridName);
+				RenderPersistenceView({ gridName });
+			}
 			MountElement(controlPanelMountElement, persistenceElement);
 			InjectStyle(persistenceStyle);
 
@@ -220,6 +230,7 @@
 			// Render grid config
 			RefreshGridConfig();
 			RefreshSchemaControls();
+			RefreshPersistenceView();
 
 
 

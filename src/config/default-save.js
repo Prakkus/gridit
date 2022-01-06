@@ -1,5 +1,5 @@
 const defaultProfile = {
-	title: "Gravetender Terrain Editor",
+	title: "untitled",
 	config :
 		{ 
 			columnCount: 8,

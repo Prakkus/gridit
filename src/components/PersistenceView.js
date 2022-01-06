@@ -1,8 +1,4 @@
-const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
-	let gridNameInput;
-	// addOnGridNameChangedListener((name) => gridNameInput.value = name);
-
-	const defaultStyle = 
+const defaultStyle = 
 	`
 		.title {
 			padding-bottom: 16px;
@@ -56,13 +52,30 @@ const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName,
 	</div>
 	`;
 
+const PersistenceView = ({ openFileImportWindow, openFileAddWindow, onSubmit, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
+	let gridNameInput;
 	const element = document.createElement('div')
 	element.innerHTML = template;
 
-	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileImportWindow(e));
-	// gridNameInput = element.querySelector("input[name=grid_name]");
-	// gridNameInput.addEventListener('change', (e) => { console.log('changeListener'); setGridName(e.target.value); });
 
+	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileImportWindow(e));
+	gridNameInput = element.querySelector("input[name=grid_name]");
+	gridNameInput.addEventListener('blur', (e) => {
+		Submit();
+	});
+	gridNameInput.addEventListener('keydown', (e) => {
+		if (e.keyCode == 13) {
+			console.log('enter submit');
+			Submit();
+		}
+	});
+
+	const Submit = () => {
+		const data = {
+			gridName: gridNameInput.value
+		}
+		onSubmit(data);
+	}
 	// element.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
 	// element.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
 	// element.querySelector('#download-as-json').addEventListener('click', (e) => downloadJsonSave());
@@ -74,7 +87,12 @@ const PersistenceView = ({ openFileImportWindow, openFileAddWindow, setGridName,
 	// element.querySelector("#clear-all").addEventListener('click', handleClearClicked);
 	// element.querySelector("#reload-file").addEventListener('click', handleReloadClicked);
 
-	return {defaultStyle, element};
+
+	const Render = ({ gridName }) => {
+		gridNameInput.value = gridName;
+	}
+
+	return {element, defaultStyle, Render};
 }
 
 export default PersistenceView;

@@ -25,21 +25,21 @@ export const openFileSelectionWindow = (onSelect) => {
 }
 
 const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) => {
-	let currentlyLoadedJson = '';
-	let currentlyLoadedData;
-	let onLoadedFileChangedListeners = new Set();
-	let onMergeFileDroppedListeners = new Set();
-	let onGridNameChangedListeners = new Set();
-	let gridName = 'untitled';
+	// let currentlyLoadedJson = '';
+	// let currentlyLoadedData;
+	// let onLoadedFileChangedListeners = new Set();
+	// let onMergeFileDroppedListeners = new Set();
+	// let onGridNameChangedListeners = new Set();
+	// let gridName = 'untitled';
 
-	const setGridName = (name) => {
-		gridName = name;
-		onGridNameChangedListeners.forEach((listener) => listener(name));
-	}
+	// const setGridName = (name) => {
+	// 	gridName = name;
+	// 	onGridNameChangedListeners.forEach((listener) => listener(name));
+	// }
 
-	const addOnLoadedFileChangedListener = (callback) => onLoadedFileChangedListeners.add(callback);
-	const addOnMergeFileDroppedListener = (callback) => onMergeFileDroppedListeners.add(callback);
-	const addOnGridNameChangedListener = (callback) => onGridNameChangedListeners.add(callback);
+	// const addOnLoadedFileChangedListener = (callback) => onLoadedFileChangedListeners.add(callback);
+	// const addOnMergeFileDroppedListener = (callback) => onMergeFileDroppedListeners.add(callback);
+	// const addOnGridNameChangedListener = (callback) => onGridNameChangedListeners.add(callback);
 
 	const onLoadedFileTextChanged = (oldJson, newJson) => {
 		if (oldJson === newJson) return;

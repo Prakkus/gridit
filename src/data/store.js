@@ -29,6 +29,10 @@ export const SelectGridSize = (state) => {
 	return state.grid.size;
 }
 
+export const SelectGridName = (state) => {
+	return state.grid.name;
+}
+
 // Schema
 export const SelectLoadedSchemas = (state) => {
 	return state.schema.tables;
