@@ -24,32 +24,40 @@ const schemaDefaultMap = {
 
 
 // Grid Values
-import { getDefaultAttributes } from '../config/default-profile.js';
 
-const defaultAttributes = getDefaultAttributes();
-
-export const initialCellState = {
-	cellId: '-1,-1',
-	x: -1,
-	y: -1,
-	attributes: defaultAttributes
-}
+// export const initialCellState = {
+// 	cellId: '-1,-1',
+// 	x: -1,
+// 	y: -1,
+// 	attributes: defaultAttributes
+// }
 
 
-const constructCellMap = (rows, columns) => {
-	let cellData = new Map();
-	for (var y = rows - 1; y >= 0; y--) {
-		for (var x = 0; x < columns; x++) {
-			const cellState = {
-				...initialCellState,
-				cellId: x + ',' + y,
-				x: x,
-				y: y
-			}
-			cellData.set(cellState.cellId, cellState);
-		}
-	}
-	return cellData;
+// const constructCellMap = (rows, columns, defaultAttributes) => {
+// 	let cellData = new Map();
+// 	for (var y = rows - 1; y >= 0; y--) {
+// 		for (var x = 0; x < columns; x++) {
+// 			const cellState = {
+// 				cellId: x + ',' + y,
+// 				x: x,
+// 				y: y,
+// 				attributes: defaultAttributes
+// 			}
+// 			cellData.set(cellState.cellId, cellState);
+// 		}
+// 	}
+// 	return cellData;
+// }
+
+// Loops through the existing schema and builds a set of default attributes for each.
+// Used as the initial state for any cell.
+export const SelectDefaultCellAttributes = (state) => {
+	const types = {};
+	state.schema.tables.forEach((schema) => {
+		types[schema.cellAttribute] = 0;
+	});
+
+	return types;
 }
 
 export const SelectAllCellData = (state) => {
@@ -136,9 +144,25 @@ export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 // Load a grid save file into the store.
 export const loadGridJsonData = (state, { jsonText }) => {
 	const refreshGridFromLoadedJson = (state) => {
-		const profile = state.loadedJson.parsedJson;
+		// Loads a configuration profile (not a grid save file!).
+		const loadGridProfile = (state, {title, config, schema}) => {
+			// Clear the current profile.
+			ClearCurrentProfile(state);
+			// Update grid attributes.
+			UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
+			UpdateGridSize(state, { width: config.rowCount, height: config.columnCount });
+			UpdateGridName(state, { name: title });
+			// Load schema.
+			schema.forEach((schemaDef) => {
+				loadSchema(state, { schema: schemaDef });
+			});
+		}
+		const profile = SelectLoadedJsonData(state);
+		// Load the profile, then pull the new default cell state and use it to load the cellData.
+		// Todo: maybe the initial state should be cached and I just update it when I load schemas.
 		loadGridProfile(state, profile);
-		loadCellData(state, { cellData: profile.cellData, gridSize: state.grid.size });
+		console.log(profile.cellData);
+		loadCellData(state, { cellData: profile.cellData });
 	}
 	state.loadedJson.rawJson = jsonText;
 	state.loadedJson.parsedJson = JSON.parse(jsonText);
@@ -146,27 +170,8 @@ export const loadGridJsonData = (state, { jsonText }) => {
 	refreshGridFromLoadedJson(state);
 }
 
-export const loadCellData = (state, { cellData, gridSize }) => {
-	//If this grid was previously initalized, copy the state of any cells which still exist to the resized grid
-	const newMap = constructCellMap(gridSize.x, gridSize.y, initialCellState); //Map of cellId->cellState (what is the state of a given cellId?)
-	cellData.forEach((oldCell, oldId) => {
-		if (!newMap.has(oldId)) return;
-		newMap.set(oldId, oldCell);
-	});
-	state.cellData.setCellData(newMap);
-}
-// Loads a configuration profile (not a grid save file!).
-export const loadGridProfile = (state, {title, config, schema}) => {
-	// Clear the current profile.
-	ClearCurrentProfile(state);
-	// Update grid attributes.
-	UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
-	UpdateGridSize(state, { width: config.rowCount, height: config.columnCount });
-	UpdateGridName(state, { name: title });
-	// Load schema.
-	schema.forEach((schemaDef) => {
-		loadSchema(state, { schema: schemaDef });
-	});		
+export const loadCellData = (state, { cellData }) => {
+	state.cellData.setCellData(new Map(cellData));
 }
 
 const initStore = () => {
@@ -196,31 +201,31 @@ const initStore = () => {
 		},
 		cellData: {
 			all: new Map(),
-			updateCellStateById: function(cellId, propUpdates) {
-				const currentState = this.all.get(cellId);
-				updateCellState(currentState, propUpdates);
-			},
-			updateCellState: function(cellState, propUpdates) {
-				const newState = { 
-					...cellState,
-					attributes: {
-						...cellState.attributes,
-						...propUpdates
-					}
-				};
-				this.all.set(cellState.cellId, newState);
-			},
-			resetAllCellStates: function() {
-				this.all.forEach((cellState, cellId) => {
-					updateCellState(cellState, initialCellState.attributes);
-				});
-			},
-			getAllCells: function() {
-				return new Map(this.all);
-			},
-			getCellStateById : function(cellId) {
-				return this.all.get(cellId);
-			},
+			// updateCellStateById: function(cellId, propUpdates) {
+			// 	const currentState = this.all.get(cellId);
+			// 	updateCellState(currentState, propUpdates);
+			// },
+			// updateCellState: function(cellState, propUpdates) {
+			// 	const newState = { 
+			// 		...cellState,
+			// 		attributes: {
+			// 			...cellState.attributes,
+			// 			...propUpdates
+			// 		}
+			// 	};
+			// 	this.all.set(cellState.cellId, newState);
+			// },
+			// resetAllCellStates: function() {
+			// 	this.all.forEach((cellState, cellId) => {
+			// 		updateCellState(cellState, initialCellState.attributes);
+			// 	});
+			// },
+			// getAllCells: function() {
+			// 	return new Map(this.all);
+			// },
+			// getCellStateById : function(cellId) {
+			// 	return this.all.get(cellId);
+			// },
 			setCellData: function(cellData) {
 				this.all = cellData;
 			}

@@ -1,5 +1,7 @@
-import { buildSchemaValueId } from '../config/default-profile.js';
 import { SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectSchemaName } from '../data/store.js';
+
+// Build a unique ID to refer to this schema value.
+const buildSchemaId = (schema, index) => `${schema.name}-${index}`;
 
 const defaultStyle =
 `
@@ -80,7 +82,7 @@ const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
 		const schemaName = getSchemaName(schemaIndex);
 
 		swatchButton.classList.add("brush-selection-button");
-		swatchButton.dataset.selectionId = buildSchemaValueId(schemaName, valueIndex);
+		swatchButton.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
 		const thisSchemaValue = getSchemaValue(schemaIndex, valueIndex);
 
 			

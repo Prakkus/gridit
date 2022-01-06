@@ -97,15 +97,15 @@
 </div>
 	<script type="module">
 		import initStore from './src/data/store.js'
-		import profile from './src/config/gravetender-profile.js';
+		import profile from './src/config/default-save.js';
 		import PersistenceView from './src/components/PersistenceView.js'
 		import GridConfigView from './src/components/GridConfigView.js';
 		import GridView from './src/components/GridView.js'
 		import SchemaControls from './src/components/SchemaControls.js';
 		import { openFileSelectionWindow } from './src/data/Persistence.js';
 		import { 
-			loadGridProfile, loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize,
-			SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
+			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize,
+			SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
 
 
 		const Main = () => {
@@ -132,10 +132,13 @@
 				const gridSize = UseSelector(SelectGridSize);
 				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
 				const cellData = UseSelector(SelectAllCellData);
+				const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
+
+
 
 				// Update the view to match the new data. 
 				// Todo: this should be an Effect and be event driven.
-				RenderGridAndCells(gridSize.x, gridSize.y, gridDisplayOptions.cellSize, gridDisplayOptions.cellGap, gridDisplayOptions.showCoords, cellData);
+				RenderGridAndCells(gridSize.x, gridSize.y, gridDisplayOptions.cellSize, gridDisplayOptions.cellGap, gridDisplayOptions.showCoords, cellData, defaultCellAttributes);
 			}
 
 			// Handle a json file for import being selected in the PersistenceView.
@@ -192,7 +195,7 @@
 			InjectStyle(schemaStyle);
 
 			// Load the default grid profile. This contains default schema information.
-			loadGridProfile(store, profile);
+			loadGridJsonData(store, {jsonText: JSON.stringify(profile)});
 			// Build the grid now that the profile is loaded.
 			RefreshGrid();
 			// Render grid config

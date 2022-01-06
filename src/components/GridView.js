@@ -1,7 +1,7 @@
 // const hexColorFromName = (colorName) => defaultProfile.availableColors[colorName];
 // const symbolFromName = (symbolName) => defaultProfile.availableSymbols[symbolName];
 // const tileFromIndex = (index) => defaultProfile.tileset[index];
-import { initialCellState } from '../data/store.js';
+// import { initialCellState } from '../data/store.js';
 
 const defaultStyle = 
 `
@@ -44,6 +44,7 @@ const defaultStyle =
 
 // Update a given DOM node to reflect a given cellState.
 const renderCell = (cellElement, cellState, resolveCellValue) => {
+	console.log(cellState);
 	cellElement.style.backgroundColor = '#' + resolveCellValue(0, cellState.attributes.fillColor).hex;
 	const symbolNode = cellElement.querySelector('.grid-cell-symbol');
 	const coordinatesDisplayNode = cellElement.querySelector('.grid-coords-display');
@@ -58,7 +59,8 @@ const renderCell = (cellElement, cellState, resolveCellValue) => {
 }
 
 // Fills the given (grid) element with cells, each with optional data.
-const populateGridCells = (mountElement, width, height, cellData, resolveCellValue) => {
+const populateGridCells = (mountElement, width, height, cellData, resolveCellValue, defaultCellAttributes) => {
+	console.log(resolveCellValue);
 	let nodeMap = new Map();
 	for (var y = height - 1; y >= 0; y--) {
 		for (var x = 0; x < width; x++) {
@@ -77,7 +79,13 @@ const populateGridCells = (mountElement, width, height, cellData, resolveCellVal
 			appendedNode.dataset.cellId = cellId;
 			appendedNode.ondragstart = () => {return false;};
 			nodeMap.set(cellId, appendedNode);
-			const cellRenderData = cellData.has(cellId) ? cellData.get(cellId) : initialCellState;
+			const defaultCellState = {
+				cellId, 
+				x, 
+				y,
+				attributes: defaultCellAttributes
+			};
+			const cellRenderData = cellData.has(cellId) ? cellData.get(cellId) : defaultCellState;
 			renderCell(appendedNode, cellRenderData, resolveCellValue);
 		}
 	}
@@ -121,9 +129,10 @@ const GridView = (resolveCellValue) => {
 	}
 
 	// Populate THIS grid with cells, properly rendering any with pre-existing data.
-	const PopulateGridWithCells = (cellData, resolveCellValue) => {
+	const PopulateGridWithCells = (cellData, resolveCellValue, defaultCellAttributes) => {
 		DeleteGridCells();
-		cellToNodeMap = populateGridCells(element, displayOptions.width, displayOptions.height, cellData, resolveCellValue);
+		console.log(resolveCellValue);
+		cellToNodeMap = populateGridCells(element, displayOptions.width, displayOptions.height, cellData, resolveCellValue, defaultCellAttributes);
 	}
 
 	// Update display options for THIS grid.
@@ -138,9 +147,9 @@ const GridView = (resolveCellValue) => {
 	// }
 
 	// Render a view from a set of grid display options and optional cellData.
-	const RenderGridAndCells = (width, height, cellSize, cellGap, showCoords, cellData) => {
+	const RenderGridAndCells = (width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes) => {
 		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
-		PopulateGridWithCells(cellData, resolveCellValue);
+		PopulateGridWithCells(cellData, resolveCellValue, defaultCellAttributes);
 	}
 
 	return {element, defaultStyle, renderCell, RenderGridAndCells };

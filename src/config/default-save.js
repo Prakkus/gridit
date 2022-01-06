@@ -130,18 +130,19 @@ const defaultProfile = {
 			values : [
 			]
 		}
-	]
+	],
+	cellData: []
 };
 
-const getSchemaValueId = (schema, index) => `${schema.name}-${index}`;
-const getDefaultAttributes = () => {
-	const types = {};
-	defaultProfile.schema.forEach((schema) => {
-		types[schema.cellAttribute] = 0;
-	});
+// const getSchemaValueId = (schema, index) => `${schema.name}-${index}`;
+// const getDefaultAttributes = () => {
+// 	const types = {};
+// 	defaultProfile.schema.forEach((schema) => {
+// 		types[schema.cellAttribute] = 0;
+// 	});
 
-	return types;
-}
+// 	return types;
+// }
 
 export default defaultProfile;
-export { getSchemaValueId, getDefaultAttributes };
+// export { getSchemaValueId, getDefaultAttributes };
