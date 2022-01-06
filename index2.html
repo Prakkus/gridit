@@ -103,12 +103,15 @@
 		import GridView from './src/components/GridView.js'
 		import SchemaControls from './src/components/SchemaControls.js';
 		import { openFileSelectionWindow } from './src/data/Persistence.js';
+		import GridDrag from './src/components/GridDrag.js';
 		import { 
-			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize,
-			SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
+			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize, UpdateCells,
+			SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
+			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
 
 
 		const Main = () => {
+			console.log(SelectCellById);
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const styleMountElement = document.createElement('style');
@@ -122,10 +125,28 @@
 			
 			// Now let's start adding our components to the page.
 			// Initialize the GridView.
-			const { element: gridElement, defaultStyle: gridViewStyles, RenderGridAndCells } = 
+			const { element: gridElement, defaultStyle: gridViewStyles, RenderGridAndCells, RenderCell } = 
 			GridView(
 				(schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}))
 			);
+			// Update a set of cells with a given set of attributes and then rerender them individually.
+			const UpdateAndRenderCells = (cellIds, attributeUpdates) => {
+				UpdateCells(store, { cellIds, attributeUpdates});
+				cellIds.forEach((cellId) => {
+					const { attributes } = UseSelector(state => SelectCellById(state, { cellId }));
+					RenderCell(cellId, attributes);
+				});
+			}
+			const HandleCellUpdate = (cellId) => {
+				console.log(`${cellId} clicked!`);
+				const attributeUpdate = UseSelector(SelectCurrentlySelectedAttributeUpdate);
+				console.log(attributeUpdate);
+				UpdateAndRenderCells([cellId], attributeUpdate)
+			}
+			const { BindDragEvents } = GridDrag(HandleCellUpdate);
+			BindDragEvents(window);
+
+
 
 			// Update the size and display options for a grid and rerenders it with the currently loaded cell data.
 			const RefreshGrid = () => {
@@ -133,8 +154,6 @@
 				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
 				const cellData = UseSelector(SelectAllCellData);
 				const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
-
-
 
 				// Update the view to match the new data. 
 				// Todo: this should be an Effect and be event driven.

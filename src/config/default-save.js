@@ -14,6 +14,10 @@ const defaultProfile = {
 			name: 'background_color',
 			displayName: 'Fill Colors: ',
 			cellAttribute: 'fillColor',
+			defaultValue: {
+				name: 'defaultColor',
+				hex: '71717A'
+			},
 			values : [
 				{
 					name: 'brown',
@@ -27,6 +31,13 @@ const defaultProfile = {
 			name: 'symbol',
 			displayName: 'Symbols: ',
 			cellAttribute: 'symbol',
+			defaultValue: {
+				name: 'defaultSymbol',
+				display: '',
+				xOffset: 0,
+				yOffset: 0,
+				fontSize: '100%' 
+			},
 			values : [
 				{
 					name: 'frog',
@@ -127,6 +138,9 @@ const defaultProfile = {
 			name: 'tile_index_background',
 			displayName: 'Tiles: ',
 			cellAttribute: 'backgroundTileIndex',
+			defaultValue: {
+				imageDataUrl: ''
+			},
 			values : [
 			]
 		}

@@ -43,13 +43,11 @@ const defaultStyle =
 `;
 
 // Update a given DOM node to reflect a given cellState.
-const renderCell = (cellElement, cellState, resolveCellValue) => {
-	console.log(cellState);
-	cellElement.style.backgroundColor = '#' + resolveCellValue(0, cellState.attributes.fillColor).hex;
+const UpdateDOMCell = (cellElement, cellAttributes, resolveCellValue) => {
+	cellElement.style.backgroundColor = '#' + resolveCellValue(0, cellAttributes.fillColor).hex;
 	const symbolNode = cellElement.querySelector('.grid-cell-symbol');
-	const coordinatesDisplayNode = cellElement.querySelector('.grid-coords-display');
-	const symbolData = resolveCellValue(1, cellState.attributes.symbol);
-	const tileData = resolveCellValue(2, cellState.attributes.backgroundTileIndex);
+	const symbolData = resolveCellValue(1, cellAttributes.symbol);
+	const tileData = resolveCellValue(2, cellAttributes.backgroundTileIndex);
 	symbolNode.innerHTML = symbolData.display;
 	symbolNode.style.left = symbolData.xOffset;
 	symbolNode.style.bottom = symbolData.yOffset;
@@ -58,9 +56,17 @@ const renderCell = (cellElement, cellState, resolveCellValue) => {
 	cellElement.style.backgroundSize = 'cover';
 }
 
+// const GetDefaultCellState = (cellId, defaultAttributes) => {
+// 	return {
+// 		cellId, 
+// 		x, 
+// 		y,
+// 		attributes: defaultAttributes
+// 	};
+// }
+
 // Fills the given (grid) element with cells, each with optional data.
-const populateGridCells = (mountElement, width, height, cellData, resolveCellValue, defaultCellAttributes) => {
-	console.log(resolveCellValue);
+const PopulateDOMGridCells = (mountElement, width, height, cellData, resolveCellValue, defaultCellAttributes) => {
 	let nodeMap = new Map();
 	for (var y = height - 1; y >= 0; y--) {
 		for (var x = 0; x < width; x++) {
@@ -79,21 +85,16 @@ const populateGridCells = (mountElement, width, height, cellData, resolveCellVal
 			appendedNode.dataset.cellId = cellId;
 			appendedNode.ondragstart = () => {return false;};
 			nodeMap.set(cellId, appendedNode);
-			const defaultCellState = {
-				cellId, 
-				x, 
-				y,
-				attributes: defaultCellAttributes
-			};
-			const cellRenderData = cellData.has(cellId) ? cellData.get(cellId) : defaultCellState;
-			renderCell(appendedNode, cellRenderData, resolveCellValue);
+
+			const attributes = cellData.has(cellId) ? cellData.get(cellId).attributes : defaultCellAttributes;
+			UpdateDOMCell(appendedNode, attributes, resolveCellValue);
 		}
 	}
 	return nodeMap;
 }
 
 // Sets the Grid wrapper css to match the grid properties.
-const updateGridStyle = (mountElement, width, height, cellSize, cellGap, showCoords) => {
+const UpdateDOMGrid = (mountElement, width, height, cellSize, cellGap, showCoords) => {
 	mountElement.style.width = `${width * (cellSize + cellGap)}px`;
 	mountElement.style.height = `${height * (cellSize + cellGap)}px`;
 	mountElement.style.display = 'grid';
@@ -131,14 +132,18 @@ const GridView = (resolveCellValue) => {
 	// Populate THIS grid with cells, properly rendering any with pre-existing data.
 	const PopulateGridWithCells = (cellData, resolveCellValue, defaultCellAttributes) => {
 		DeleteGridCells();
-		console.log(resolveCellValue);
-		cellToNodeMap = populateGridCells(element, displayOptions.width, displayOptions.height, cellData, resolveCellValue, defaultCellAttributes);
+		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, cellData, resolveCellValue, defaultCellAttributes);
 	}
 
 	// Update display options for THIS grid.
 	const UpdateGridConfig = (width, height, cellSize, cellGap, showCoords) => {
 		displayOptions = { width, height, cellSize, cellGap, showCoords };
-		updateGridStyle(element, width, height, cellSize, cellGap, showCoords);
+		UpdateDOMGrid(element, width, height, cellSize, cellGap, showCoords);
+	}
+
+	const RenderCell = (cellId, attributes) => {
+		const cellNode = cellToNodeMap.get(cellId);
+		UpdateDOMCell(cellNode, attributes, resolveCellValue);
 	}
 
 	// const Init = (width, height, cellSize, cellGap) => {
@@ -152,7 +157,7 @@ const GridView = (resolveCellValue) => {
 		PopulateGridWithCells(cellData, resolveCellValue, defaultCellAttributes);
 	}
 
-	return {element, defaultStyle, renderCell, RenderGridAndCells };
+	return {element, defaultStyle, RenderCell, RenderGridAndCells };
 }
 
 export default GridView;

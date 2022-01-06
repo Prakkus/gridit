@@ -1,56 +1,5 @@
-// Schema values
-const defaultSymbolValue = {
-	name: 'defaultSymbol',
-	display: '',
-	xOffset: 0,
-	yOffset: 0,
-	fontSize: '100%' 
-};
-
-const defaultColorValue = {
-	name: 'defaultColor',
-	hex: '71717A'
-};
-
-const defaultTileValue = {
-	imageDataUrl: ''
-};
-
-const schemaDefaultMap = {
-	background_color: defaultColorValue,
-	symbol: defaultSymbolValue,
-	tile_index_background: defaultTileValue
-}
-
-
-// Grid Values
-
-// export const initialCellState = {
-// 	cellId: '-1,-1',
-// 	x: -1,
-// 	y: -1,
-// 	attributes: defaultAttributes
-// }
-
-
-// const constructCellMap = (rows, columns, defaultAttributes) => {
-// 	let cellData = new Map();
-// 	for (var y = rows - 1; y >= 0; y--) {
-// 		for (var x = 0; x < columns; x++) {
-// 			const cellState = {
-// 				cellId: x + ',' + y,
-// 				x: x,
-// 				y: y,
-// 				attributes: defaultAttributes
-// 			}
-// 			cellData.set(cellState.cellId, cellState);
-// 		}
-// 	}
-// 	return cellData;
-// }
-
-// Loops through the existing schema and builds a set of default attributes for each.
-// Used as the initial state for any cell.
+// Loops through the existing schemas and builds a set of default cell attributes for each.
+// Used as the initial attributes state for any cell.
 export const SelectDefaultCellAttributes = (state) => {
 	const types = {};
 	state.schema.tables.forEach((schema) => {
@@ -58,6 +7,10 @@ export const SelectDefaultCellAttributes = (state) => {
 	});
 
 	return types;
+}
+
+export const SelectCellById = (state, { cellId }) => {
+	return state.cellData.all.get(cellId);
 }
 
 export const SelectAllCellData = (state) => {
@@ -89,7 +42,7 @@ export const SelectSchemaDisplayName = (state, { schemaIndex }) => {
 export const SelectSchemaValue = (state, { schemaIndex, valueIndex }) => {
 	return SelectSchema(state, { schemaIndex }).values[valueIndex];
 }
-export const SelectSchemaValues = (state, { schemaIndex, valueIndex }) => {
+export const SelectSchemaValues = (state, { schemaIndex }) => {
 	return SelectSchema(state, { schemaIndex }).values;
 }
 export const SelectSchemaName = (state, { schemaIndex }) => {
@@ -113,10 +66,16 @@ export const SelectCurrentlySelectedSchemaValue = (state) => {
 		selectedValueIndex: state.schema.selectedValueIndex
 	}
 }
+export const SelectCurrentlySelectedAttributeUpdate = state => {
+	const { selectedSchemaIndex, selectedValueIndex } = SelectCurrentlySelectedSchemaValue(state);
+	const loadedSchemas = SelectLoadedSchemas(state);
+	return { 
+		[loadedSchemas[selectedSchemaIndex].cellAttribute] : selectedValueIndex
+	};
+}
 export const loadValuesIntoSchema = (state, { schemaIndex, schemaValues }) => {
 	const schema = state.schema.tables[schemaIndex];
-	const defaultValue = schemaDefaultMap[schema.name];	
-	state.schema.tables[schemaIndex] = {...schema, values: [defaultValue, ...schemaValues]};
+	state.schema.tables[schemaIndex] = {...schema, values: [schema.defaultValue, ...schemaValues]};
 }
 export const loadSchema = (state, { schema }) => {
 	const newIndex = state.schema.tables.push({...schema}) - 1;
@@ -140,6 +99,35 @@ export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 	state.grid.displayOptions.showCoords = showCoords;
 }
 
+// Cells
+export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
+	cellIds.forEach((cellId) => {
+		const existingData = state.cellData.all.get(cellId);
+		if (existingData) {
+			// If the cell already exists, update its attributes
+			existingData.attributes = {
+				...existingData.attributes,
+				...attributeUpdates
+			}
+		} else {
+			// Otherwise we need to create a new data entry for this cell.
+			const [x, y] = cellId.split(',');
+			const defaultAttributes = SelectDefaultCellAttributes(state);
+			console.log(defaultAttributes);
+			const newEntry = {
+				cellId,
+				x,
+				y,
+				attributes: {
+					...defaultAttributes,
+					...attributeUpdates
+				}
+			}
+			state.cellData.all.set(cellId, newEntry);
+		}
+	})
+}
+
 // Commands
 // Load a grid save file into the store.
 export const loadGridJsonData = (state, { jsonText }) => {
@@ -158,8 +146,6 @@ export const loadGridJsonData = (state, { jsonText }) => {
 			});
 		}
 		const profile = SelectLoadedJsonData(state);
-		// Load the profile, then pull the new default cell state and use it to load the cellData.
-		// Todo: maybe the initial state should be cached and I just update it when I load schemas.
 		loadGridProfile(state, profile);
 		console.log(profile.cellData);
 		loadCellData(state, { cellData: profile.cellData });
