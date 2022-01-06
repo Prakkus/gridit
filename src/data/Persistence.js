@@ -46,13 +46,13 @@ const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) =
 		onLoadedFileChangedListeners.forEach((listener) => listener(oldJson, newJson));
 	}
 
-	const loadJson = (jsonText) => {
-		const oldData = currentlyLoadedData;
-		currentlyLoadedJson = jsonText;
-		currentlyLoadedData = JSON.parse(currentlyLoadedJson);
-		setGridName(currentlyLoadedData.title);
-		onLoadedFileTextChanged(oldData, currentlyLoadedData);
-	}
+	// const loadJson = (jsonText) => {
+	// 	const oldData = currentlyLoadedData;
+	// 	currentlyLoadedJson = jsonText;
+	// 	currentlyLoadedData = JSON.parse(currentlyLoadedJson);
+	// 	setGridName(currentlyLoadedData.title);
+	// 	onLoadedFileTextChanged(oldData, currentlyLoadedData);
+	// }
 
 	const handleFileDrop = (event) => {
 		event.preventDefault();
@@ -105,8 +105,6 @@ const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) =
 		});
 	}
 
-	const getCurrentlyLoadedData = () => currentlyLoadedData;
-
 	const openFileImportWindow = () => {
 		openFileSelectionWindow(handleFileSelect);
 	}
@@ -124,7 +122,7 @@ const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) =
 		downloadBlob(blob, gridName);
 	}
 
-	return { openFileImportWindow, openFileAddWindow, setGridName, handleFileDragOver, handleMergeDragOver, handleFileDrop, downloadJsonSave, addOnLoadedFileChangedListener, handleMergeDrop, addOnGridNameChangedListener, addOnMergeFileDroppedListener, getCurrentlyLoadedData }
+	return { openFileImportWindow, openFileAddWindow, handleFileDragOver, handleMergeDragOver, handleFileDrop, downloadJsonSave, handleMergeDrop }
 }
 
 export default Persistence;

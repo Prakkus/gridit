@@ -34,11 +34,14 @@ export const SelectGridName = (state) => {
 }
 
 // Schema
+const SelectAllSchemaData = (state) => {
+	return state.schema;
+}
 export const SelectLoadedSchemas = (state) => {
-	return state.schema.tables;
+	return SelectAllSchemaData(state).tables;
 } 
 export const SelectSchema = (state, { schemaIndex }) => {
-	return state.schema.tables[schemaIndex];
+	return SelectLoadedSchemas(state)[schemaIndex];
 }
 export const SelectSchemaDisplayName = (state, { schemaIndex }) => {
 	return SelectSchema(state, { schemaIndex }).displayName;
@@ -79,11 +82,32 @@ export const SelectCurrentlySelectedAttributeUpdate = state => {
 }
 export const loadValuesIntoSchema = (state, { schemaIndex, schemaValues }) => {
 	const schema = state.schema.tables[schemaIndex];
-	state.schema.tables[schemaIndex] = {...schema, values: [schema.defaultValue, ...schemaValues]};
+	state.schema.tables[schemaIndex] = {...schema, values: [...schemaValues]};
 }
 export const loadSchema = (state, { schema }) => {
 	const newIndex = state.schema.tables.push({...schema}) - 1;
 	loadValuesIntoSchema(state, { schemaIndex: newIndex, schemaValues: schema.values });
+}
+
+export const SelectSaveData = (state) => {
+	const gridName = SelectGridName(state);
+	const gridSize = SelectGridSize(state);
+	const { cellSize, cellGap, showCoords } = SelectGridDisplayOptions(state);
+	const schemaTables = SelectLoadedSchemas(state);
+	const cellData = Array.from(SelectAllCellData(state).values());
+	console.log(cellData);
+	return {
+		title: gridName, 
+		config: {
+			columnCount: gridSize.x,
+			rowCount: gridSize.y, 
+			cellSize,
+			cellGap,
+			showCoords
+		},
+		schema: schemaTables, 
+		cellData
+	}
 }
 
 
@@ -115,13 +139,10 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 			}
 		} else {
 			// Otherwise we need to create a new data entry for this cell.
-			const [x, y] = cellId.split(',');
 			const defaultAttributes = SelectDefaultCellAttributes(state);
 			console.log(defaultAttributes);
 			const newEntry = {
 				cellId,
-				x,
-				y,
 				attributes: {
 					...defaultAttributes,
 					...attributeUpdates
@@ -142,7 +163,7 @@ export const loadGridJsonData = (state, { jsonText }) => {
 			ClearCurrentProfile(state);
 			// Update grid attributes.
 			UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
-			UpdateGridSize(state, { width: config.rowCount, height: config.columnCount });
+			UpdateGridSize(state, { width: config.columnCount, height: config.rowCount });
 			UpdateGridName(state, { name: title });
 			// Load schema.
 			schema.forEach((schemaDef) => {
@@ -161,7 +182,10 @@ export const loadGridJsonData = (state, { jsonText }) => {
 }
 
 export const loadCellData = (state, { cellData }) => {
-	state.cellData.setCellData(new Map(cellData));
+	// Our cells are serialized as an array of objects.
+	// Pull them out into a map by cellId and store that instead.
+	const map = new Map(cellData.map(value => [value.cellId, value]));
+	state.cellData.setCellData(map);
 }
 
 const initStore = () => {

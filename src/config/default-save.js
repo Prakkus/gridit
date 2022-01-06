@@ -14,11 +14,11 @@ const defaultProfile = {
 			name: 'background_color',
 			displayName: 'Fill Colors: ',
 			cellAttribute: 'fillColor',
-			defaultValue: {
-				name: 'defaultColor',
-				hex: '71717A'
-			},
 			values : [
+				{
+					name: 'defaultColor',
+					hex: '71717A'
+				},
 				{
 					name: 'brown',
 					hex: '6F4E37'
@@ -31,14 +31,14 @@ const defaultProfile = {
 			name: 'symbol',
 			displayName: 'Symbols: ',
 			cellAttribute: 'symbol',
-			defaultValue: {
-				name: 'defaultSymbol',
-				display: '',
-				xOffset: 0,
-				yOffset: 0,
-				fontSize: '100%' 
-			},
 			values : [
+				{
+					name: 'defaultSymbol',
+					display: '',
+					xOffset: 0,
+					yOffset: 0,
+					fontSize: '100%' 
+				},
 				{
 					name: 'frog',
 					display: '🐸',
@@ -138,10 +138,10 @@ const defaultProfile = {
 			name: 'tile_index_background',
 			displayName: 'Tiles: ',
 			cellAttribute: 'backgroundTileIndex',
-			defaultValue: {
-				imageDataUrl: ''
-			},
 			values : [
+				{
+					imageDataUrl: ''
+				}
 			]
 		}
 	],

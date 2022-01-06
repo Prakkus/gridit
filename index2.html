@@ -111,7 +111,6 @@
 
 
 		const Main = () => {
-			console.log(SelectCellById);
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const styleMountElement = document.createElement('style');
@@ -169,6 +168,7 @@
 					loadGridJsonData(store, {jsonText: value});
 					RefreshGridConfig();
 					RefreshGrid();
+					RefreshPersistenceView();
 				});
 			}
 
@@ -183,7 +183,8 @@
 					onSubmit: (data) => {
 						UpdateGridName(store, { name: data.gridName });
 						RefreshPersistenceView()
-					}
+					},
+					UseSelector
 				} 
 			);
 			const RefreshPersistenceView = () => {

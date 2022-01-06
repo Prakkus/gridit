@@ -1,3 +1,5 @@
+import { SelectSaveData } from "../data/store.js";
+
 const defaultStyle = 
 	`
 		.title {
@@ -51,8 +53,21 @@ const defaultStyle =
     	</div>
 	</div>
 	`;
-
-const PersistenceView = ({ openFileImportWindow, openFileAddWindow, onSubmit, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
+	const downloadBlob = (blob, fileName) => {
+		const blobUrl = URL.createObjectURL(blob);
+	
+		const anchor = document.createElement('a');
+		anchor.href = blobUrl;
+		anchor.target = "_blank";
+		anchor.download = `grid-${fileName}.json`;
+	
+		// Auto click on a element, trigger the file download
+		anchor.click();
+	
+		// This is required
+		URL.revokeObjectURL(blobUrl);
+	}
+const PersistenceView = ({ UseSelector, openFileImportWindow, openFileAddWindow, onSubmit, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
 	let gridNameInput;
 	const element = document.createElement('div')
 	element.innerHTML = template;
@@ -76,9 +91,17 @@ const PersistenceView = ({ openFileImportWindow, openFileAddWindow, onSubmit, ha
 		}
 		onSubmit(data);
 	}
+
+	const DownloadJsonSave = () =>
+	{
+		const saveData = UseSelector(SelectSaveData);
+		const json = JSON.stringify(saveData) + '\n';
+		const blob = new Blob([json], {type : 'application/json'});
+		downloadBlob(blob, saveData.title);
+	}
 	// element.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
 	// element.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
-	// element.querySelector('#download-as-json').addEventListener('click', (e) => downloadJsonSave());
+	element.querySelector('#download-as-json').addEventListener('click', (e) => DownloadJsonSave());
 
 	// element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
 	// element.querySelector("#add-from-json").addEventListener('drop', handleMergeDrop);
