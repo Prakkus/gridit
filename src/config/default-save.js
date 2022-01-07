@@ -1,5 +1,5 @@
 const defaultProfile = {
-	title: "untitled",
+	title: "",
 	config :
 		{ 
 			columnCount: 8,

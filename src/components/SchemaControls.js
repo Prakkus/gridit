@@ -40,31 +40,6 @@ const template =
 `
 
 `;
-
-// const defaultSymbolValue = {
-// 				name: 'defaultSymbol',
-// 				display: '',
-// 				xOffset: 0,
-// 				yOffset: 0,
-// 				fontSize: '100%' 
-// 			};
-
-// const defaultColorValue = {
-// 				name: 'defaultColor',
-// 				hex: '71717A'
-// 			};
-
-// const defaultTileValue = {
-// 				imageDataUrl: ''
-// 			};
-
-// const schemaDefaultMap = {
-// 	background_color: defaultColorValue,
-// 	symbol: defaultSymbolValue,
-// 	tile_index_background: defaultTileValue
-// }
-
-
 const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
 	const SchemaControlsElement = document.createElement('div');
 	SchemaControlsElement.innerHTML = template;

@@ -26,126 +26,128 @@ const getImageSlices = (image, numRowsToCut, numColsToCut, margin) => {
     return imageSlices;
 }
 
-const TilesetView = (loadSchemaValues) => {
+const defaultStyle = 
+`
+	.tileset-view-wrapper {
+		margin-bottom: 16px;
+	}
+
+	#tileset-preview {
+		max-width: 360px;
+	}
+	#tileset-sliced-preview img {
+		max-width: 32px;
+		padding: 5px;
+	}
+
+	#tileset-form {
+		display: flex;
+	}
+
+	#tileset-preview {
+		display: block;
+		margin: auto;
+		margin-top: 16px;
+	}
+
+	#tileset-preview[src] {
+		border: 1px solid var(--light);
+	}
+
+	#tileset-form .left-panel {
+		padding-right: 24px;
+	}
+
+
+	.toolbar-fields {
+		display: flex;
+		margin-bottom: 16px;
+	}
+	.toolbar-fields label {
+		margin-right: 16px;
+	}
+
+	.toolbar-fields input {
+		width: 32px;
+		margin-left: 6px;
+		text-align: center;
+	}
+
+	.toolbar-fields input:last-child {
+		margin-right: 0;
+	}
+
+	#tileset-sliced-preview {
+		margin-top: 16px;
+		padding: 8px;
+		border: 1px solid var(--light);
+		overflow-y: scroll;
+		max-width: 353px;
+		max-height: 336px;
+	}
+
+	.active-preview #preview-empty-message {
+		display: none;
+	}
+
+	.left-panel input {
+		display: block;
+		margin-top: 16px;
+	}
+
+
+`
+
+const template = 
+`
+<div class="tileset-view-wrapper">
+	<form id="tileset-form">
+		<div class="left-panel">
+			<label>
+				Upload an image:
+				<input name="tileset_input" type="file" accept="image/*" />
+				<img id="tileset-preview" />
+			</label>
+		</div>
+		<div class="right-panel">
+			<div class="panel-toolbar">
+				<div class="toolbar-fields">
+					<label>
+						Rows:
+						<input name="tileset_rows" type="number" step="1" min="0" max="50" required />
+					</label>
+					<label>
+						Columns:
+						<input name="tileset_columns" type="number" step="1" min="0" max="50" required />
+					</label>
+					<label>
+						Margin:
+						<input name="tileset_margin" type="number" step="1" value="0" />
+					</label>
+				</div>
+			<button id="slice-button">Slice</button>
+			<span id="tile-count">
+
+			</span>
+			</div>
+			<div id="tileset-sliced-preview">
+				<span id="preview-empty-message">
+					Set the parameters for your tileset and click 'Slice'.
+				</span>
+			</div>
+			<button id="load-tileset">Load</load>
+		</div>
+	</form>
+</div>
+`;
+
+
+const TilesetView = () => {
 	// let currentImage;
-	//Make a FileReader which we will reuse for the lifetime of this component
+	// Make a FileReader which we will reuse for the lifetime of this component
 	const fileReader = new FileReader();
 	let extractedSlices = [];
-
-	const defaultStyle = 
-	`
-		.tileset-view-wrapper {
-			margin-bottom: 16px;
-		}
-
-		#tileset-preview {
-			max-width: 360px;
-		}
-		#tileset-sliced-preview img {
-			max-width: 32px;
-			padding: 5px;
-		}
-
-		#tileset-form {
-			display: flex;
-		}
-
-		#tileset-preview {
-			display: block;
-			margin: auto;
-			margin-top: 16px;
-		}
-
-		#tileset-preview[src] {
-			border: 1px solid var(--light);
-		}
-
-		#tileset-form .left-panel {
-			padding-right: 24px;
-		}
-
-
-		.toolbar-fields {
-			display: flex;
-			margin-bottom: 16px;
-		}
-		.toolbar-fields label {
-			margin-right: 16px;
-		}
-
-		.toolbar-fields input {
-			width: 32px;
-			margin-left: 6px;
-			text-align: center;
-		}
-
-		.toolbar-fields input:last-child {
-			margin-right: 0;
-		}
-
-		#tileset-sliced-preview {
-			margin-top: 16px;
-			padding: 8px;
-			border: 1px solid var(--light);
-			overflow-y: scroll;
-			max-width: 353px;
-			max-height: 336px;
-		}
-
-		.active-preview #preview-empty-message {
-			display: none;
-		}
-
-		.left-panel input {
-			display: block;
-			margin-top: 16px;
-		}
-
-
-	`
-
-	const template = 
-	`
-	<div class="tileset-view-wrapper">
-		<form id="tileset-form">
-			<div class="left-panel">
-				<label>
-					Upload an image:
-					<input name="tileset_input" type="file" accept="image/*" />
-					<img id="tileset-preview" />
-				</label>
-			</div>
-			<div class="right-panel">
-				<div class="panel-toolbar">
-					<div class="toolbar-fields">
-						<label>
-							Rows:
-							<input name="tileset_rows" type="number" step="1" min="0" max="50" required />
-						</label>
-						<label>
-							Columns:
-							<input name="tileset_columns" type="number" step="1" min="0" max="50" required />
-						</label>
-						<label>
-							Margin:
-							<input name="tileset_margin" type="number" step="1" value="0" />
-						</label>
-					</div>
-				<button id="slice-button">Slice</button>
-				<span id="tile-count">
-
-				</span>
-				</div>
-				<div id="tileset-sliced-preview">
-					<span id="preview-empty-message">
-						Set the parameters for your tileset and click 'Slice'.
-					</span>
-				</div>
-				<button id="load-tileset">Load</load>
-			</div>
-		</form>
-	</div>
-	`;
+	let onSlicesExtracted;
 
 	const element = document.createElement('div')
 	element.innerHTML = template;
@@ -159,7 +161,7 @@ const TilesetView = (loadSchemaValues) => {
 		// currentImage = image;
 	}
 
-	//Whenever it loads a file, we want to set that as our current tileset image and isplay the preview
+	// Whenever it loads a file, we want to set that as our current tileset image and display the preview
 	fileReader.addEventListener('load', (e) => {
 		setTilesetImage(e.target.result);
 	});
@@ -180,7 +182,7 @@ const TilesetView = (loadSchemaValues) => {
 			}
 		}
 		tilesetSlicedPreview.classList.add('active-preview');
-		tileCount.innerHTML = slices.length + ' tiles';
+		tileCount.textContent = slices.length + ' tiles';
 	}
 
 	const sliceCurrentImage = () => {
@@ -189,15 +191,15 @@ const TilesetView = (loadSchemaValues) => {
 		previewSlices(slices);
 	}
 
-	const loadCurrentTileset = () => {
-		loadSchemaValues(2, extractedSlices);
+	const Render = ({ slicesExtractedHandler }) => {
+		onSlicesExtracted = slicesExtractedHandler;
 	}
 
 	element.querySelector('[name=tileset_input]').addEventListener('change', onImageSelected);
-	element.querySelector('#load-tileset').addEventListener('click', loadCurrentTileset);
+	element.querySelector('#load-tileset').addEventListener('click', () => onSlicesExtracted(extractedSlices));
 	form.addEventListener('submit', (e) => {e.preventDefault(); sliceCurrentImage()});
 
-	return {defaultStyle, element};
+	return {element, defaultStyle, Render};
 }
 
 export default TilesetView;

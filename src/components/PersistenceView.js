@@ -23,6 +23,10 @@ const defaultStyle =
 			margin-top: 2px;
 		}
 
+		#import-tilesheet {
+			margin-left: auto;
+		}
+
 		#download-as-json {
 			margin-left: 16px;
 		}
@@ -76,11 +80,11 @@ const defaultStyle =
 				<button title="Load a grid from a JSON file" id="import-from-json">
 					<span class="material-icons">upload_file</span>
 				</button>
-				<button title="Merge cells from a JSON file" id="add-from-json">
-					<span class="material-icons">note_add</span>
-				</button>
 				<button title="Clear all cells and history" id="clear-all">
 					<span class="material-icons">delete</span>
+				</button>
+				<button title="Import a tilesheet" id="import-tilesheet">
+					<span class="material-icons">grid_view</span>
 				</button>
 			</div>
 		</div>
@@ -110,7 +114,7 @@ const defaultStyle =
 		input.click();
 	}
 	
-const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked, onReloadClicked, onSaveClicked }) => {
+const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked, onReloadClicked, onSaveClicked, onImportTilesetClicked }) => {
 	let gridNameInput;
 	const element = document.createElement('div');
 	element.innerHTML = template;
@@ -176,7 +180,7 @@ const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked
 		const saveData = UseSelector(SelectSaveData);
 		const json = JSON.stringify(saveData) + '\n';
 		const blob = new Blob([json], {type : 'application/json'});
-		downloadBlob(blob, saveData.title);
+		downloadBlob(blob, saveData.title || 'untitled');
 		return json;
 	}
 	element.addEventListener('dragenter', handleFileDragEnter);
@@ -188,6 +192,7 @@ const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked
 	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); onSaveClicked(saveJson); });
 	element.querySelector("#clear-all").addEventListener('click', (e) => onClearClicked());
 	element.querySelector("#reload-file").addEventListener('click', (e) => onReloadClicked());
+	element.querySelector("#import-tilesheet").addEventListener('click', (e) => onImportTilesetClicked());
 
 
 	const Render = ({ gridName }) => {

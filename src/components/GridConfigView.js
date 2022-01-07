@@ -106,7 +106,7 @@ const GridConfigView = (OnSubmit) => {
 	const showCoordsInput = GridConfigElement.querySelector('input[name=showCoords]');
 	showCoordsInput.addEventListener('change', Submit);
 
-	const render = ({rowCount, columnCount, cellSize, cellGap, showCoords }) => {
+	const Render = ({rowCount, columnCount, cellSize, cellGap, showCoords }) => {
 		rowCountInput.value = rowCount;
 		columnCountInput.value = columnCount;
 		cellSizeInput.value = cellSize;
@@ -115,7 +115,7 @@ const GridConfigView = (OnSubmit) => {
 	}
 
 
-	return {defaultStyle, GridConfigElement, render};
+	return {defaultStyle, GridConfigElement, Render};
 }
 
 export default GridConfigView;

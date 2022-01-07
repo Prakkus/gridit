@@ -11,6 +11,7 @@
 			align-items: center;
 			color: var(--text-default);
 			transition: opacity .15s ease-in-out;
+			z-index: 100;
 		}
 
 		.modal-panel {
@@ -51,50 +52,63 @@
 			opacity: 0;
 			pointer-events: none;
 		}
+	`
 
-	`
-const ModalView = ({ title, content, onModalClosed }) => {
-	if (content instanceof HTMLElement === false) {
-		const string = content;
-		content = document.createElement('div');
-		content.innerHTML = string;
-	}
-	const template = 
-	`
-	<div class="modal-wrapper">
-		<div class="modal-panel">
-			<button class="close">&times;</button>
-			<h1>${title} </h1>
-			<section id="content-slot">
-			</section>
+		const template = 
+		`
+		<div class="modal-wrapper">
+			<div class="modal-panel">
+				<button class="close">&times;</button>
+				<h1 class="modal-title"></h1>
+				<section id="content-slot">
+				</section>
+			</div>
 		</div>
-	</div>
-	`;
-
-	const toggleModal = () => {
-		document.querySelector('.modal-wrapper').classList.toggle('closed');
-	}
-
-	const onClose = (e) => {
-		toggleModal();
-		onModalClosed();
-	}
-
+		`;
+const ModalView = (shownByDefault = false) => {
 	const element = document.createElement('div')
 	element.innerHTML = template;
-	element.querySelector('#content-slot').insertAdjacentElement('beforeend', content);
-	element.querySelector('.close').addEventListener('click', onClose);
-	element.querySelector('.modal-wrapper').addEventListener('click', (e) => {
+
+	const titleElement = element.querySelector('.modal-title');
+	const wrapperElement = element.querySelector('.modal-wrapper');
+	const contentElement = element.querySelector("#content-slot");
+	const closeButton = element.querySelector('.close');
+	const Open = () => {
+		wrapperElement.classList.remove('closed');
+	}
+	const Close = () => {
+		wrapperElement.classList.add('closed');
+	}
+
+	closeButton.addEventListener('click', Close);
+	wrapperElement.addEventListener('click', (e) => {
 		if (!e.target.classList.contains('modal-wrapper')) return;
-		onClose(e);
+		Close();
 	});
 
 	document.addEventListener('keyup', (e) => {
 			if (e.keyCode !== 27) return; //esc
-			onClose(e);
+			Close();
 	});
 
-	return {defaultStyle, element};
+	if (!shownByDefault) Close();
+
+
+	const Render = ({ title, content }) => {
+		// If the content they passed in is a string instead of an HTML element,
+		// Make a new element and 
+		if (content instanceof HTMLElement === false) {
+			const string = content;
+			content = document.createElement('div');
+			content.innerHTML = string;
+		}
+		titleElement.innerHTML = title;
+		// Clear whatever is there and render the new content.
+		contentElement.innerHTML = '';
+		contentElement.insertAdjacentElement('beforeend', content);
+	}
+
+	return { element, defaultStyle, Render, Open, Close };
 }
 
 export default ModalView;

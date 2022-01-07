@@ -1,7 +1,7 @@
 // const hexColorFromName = (colorName) => defaultProfile.availableColors[colorName];
 // const symbolFromName = (symbolName) => defaultProfile.availableSymbols[symbolName];
 // const tileFromIndex = (index) => defaultProfile.tileset[index];
-// import { initialCellState } from '../data/store.js';
+import { SelectSchemaValue } from '../data/store.js';
 
 const defaultStyle = 
 `
@@ -112,7 +112,7 @@ const UpdateDOMGrid = (mountElement, width, height, cellSize, cellGap, showCoord
 
 
 // Renders cells from Map of cellData.
-const GridView = (resolveCellValue) => {
+const GridView = (UseSelector) => {
 	let cellToNodeMap = new Map();
 	let displayOptions = {
 		width: 0,
@@ -130,10 +130,13 @@ const GridView = (resolveCellValue) => {
 		cellToNodeMap.clear();
 	}
 
+	// Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
+	const ResolveCellValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
+
 	// Populate THIS grid with cells, properly rendering any with pre-existing data.
-	const PopulateGridWithCells = (cellData, resolveCellValue, defaultCellAttributes) => {
+	const PopulateGridWithCells = (cellData,  defaultCellAttributes) => {
 		DeleteGridCells();
-		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, cellData, resolveCellValue, defaultCellAttributes);
+		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, cellData, ResolveCellValue, defaultCellAttributes);
 	}
 
 	// Update display options for THIS grid.
@@ -144,18 +147,13 @@ const GridView = (resolveCellValue) => {
 
 	const RenderCell = (cellId, attributes) => {
 		const cellNode = cellToNodeMap.get(cellId);
-		UpdateDOMCell(cellNode, attributes, resolveCellValue);
+		UpdateDOMCell(cellNode, attributes, ResolveCellValue);
 	}
-
-	// const Init = (width, height, cellSize, cellGap) => {
-	// 	UpdateGridConfig(width, height, cellSize, cellGap);
-	// 	PopulateGridWithCells(new Map(), resolveCellValue);
-	// }
 
 	// Render a view from a set of grid display options and optional cellData.
 	const RenderGridAndCells = (width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes) => {
 		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
-		PopulateGridWithCells(cellData, resolveCellValue, defaultCellAttributes);
+		PopulateGridWithCells(cellData, defaultCellAttributes);
 	}
 
 	return {element, defaultStyle, RenderCell, RenderGridAndCells };
