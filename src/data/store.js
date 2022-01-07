@@ -128,6 +128,10 @@ export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 }
 
 // Cells
+// Todo: Remove data for cells which were once changed, but once again match the defaults.
+// The store only tracks cells which have been modified, but doesn't know if something has been modified, then reset.
+// If I update a cell's attributes, it gets added to CellData and those values are used instead of the default values. 
+// If I then change those attributes back so that the cell matches the 'default' values again, it remains in cellData unecessarily.
 export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 	cellIds.forEach((cellId) => {
 		const existingData = state.cellData.all.get(cellId);
@@ -185,7 +189,7 @@ export const loadCellData = (state, { cellData }) => {
 	// Our cells are serialized as an array of objects.
 	// Pull them out into a map by cellId and store that instead.
 	const map = new Map(cellData.map(value => [value.cellId, value]));
-	state.cellData.setCellData(map);
+	state.cellData.all = map;
 }
 
 const initStore = () => {
@@ -234,15 +238,6 @@ const initStore = () => {
 			// 		updateCellState(cellState, initialCellState.attributes);
 			// 	});
 			// },
-			// getAllCells: function() {
-			// 	return new Map(this.all);
-			// },
-			// getCellStateById : function(cellId) {
-			// 	return this.all.get(cellId);
-			// },
-			setCellData: function(cellData) {
-				this.all = cellData;
-			}
 		}
 	}
 	const UseSelector = (selector) => selector(store);

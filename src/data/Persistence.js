@@ -1,45 +1,5 @@
-const downloadBlob = (blob, fileName) => {
-	const blobUrl = URL.createObjectURL(blob);
-
-	const anchor = document.createElement('a');
-	anchor.href = blobUrl;
-	anchor.target = "_blank";
-	anchor.download = `grid-${fileName}.json`;
-
-	// Auto click on a element, trigger the file download
-	anchor.click();
-
-	// This is required
-	URL.revokeObjectURL(blobUrl);
-}
-
-
-export const openFileSelectionWindow = (onSelect) => {
-	let input = document.createElement('input');
-	input.type = 'file';
-	input.accept = 'application/json'
-
-	input.onchange = onSelect;
-
-	input.click();
-}
 
 const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) => {
-	// let currentlyLoadedJson = '';
-	// let currentlyLoadedData;
-	// let onLoadedFileChangedListeners = new Set();
-	// let onMergeFileDroppedListeners = new Set();
-	// let onGridNameChangedListeners = new Set();
-	// let gridName = 'untitled';
-
-	// const setGridName = (name) => {
-	// 	gridName = name;
-	// 	onGridNameChangedListeners.forEach((listener) => listener(name));
-	// }
-
-	// const addOnLoadedFileChangedListener = (callback) => onLoadedFileChangedListeners.add(callback);
-	// const addOnMergeFileDroppedListener = (callback) => onMergeFileDroppedListeners.add(callback);
-	// const addOnGridNameChangedListener = (callback) => onGridNameChangedListeners.add(callback);
 
 	const onLoadedFileTextChanged = (oldJson, newJson) => {
 		if (oldJson === newJson) return;
@@ -63,23 +23,6 @@ const Persistence = (gridDataResolver, configDataResolver, schemaDataResolver) =
 		if (droppedItem.kind !== 'file' || !droppedItem.type.match('^application/json')) return;
 		droppedItem.getAsFile().text().then(value => {
 			loadJson(value);
-		});
-	}
-
-	const handleFileSelect = (event) => {
-		let file = event.target.files[0];
-		if (!file.type.match('^application/json')) return;
-		file.text().then(value => {
-			loadJson(value);
-		});
-	}
-
-	const handleMergeSelect = (event) => {
-		let file = event.target.files[0];
-		console.log(file.kind, file.type);
-		if (!file.type.match('^application/json')) return;
-		file.text().then(value => {
-			onMergeFileDroppedListeners.forEach((listener) => listener(value));
 		});
 	}
 

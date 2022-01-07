@@ -26,31 +26,64 @@ const defaultStyle =
 		#download-as-json {
 			margin-left: 16px;
 		}
+		.persistence-panel {
+			height: 110px;
+			display: flex;
+			align-items: center;
+		}
+		.persistence-panel-main {
+			flex-grow: 1;
+		}
+
+		.persistence-drop-preview {
+			font-style: italic;
+			height: 100%;
+			display: flex;
+			flex-grow: 1;
+			align-items: center;
+			justify-content: center;
+			outline: 2px dashed rgba(255, 255, 255, 0.87);
+		}
+		/* 
+		Disable pointer events in the preview so that child elements don't trigger extra dragleave events.
+		*/
+		.persistence-drop-preview * {
+			pointer-events: none;
+		}
+		.persistence-drop-preview.hidden, .persistence-panel-main.hidden {
+			display: none;
+		}
+		
 
 	`
 	const template = 
 	`
 	<div class="persistence-panel">
-		<div class="title">
-			<input type="text" name="grid_name" placeholder="Name your grid..." />
-			<button title="Save as JSON file" id="download-as-json">
-				<span class="material-icons">file_download</span>
-	    	</button>
+		<div class="persistence-drop-preview hidden">
+			<p>Drop JSON file here to load...</p>
 		</div>
-		<div class="toolbar">
-	    	<button title="Reload all cells from the current file" id="reload-file">
-				<span class="material-icons">restore</span>
-	    	</button>
-			<button title="Load a grid from a JSON file" id="import-from-json">
-				<span class="material-icons">upload_file</span>
-	    	</button>
-	    	<button title="Merge cells from a JSON file" id="add-from-json">
-				<span class="material-icons">note_add</span>
-	    	</button>
-	    	<button title="Clear all cells and history" id="clear-all">
-				<span class="material-icons">delete</span>
-	    	</button>
-    	</div>
+		<div class="persistence-panel-main">
+			<div class="title">
+				<input type="text" name="grid_name" placeholder="Name your grid..." />
+				<button title="Save as JSON file" id="download-as-json">
+					<span class="material-icons">file_download</span>
+				</button>
+			</div>
+			<div class="toolbar">
+				<button title="Reload all cells from the current file" id="reload-file">
+					<span class="material-icons">restore</span>
+				</button>
+				<button title="Load a grid from a JSON file" id="import-from-json">
+					<span class="material-icons">upload_file</span>
+				</button>
+				<button title="Merge cells from a JSON file" id="add-from-json">
+					<span class="material-icons">note_add</span>
+				</button>
+				<button title="Clear all cells and history" id="clear-all">
+					<span class="material-icons">delete</span>
+				</button>
+			</div>
+		</div>
 	</div>
 	`;
 	const downloadBlob = (blob, fileName) => {
@@ -67,23 +100,69 @@ const defaultStyle =
 		// This is required
 		URL.revokeObjectURL(blobUrl);
 	}
-const PersistenceView = ({ UseSelector, openFileImportWindow, openFileAddWindow, onSubmit, handleFileDragOver, handleFileDrop, downloadJsonSave, addOnGridNameChangedListener, handleMergeDrop, handleMergeDragOver, handleClearClicked, handleReloadClicked }) => {
+	const openFileSelectionWindow = (onSelect) => {
+		let input = document.createElement('input');
+		input.type = 'file';
+		input.accept = 'application/json'
+	
+		input.onchange = onSelect;
+	
+		input.click();
+	}
+	
+const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked, onReloadClicked }) => {
 	let gridNameInput;
-	const element = document.createElement('div')
+	const element = document.createElement('div');
 	element.innerHTML = template;
+	element.classList.add('persistence-view-wrapper');
+	
+	const dropPreview = element.querySelector('.persistence-drop-preview');
+	const mainPanel = element.querySelector('.persistence-panel-main');
+	const ShowDropPreview = () => {
+		mainPanel.classList.add('hidden');
+		dropPreview.classList.remove('hidden');
+	}
+	const HideDropPreview = () => {
+		mainPanel.classList.remove('hidden');
+		dropPreview.classList.add('hidden');	
+	}
 
-
-	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileImportWindow(e));
+	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow(handleFileSelect));
 	gridNameInput = element.querySelector("input[name=grid_name]");
 	gridNameInput.addEventListener('blur', (e) => {
 		Submit();
 	});
 	gridNameInput.addEventListener('keydown', (e) => {
 		if (e.keyCode == 13) {
-			console.log('enter submit');
 			Submit();
 		}
 	});
+
+	const handleFileSelect = (event) => {
+		let file = event.target.files[0];
+		if (!file.type.match('^application/json')) return;
+		onFileSelected(file);
+	}
+	
+	const handleFileDragEnter = (event) => {
+		event.preventDefault();
+		ShowDropPreview();
+	}
+	const handleFileDragLeave = (event) => {
+		event.preventDefault();
+		HideDropPreview();
+	}
+	const handleFileDrop = (event) => {
+		event.preventDefault();
+		HideDropPreview();
+		if (!event.dataTransfer.items) return;
+
+		//Presumably someone could drag multiple files, but we just grab the first one
+		const droppedItem = event.dataTransfer.items[0];
+		if (droppedItem.kind !== 'file' || !droppedItem.type.match('^application/json')) return;
+		onFileSelected(droppedItem.getAsFile());
+	}
+
 
 	const Submit = () => {
 		const data = {
@@ -99,13 +178,15 @@ const PersistenceView = ({ UseSelector, openFileImportWindow, openFileAddWindow,
 		const blob = new Blob([json], {type : 'application/json'});
 		downloadBlob(blob, saveData.title);
 	}
-	// element.querySelector("#import-from-json").addEventListener('dragover', handleFileDragOver);
-	// element.querySelector("#import-from-json").addEventListener('drop', handleFileDrop);
+	element.addEventListener('dragenter', handleFileDragEnter);
+	element.addEventListener('dragleave', handleFileDragLeave);
+	
+	// In order for 'drop' to trigger on an event, you must cancel the dragenter and dragover events.
+	element.addEventListener('dragover', (e) => e.preventDefault());
+	element.addEventListener('drop', handleFileDrop);
 	element.querySelector('#download-as-json').addEventListener('click', (e) => DownloadJsonSave());
 
 	// element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
-	// element.querySelector("#add-from-json").addEventListener('drop', handleMergeDrop);
-	// element.querySelector("#add-from-json").addEventListener('click', (e) => openFileAddWindow());
 
 	// element.querySelector("#clear-all").addEventListener('click', handleClearClicked);
 	// element.querySelector("#reload-file").addEventListener('click', handleReloadClicked);

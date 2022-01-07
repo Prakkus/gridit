@@ -102,7 +102,6 @@
 		import GridConfigView from './src/components/GridConfigView.js';
 		import GridView from './src/components/GridView.js'
 		import SchemaControls from './src/components/SchemaControls.js';
-		import { openFileSelectionWindow } from './src/data/Persistence.js';
 		import GridDrag from './src/components/GridDrag.js';
 		import { 
 			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells,
@@ -160,8 +159,7 @@
 			}
 
 			// Handle a json file for import being selected in the PersistenceView.
-			const handleFileSelect = (event) => {
-				let file = event.target.files[0];
+			const handleFileSelect = (file) => {
 				if (!file.type.match('^application/json')) return;
 				file.text().then(value => {
 					// Loads the json and imports the data.
@@ -179,7 +177,7 @@
 			// Initialize the Persistence View. 
 			const {defaultStyle: persistenceStyle, element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
 				{ 
-					openFileImportWindow: () => openFileSelectionWindow(handleFileSelect),
+					onFileSelected: handleFileSelect,
 					onSubmit: (data) => {
 						UpdateGridName(store, { name: data.gridName });
 						RefreshPersistenceView()
