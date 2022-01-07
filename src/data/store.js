@@ -95,7 +95,6 @@ export const SelectSaveData = (state) => {
 	const { cellSize, cellGap, showCoords } = SelectGridDisplayOptions(state);
 	const schemaTables = SelectLoadedSchemas(state);
 	const cellData = Array.from(SelectAllCellData(state).values());
-	console.log(cellData);
 	return {
 		title: gridName, 
 		config: {
@@ -144,7 +143,6 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 		} else {
 			// Otherwise we need to create a new data entry for this cell.
 			const defaultAttributes = SelectDefaultCellAttributes(state);
-			console.log(defaultAttributes);
 			const newEntry = {
 				cellId,
 				attributes: {
@@ -154,41 +152,43 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 			}
 			state.cellData.all.set(cellId, newEntry);
 		}
-	})
+	});
+}
+export const ClearAllCellData = (state) => {
+	state.cellData.all.clear();
 }
 
 // Commands
 // Load a grid save file into the store.
 export const loadGridJsonData = (state, { jsonText }) => {
-	const refreshGridFromLoadedJson = (state) => {
-		// Loads a configuration profile (not a grid save file!).
-		const loadGridProfile = (state, {title, config, schema}) => {
-			// Clear the current profile.
-			ClearCurrentProfile(state);
-			// Update grid attributes.
-			UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
-			UpdateGridSize(state, { width: config.columnCount, height: config.rowCount });
-			UpdateGridName(state, { name: title });
-			// Load schema.
-			schema.forEach((schemaDef) => {
-				loadSchema(state, { schema: schemaDef });
-			});
-		}
-		const profile = SelectLoadedJsonData(state);
-		loadGridProfile(state, profile);
-		console.log(profile.cellData);
-		loadCellData(state, { cellData: profile.cellData });
-	}
 	state.loadedJson.rawJson = jsonText;
 	state.loadedJson.parsedJson = JSON.parse(jsonText);
 	state.loadedJson.title = state.loadedJson.parsedJson.title;
 	refreshGridFromLoadedJson(state);
 }
+export const refreshGridFromLoadedJson = (state) => {
+	// Loads a configuration profile (not a grid save file!).
+	const loadGridProfile = (state, {title, config, schema}) => {
+		// Clear the current profile.
+		ClearCurrentProfile(state);
+		// Update grid attributes.
+		UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
+		UpdateGridSize(state, { width: config.columnCount, height: config.rowCount });
+		UpdateGridName(state, { name: title });
+		// Load schema.
+		schema.forEach((schemaDef) => {
+			loadSchema(state, { schema: schemaDef });
+		});
+	}
+	const profile = SelectLoadedJsonData(state);
+	loadGridProfile(state, profile);
+	loadCellData(state, { cellData: profile.cellData });
+}
 
 export const loadCellData = (state, { cellData }) => {
 	// Our cells are serialized as an array of objects.
 	// Pull them out into a map by cellId and store that instead.
-	const map = new Map(cellData.map(value => [value.cellId, value]));
+	const map = new Map(cellData.map(value => [value.cellId, {...value}]));
 	state.cellData.all = map;
 }
 

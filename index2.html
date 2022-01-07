@@ -104,7 +104,7 @@
 		import SchemaControls from './src/components/SchemaControls.js';
 		import GridDrag from './src/components/GridDrag.js';
 		import { 
-			loadGridJsonData, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells,
+			loadGridJsonData, refreshGridFromLoadedJson, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells, ClearAllCellData,
 			SelectCurrentlySelectedAttributeUpdate, SelectGridName, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
 			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
 
@@ -136,15 +136,11 @@
 				});
 			}
 			const HandleCellUpdate = (cellId) => {
-				console.log(`${cellId} clicked!`);
 				const attributeUpdate = UseSelector(SelectCurrentlySelectedAttributeUpdate);
-				console.log(attributeUpdate);
 				UpdateAndRenderCells([cellId], attributeUpdate)
 			}
 			const { BindDragEvents } = GridDrag(HandleCellUpdate);
 			BindDragEvents(window);
-
-
 
 			// Update the size and display options for a grid and rerenders it with the currently loaded cell data.
 			const RefreshGrid = () => {
@@ -159,11 +155,13 @@
 			}
 
 			// Handle a json file for import being selected in the PersistenceView.
-			const handleFileSelect = (file) => {
+			const handleFileSelected = (file) => {
+				// If they have grid data currently loaded, confirm that they want to overwrite it
+				if (UseSelector(SelectAllCellData).size > 0 && (!confirm("Really load this grid? Your current grid will be overwritten."))) return;
 				if (!file.type.match('^application/json')) return;
 				file.text().then(value => {
 					// Loads the json and imports the data.
-					loadGridJsonData(store, {jsonText: value});
+					loadGridJsonData(store, { jsonText: value });
 					RefreshGridConfig();
 					RefreshGrid();
 					RefreshPersistenceView();
@@ -177,7 +175,18 @@
 			// Initialize the Persistence View. 
 			const {defaultStyle: persistenceStyle, element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
 				{ 
-					onFileSelected: handleFileSelect,
+					onFileSelected: handleFileSelected,
+					onClearClicked: () =>
+					{
+						ClearAllCellData(store);
+						RefreshGrid();
+					},
+					onReloadClicked: () => {
+						refreshGridFromLoadedJson(store);
+						RefreshPersistenceView();
+						RefreshGridConfig();
+						RefreshGrid();
+					},
 					onSubmit: (data) => {
 						UpdateGridName(store, { name: data.gridName });
 						RefreshPersistenceView()

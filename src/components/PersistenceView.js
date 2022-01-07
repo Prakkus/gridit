@@ -185,11 +185,8 @@ const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked
 	element.addEventListener('dragover', (e) => e.preventDefault());
 	element.addEventListener('drop', handleFileDrop);
 	element.querySelector('#download-as-json').addEventListener('click', (e) => DownloadJsonSave());
-
-	// element.querySelector("#add-from-json").addEventListener('dragover', handleMergeDragOver);
-
-	// element.querySelector("#clear-all").addEventListener('click', handleClearClicked);
-	// element.querySelector("#reload-file").addEventListener('click', handleReloadClicked);
+	element.querySelector("#clear-all").addEventListener('click', (e) => onClearClicked());
+	element.querySelector("#reload-file").addEventListener('click', (e) => onReloadClicked());
 
 
 	const Render = ({ gridName }) => {
