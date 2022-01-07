@@ -35,6 +35,7 @@ const defaultStyle =
 			display: flex;
 			justify-content: space-around;
 			align-items: center;
+			overflow: hidden;
 		}
 
 		.grid-cell:hover {

@@ -10,11 +10,11 @@ export const SelectDefaultCellAttributes = (state) => {
 }
 
 export const SelectCellById = (state, { cellId }) => {
-	return state.cellData.all.get(cellId);
+	return state.cellData.get(cellId);
 }
 
 export const SelectAllCellData = (state) => {
-	return state.cellData.all;
+	return state.cellData;
 }
 
 export const SelectLoadedJsonData = (state) => {
@@ -133,7 +133,7 @@ export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 // If I then change those attributes back so that the cell matches the 'default' values again, it remains in cellData unecessarily.
 export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 	cellIds.forEach((cellId) => {
-		const existingData = state.cellData.all.get(cellId);
+		const existingData = state.cellData.get(cellId);
 		if (existingData) {
 			// If the cell already exists, update its attributes
 			existingData.attributes = {
@@ -150,12 +150,12 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 					...attributeUpdates
 				}
 			}
-			state.cellData.all.set(cellId, newEntry);
+			state.cellData.set(cellId, newEntry);
 		}
 	});
 }
 export const ClearAllCellData = (state) => {
-	state.cellData.all.clear();
+	state.cellData.clear();
 }
 
 // Commands
@@ -189,7 +189,7 @@ export const loadCellData = (state, { cellData }) => {
 	// Our cells are serialized as an array of objects.
 	// Pull them out into a map by cellId and store that instead.
 	const map = new Map(cellData.map(value => [value.cellId, {...value}]));
-	state.cellData.all = map;
+	state.cellData = map;
 }
 
 const initStore = () => {
@@ -217,28 +217,7 @@ const initStore = () => {
 			selectedSchemaIndex: 0,
 			selectedValueIndex: 0,
 		},
-		cellData: {
-			all: new Map(),
-			// updateCellStateById: function(cellId, propUpdates) {
-			// 	const currentState = this.all.get(cellId);
-			// 	updateCellState(currentState, propUpdates);
-			// },
-			// updateCellState: function(cellState, propUpdates) {
-			// 	const newState = { 
-			// 		...cellState,
-			// 		attributes: {
-			// 			...cellState.attributes,
-			// 			...propUpdates
-			// 		}
-			// 	};
-			// 	this.all.set(cellState.cellId, newState);
-			// },
-			// resetAllCellStates: function() {
-			// 	this.all.forEach((cellState, cellId) => {
-			// 		updateCellState(cellState, initialCellState.attributes);
-			// 	});
-			// },
-		}
+		cellData: new Map()
 	}
 	const UseSelector = (selector) => selector(store);
 	return { UseSelector, store }
