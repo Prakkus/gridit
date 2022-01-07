@@ -110,7 +110,7 @@ const defaultStyle =
 		input.click();
 	}
 	
-const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked, onReloadClicked }) => {
+const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked, onReloadClicked, onSaveClicked }) => {
 	let gridNameInput;
 	const element = document.createElement('div');
 	element.innerHTML = template;
@@ -177,6 +177,7 @@ const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked
 		const json = JSON.stringify(saveData) + '\n';
 		const blob = new Blob([json], {type : 'application/json'});
 		downloadBlob(blob, saveData.title);
+		return json;
 	}
 	element.addEventListener('dragenter', handleFileDragEnter);
 	element.addEventListener('dragleave', handleFileDragLeave);
@@ -184,7 +185,7 @@ const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked
 	// In order for 'drop' to trigger on an event, you must cancel the dragenter and dragover events.
 	element.addEventListener('dragover', (e) => e.preventDefault());
 	element.addEventListener('drop', handleFileDrop);
-	element.querySelector('#download-as-json').addEventListener('click', (e) => DownloadJsonSave());
+	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); onSaveClicked(saveJson); });
 	element.querySelector("#clear-all").addEventListener('click', (e) => onClearClicked());
 	element.querySelector("#reload-file").addEventListener('click', (e) => onReloadClicked());
 

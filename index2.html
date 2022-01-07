@@ -189,8 +189,9 @@
 					},
 					onSubmit: (data) => {
 						UpdateGridName(store, { name: data.gridName });
-						RefreshPersistenceView()
+						RefreshPersistenceView();
 					},
+					onSaveClicked: (saveJson) => loadGridJsonData(store, { jsonText: saveJson }),
 					UseSelector
 				} 
 			);
