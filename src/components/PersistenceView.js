@@ -1,4 +1,4 @@
-import { SelectSaveData } from "../data/store.js";
+import { SelectSaveData, UseSelector } from "../data/AppState.js";
 
 export const style = 
 	`
@@ -114,7 +114,7 @@ export const style =
 		input.click();
 	}
 	
-const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked, onReloadClicked, onSaveClicked, onImportTilesetClicked }) => {
+const PersistenceView = ({ onFileSelected, onSubmit, onClearClicked, onReloadClicked, onSaveClicked, onImportTilesetClicked }) => {
 	let gridNameInput;
 	const element = document.createElement('div');
 	element.innerHTML = template;

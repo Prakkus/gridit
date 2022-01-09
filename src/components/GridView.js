@@ -1,7 +1,4 @@
-// const hexColorFromName = (colorName) => defaultProfile.availableColors[colorName];
-// const symbolFromName = (symbolName) => defaultProfile.availableSymbols[symbolName];
-// const tileFromIndex = (index) => defaultProfile.tileset[index];
-import { SelectSchemaValue } from '../data/store.js';
+import { SelectSchemaValue, UseSelector } from '../data/AppState.js';
 
 export const style = 
 `
@@ -57,15 +54,6 @@ const UpdateDOMCell = (cellElement, cellAttributes, resolveCellValue) => {
 	cellElement.style.backgroundSize = 'cover';
 }
 
-// const GetDefaultCellState = (cellId, defaultAttributes) => {
-// 	return {
-// 		cellId, 
-// 		x, 
-// 		y,
-// 		attributes: defaultAttributes
-// 	};
-// }
-
 // Fills the given (grid) element with cells, each with optional data.
 const PopulateDOMGridCells = (mountElement, width, height, cellData, resolveCellValue, defaultCellAttributes) => {
 	let nodeMap = new Map();
@@ -112,7 +100,7 @@ const UpdateDOMGrid = (mountElement, width, height, cellSize, cellGap, showCoord
 
 
 // Renders cells from Map of cellData.
-const GridView = (UseSelector) => {
+const GridView = () => {
 	let cellToNodeMap = new Map();
 	let displayOptions = {
 		width: 0,

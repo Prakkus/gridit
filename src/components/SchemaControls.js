@@ -1,4 +1,4 @@
-import { SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectSchemaName } from '../data/store.js';
+import { SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
 
 // Build a unique ID to refer to this schema value.
 const buildSchemaId = (schema, index) => `${schema.name}-${index}`;
@@ -40,7 +40,7 @@ const template =
 `
 
 `;
-const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
+const SchemaControls = ( OnSelectedValueChanged ) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('cursor-controls');

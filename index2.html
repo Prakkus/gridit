@@ -52,36 +52,9 @@
 		background-color: var(--light);		
 	}
 
-	.control-panel {
-		z-index: 1;
-	}
-	.control-panel {
-		color: var(--text-default);
-		position: fixed;
-		right: 0px;
-		background: var(--darker);
-		padding: 12px;
-		width: 371px;
-		display: flex;
-		flex-direction: column;
-		max-height: 100vh;
-		overflow-y: auto;
-		box-sizing: border-box; /* specfically so that the scroll bar doesn't mess with the inner width */
-	}
-
-	.control-panel > * {
-		margin-bottom: 12px;
-	}
-
-	.control-panel .action-list > button {
-		width: 100%;
-		margin-bottom: 12px;
-	}
-
 	#grid-mount-point {
 		display: grid;
   	}
-
 
   	.grid-coords-hidden .grid-coords-display {
   		display: none;
@@ -98,19 +71,20 @@
 	</div>
 </div>
 	<script type="module">
-		import initStore from './src/data/store.js'
+		import { store, UseSelector } from './src/data/AppState.js'
 		import profile from './src/config/default-save.js';
 		import GridDrag from './src/components/GridDrag.js';
 		import PersistenceView, { style as persistenceStyle} from './src/components/PersistenceView.js'
 		import GridConfigView, { style as gridConfigStyle } from './src/components/GridConfigView.js';
+		import { style as controlPanelStyle } from './src/components/GridControlPanel.js';
 		import GridView, { style as gridStyle } from './src/components/GridView.js'
-		import SchemaControls, { style as controlsStyle } from './src/components/SchemaControls.js';
+		import SchemaControls, { style as schemaControlsStyle } from './src/components/SchemaControls.js';
 		import TilesetView, { style as tilesetViewStyle } from './src/components/TilesetView.js';
 		import ModalView, { style as modalViewStyle } from './src/components/ModalView.js';
 		import { 
 			loadGridJsonData, loadValuesIntoSchema, refreshGridFromLoadedJson, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells, ClearAllCellData,
 			SelectCurrentlySelectedAttributeUpdate, SelectGridName, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
-			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
+			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, IsAnyCellDataLoaded } from './src/data/AppState.js';
 		
 		const MountElement = (parent, elementToMount) => parent.insertAdjacentElement('beforeend', elementToMount);	
 		
@@ -126,19 +100,17 @@
 		const Main = () => {
 			// Inject the styles for all the loaded components.
 			// Todo: can I use this in components themselves instead of at the top level? Do I need to make it idempotent?
-			InjectStyles(gridStyle, persistenceStyle, controlsStyle, tilesetViewStyle, modalViewStyle, gridConfigStyle);
+			InjectStyles(gridStyle, persistenceStyle, schemaControlsStyle, tilesetViewStyle, modalViewStyle, gridConfigStyle, controlPanelStyle);
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const gridMountElement = document.querySelector("#grid-mount-point");
 			// Helpers for adding style and elements to the page.
 			// Create the store which will contain all of our app state.
-			const { UseSelector, store } = initStore();
-			const isAnyCellDataLoaded = () => UseSelector(SelectAllCellData).size > 0;
 
 			
 			// Now let's start adding our components to the page.
 			// Initialize the GridView.
-			const { element: gridElement, RenderGridAndCells, RenderCell } = GridView(UseSelector);
+			const { element: gridElement, RenderGridAndCells, RenderCell } = GridView();
 			// Update a set of cells with a given set of attributes and then rerender them individually.
 			const UpdateAndRenderCells = (cellIds, attributeUpdates) => {
 				UpdateCells(store, { cellIds, attributeUpdates});
@@ -169,7 +141,7 @@
 			// Handle a json file for import being selected in the PersistenceView.
 			const handleFileSelected = (file) => {
 				// If they have grid data currently loaded, confirm that they want to overwrite it
-				if (isAnyCellDataLoaded() && (!confirm("Really load this grid? Your current grid will be overwritten."))) return;
+				if (IsAnyCellDataLoaded() && (!confirm("Really load this grid? Your current grid will be overwritten."))) return;
 				if (!file.type.match('^application/json')) return;
 				file.text().then(value => {
 					// Loads the json and imports the data.
@@ -190,7 +162,7 @@
 					onClearClicked: () =>
 					{
 						// If they have grid data currently loaded, confirm that they want to overwrite it.
-						if (isAnyCellDataLoaded() && (!confirm("Really clear this grid? All cell data will be deleted."))) return;
+						if (IsAnyCellDataLoaded() && (!confirm("Really clear this grid? All cell data will be deleted."))) return;
 						ClearAllCellData(store);
 						RefreshGrid();
 					},
@@ -205,8 +177,7 @@
 						RefreshPersistenceView();
 					},
 					onSaveClicked: (saveJson) => loadGridJsonData(store, { jsonText: saveJson }),
-					onImportTilesetClicked: () => OpenTilesetModal(),
-					UseSelector
+					onImportTilesetClicked: () => OpenTilesetModal()
 				} 
 			);
 			const RefreshPersistenceView = () => {
@@ -235,7 +206,7 @@
 				SetSelectedSchemaValue(store, { schemaIndex, valueIndex });
 				RefreshSchemaControls();
 			}
-			const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls(OnSchemaSelection, UseSelector);
+			const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls(OnSchemaSelection);
 			const RefreshSchemaControls = () => {
 				const loadedSchemas = UseSelector(SelectLoadedSchemas);
 				const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
