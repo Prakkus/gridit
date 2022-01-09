@@ -1,46 +1,10 @@
-import { ApplyMutation, SetSelectedSchemaValue, SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
+import { Connect, ApplyMutation, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
+	SelectLoadedSchemas, SelectSchemaValues, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
 
 // Build a unique ID to refer to this schema value.
 const buildSchemaId = (schema, index) => `${schema.name}-${index}`;
 
-export const style =
-`
-	.cursor-controls .toolbar-section-title {
-		display: flex;
-		margin-top: 24px;
-		margin-bottom: 8px;
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.brush-selection-button:nth-child(6n) {
-		margin-right: 0;
-	}
-
-	.brush-selection-button {
-		width: 50px;
-		height: 50px;
-		margin-right: 6px;
-		margin-bottom: 6px;
-		outline: 1px solid rgba(255,255,255, .5);
-		font-size: 24px;
-		background-size: cover;
-	}
-	.color-swatch:hover, .active-color {
-		outline: 2px solid rgba(255,255,255, .7);
-	}
-
-	.schema-toolbar {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-	}
-`;
-const template = 
-`
-
-`;
-const SchemaControls = () => {
+export const SchemaControls = () => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('cursor-controls');
@@ -150,5 +114,51 @@ const SchemaControls = () => {
 	return { element, Render }
 } 
 
+const mapStateToProps = () => {
+	const loadedSchemas = UseSelector(SelectLoadedSchemas);
+	const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
+	return { loadedSchemas, ...selectedSchemaValue };
+}
+export default () => {
+	const { element, Render: baseRender } = SchemaControls();
+	const Render = Connect(mapStateToProps)(baseRender);
+	return { element, Render };
+}
 
-export default SchemaControls;
+export const style =
+`
+	.cursor-controls .toolbar-section-title {
+		display: flex;
+		margin-top: 24px;
+		margin-bottom: 8px;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.brush-selection-button:nth-child(6n) {
+		margin-right: 0;
+	}
+
+	.brush-selection-button {
+		width: 50px;
+		height: 50px;
+		margin-right: 6px;
+		margin-bottom: 6px;
+		outline: 1px solid rgba(255,255,255, .5);
+		font-size: 24px;
+		background-size: cover;
+	}
+	.color-swatch:hover, .active-color {
+		outline: 2px solid rgba(255,255,255, .7);
+	}
+
+	.schema-toolbar {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+`;
+const template = 
+`
+
+`;

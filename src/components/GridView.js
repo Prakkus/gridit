@@ -1,44 +1,4 @@
-import { SelectSchemaValue, UseSelector } from '../data/AppState.js';
-
-export const style = 
-`
-		.grid-cell-symbol {
-			color: #fff;
-			width: 100%;
-			display: block;
-			height: 100%;
-			text-align: center;
-			line-height: 1.35;
-			pointer-events: none;
-			position: relative;
-		}
-
-		.grid-coords-display {
-			color: var(--text-default);
-			font-size: 10px;
-			position: absolute;
-			right: 0px;
-			bottom: 0px;
-			line-height: 1;
-			padding: 4px;
-			background-color: var(--darker);
-			pointer-events: none;
-		}
-
-		.grid-cell {
-			position: relative;
-			transition:  all .125s ease;
-			user-select: none;
-			display: flex;
-			justify-content: space-around;
-			align-items: center;
-			overflow: hidden;
-		}
-
-		.grid-cell:hover {
-			outline: 1px solid rgba(255, 255, 255, .6);
-		}
-`;
+import { Connect, UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, SelectSchemaValue  } from '../data/AppState.js';
 
 // Update a given DOM node to reflect a given cellState.
 const UpdateDOMCell = (cellElement, cellAttributes, resolveCellValue) => {
@@ -100,7 +60,7 @@ const UpdateDOMGrid = (mountElement, width, height, cellSize, cellGap, showCoord
 
 
 // Renders cells from Map of cellData.
-const GridView = () => {
+export const GridView = () => {
 	let cellToNodeMap = new Map();
 	let displayOptions = {
 		width: 0,
@@ -139,12 +99,68 @@ const GridView = () => {
 	}
 
 	// Render a view from a set of grid display options and optional cellData.
-	const RenderGridAndCells = ({ width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes }) => {
+	const Render = ({ width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes }) => {
 		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
 		PopulateGridWithCells(cellData, defaultCellAttributes);
 	}
 
-	return {element, RenderCell, RenderGridAndCells };
+	return {element, Render, RenderCell };
+}
+const mapStateToProps = (state) => { 
+	const gridSize = UseSelector(SelectGridSize);
+	const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
+	const cellData = UseSelector(SelectAllCellData);
+	const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
+	return { width: gridSize.x, height: gridSize.y, cellSize: gridDisplayOptions.cellSize, cellGap: gridDisplayOptions.cellGap, showCoords: gridDisplayOptions.showCoords, cellData, defaultCellAttributes };
+};
+; 
+
+export default () => {
+	const { element, RenderCell, Render: baseRender } = GridView();
+	const Render = Connect(mapStateToProps)(baseRender);
+	return { element, RenderCell, Render };
 }
 
-export default GridView;
+
+export const style = 
+`
+	.grid-coords-hidden .grid-coords-display {
+		display: none;
+	}
+	.grid-cell-symbol {
+		color: #fff;
+		width: 100%;
+		display: block;
+		height: 100%;
+		text-align: center;
+		line-height: 1.35;
+		pointer-events: none;
+		position: relative;
+	}
+
+	.grid-coords-display {
+		color: var(--text-default);
+		font-size: 10px;
+		position: absolute;
+		right: 0px;
+		bottom: 0px;
+		line-height: 1;
+		padding: 4px;
+		background-color: var(--darker);
+		pointer-events: none;
+	}
+
+	.grid-cell {
+		position: relative;
+		transition:  all .125s ease;
+		user-select: none;
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		overflow: hidden;
+	}
+
+	.grid-cell:hover {
+		outline: 1px solid rgba(255, 255, 255, .6);
+	}
+`;

@@ -1,95 +1,6 @@
-import { SelectSaveData, UseSelector, RefreshGridFromLoadedJson, LoadGridJsonData, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation,  UpdateGridName } from "../data/AppState.js";
+import { Connect, UseSelector, SelectSaveData, SelectGridName, RefreshGridFromLoadedJson, LoadGridJsonData, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation, UpdateGridName } from "../data/AppState.js";
 
-export const style = 
-	`
-		.title {
-			padding-bottom: 16px;
-			display: flex;
-		}
-		.title input {
-			flex-grow: 1;
-		}
-		.toolbar {
-			padding-bottom: 16px;
-			display: flex;
-			width: 100%;
-		}
 
-		.persistence-panel button {
-			padding: 4px;
-			margin-right: 8px
-		}
-		.toolbar span.material-icons {
-			margin-top: 2px;
-		}
-
-		#import-tilesheet {
-			margin-left: auto;
-		}
-
-		#download-as-json {
-			margin-left: 16px;
-		}
-		.persistence-panel {
-			height: 110px;
-			display: flex;
-			align-items: center;
-		}
-		.persistence-panel-main {
-			flex-grow: 1;
-		}
-
-		.persistence-drop-preview {
-			font-style: italic;
-			height: 100%;
-			display: flex;
-			flex-grow: 1;
-			align-items: center;
-			justify-content: center;
-			outline: 2px dashed rgba(255, 255, 255, 0.87);
-		}
-		/* 
-		Disable pointer events in the preview so that child elements don't trigger extra dragleave events.
-		*/
-		.persistence-drop-preview * {
-			pointer-events: none;
-		}
-		.persistence-drop-preview.hidden, .persistence-panel-main.hidden {
-			display: none;
-		}
-		
-
-	`
-	const template = 
-	`
-	<div class="persistence-panel">
-		<div class="persistence-drop-preview hidden">
-			<p>Drop JSON file here to load...</p>
-		</div>
-		<div class="persistence-panel-main">
-			<div class="title">
-				<input type="text" name="grid_name" placeholder="Name your grid..." />
-				<button title="Save as JSON file" id="download-as-json">
-					<span class="material-icons">file_download</span>
-				</button>
-			</div>
-			<div class="toolbar">
-				<button title="Reload all cells from the current file" id="reload-file">
-					<span class="material-icons">restore</span>
-				</button>
-				<button title="Load a grid from a JSON file" id="import-from-json">
-					<span class="material-icons">upload_file</span>
-				</button>
-				<button title="Clear all cells and history" id="clear-all">
-					<span class="material-icons">delete</span>
-				</button>
-				<button title="Import a tilesheet" id="import-tilesheet">
-					<span class="material-icons">grid_view</span>
-				</button>
-			</div>
-		</div>
-	</div>
-	`;
 	const downloadBlob = (blob, fileName) => {
 		const blobUrl = URL.createObjectURL(blob);
 	
@@ -218,4 +129,100 @@ const PersistenceView = ({ onImportTilesetClicked }) => {
 	return {element, Render};
 }
 
-export default PersistenceView;
+const mapStateToProps = (state, ownProps) => ({ gridName: UseSelector(SelectGridName)});
+export default (initProps) => {
+	const { element, Render: baseRender } = PersistenceView(initProps);
+	const Render = Connect(mapStateToProps)(baseRender);
+	return { element, Render };
+}
+
+export const style = 
+`
+	.title {
+		padding-bottom: 16px;
+		display: flex;
+	}
+	.title input {
+		flex-grow: 1;
+	}
+	.toolbar {
+		padding-bottom: 16px;
+		display: flex;
+		width: 100%;
+	}
+
+	.persistence-panel button {
+		padding: 4px;
+		margin-right: 8px
+	}
+	.toolbar span.material-icons {
+		margin-top: 2px;
+	}
+
+	#import-tilesheet {
+		margin-left: auto;
+	}
+
+	#download-as-json {
+		margin-left: 16px;
+	}
+	.persistence-panel {
+		height: 110px;
+		display: flex;
+		align-items: center;
+	}
+	.persistence-panel-main {
+		flex-grow: 1;
+	}
+
+	.persistence-drop-preview {
+		font-style: italic;
+		height: 100%;
+		display: flex;
+		flex-grow: 1;
+		align-items: center;
+		justify-content: center;
+		outline: 2px dashed rgba(255, 255, 255, 0.87);
+	}
+	/* 
+	Disable pointer events in the preview so that child elements don't trigger extra dragleave events.
+	*/
+	.persistence-drop-preview * {
+		pointer-events: none;
+	}
+	.persistence-drop-preview.hidden, .persistence-panel-main.hidden {
+		display: none;
+	}
+	
+
+`
+const template = 
+`
+<div class="persistence-panel">
+	<div class="persistence-drop-preview hidden">
+		<p>Drop JSON file here to load...</p>
+	</div>
+	<div class="persistence-panel-main">
+		<div class="title">
+			<input type="text" name="grid_name" placeholder="Name your grid..." />
+			<button title="Save as JSON file" id="download-as-json">
+				<span class="material-icons">file_download</span>
+			</button>
+		</div>
+		<div class="toolbar">
+			<button title="Reload all cells from the current file" id="reload-file">
+				<span class="material-icons">restore</span>
+			</button>
+			<button title="Load a grid from a JSON file" id="import-from-json">
+				<span class="material-icons">upload_file</span>
+			</button>
+			<button title="Clear all cells and history" id="clear-all">
+				<span class="material-icons">delete</span>
+			</button>
+			<button title="Import a tilesheet" id="import-tilesheet">
+				<span class="material-icons">grid_view</span>
+			</button>
+		</div>
+	</div>
+</div>
+`;

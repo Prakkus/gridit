@@ -1,106 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet"> 
-<title>Gridit</title>
-	<style>
-	:root {
-		--light: #52525B;
-		--dark: #3F3F46;
-		--darker: #27272A;
-		--darkest: #18181B;
-		--text-default: rgba(255, 255, 255, 0.87);
-	}
-
-	* {
-        font-family: 'Manrope', sans-serif;
-        margin: 0;
-		outline: 0;
-		border: none;
-	}
-
-	input::-webkit-outer-spin-button,
-	input::-webkit-inner-spin-button {
-	  -webkit-appearance: none;
-	  margin: 0;
-	}
-
-	/* Firefox */
-	input[type=number] {
-	  -moz-appearance: textfield;
-	}
-
-	html {
-		background: var(--darkest);
-	}
-
-	button, input {
-		color: var(--text-default);
-		border: 1px solid var(--light);
-		background: var(--dark);
-		padding: 8px 5px;
-	}
-
-	input:focus {
-		background-color: var(--light);		
-	}
-
-	button:hover {
-		background-color: var(--light);		
-	}
-
-	#grid-mount-point {
-		display: grid;
-  	}
-
-  	.grid-coords-hidden .grid-coords-display {
-  		display: none;
-  	}
-
-	</style>
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="./style.css" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet"> 
+	<title>Gridit</title>
 </head>
 <body>
-
-<div class="grid-container">
-	<div id="control-panel-mount-point"  class="control-panel">
+	<div class="grid-container">
+		<div id="control-panel-mount-point"  class="control-panel">
+		</div>
+		<div id="grid-mount-point">
+		</div>
 	</div>
-	<div id="grid-mount-point">
-	</div>
-</div>
 	<script type="module">
+		import { InjectStyles, MountElement } from './src/DOMUtils.js';
 		import { store, Connect, UseSelector, ApplyMutation } from './src/data/AppState.js'
-		import profile from './src/config/default-save.js';
+		import defaultSaveFile from './src/config/default-save.js';
 		import GridDrag from './src/components/GridDrag.js';
-		import PersistenceView, { style as persistenceStyle} from './src/components/PersistenceView.js'
-		import GridConfigView, { style as gridConfigStyle } from './src/components/GridConfigView.js';
-		import { style as controlPanelStyle } from './src/components/GridControlPanel.js';
 		import GridView, { style as gridStyle } from './src/components/GridView.js'
-		import SchemaControls, { style as schemaControlsStyle } from './src/components/SchemaControls.js';
 		import TilesetView, { style as tilesetViewStyle } from './src/components/TilesetView.js';
 		import ModalView, { style as modalViewStyle } from './src/components/ModalView.js';
-		import { 
-			LoadGridJsonData, LoadValuesIntoSchema, RefreshGridFromLoadedJson, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells, ClearAllCellData,
-			SelectCurrentlySelectedAttributeUpdate, SelectGridName, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
-			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, IsAnyCellDataLoaded } from './src/data/AppState.js';
-		
-		const MountElement = (parent, elementToMount) => parent.insertAdjacentElement('beforeend', elementToMount);	
-		
-		const InjectStyles = (...styleText) => {
-			styleText.forEach(style => {
-				const element = document.createElement('style');
-				element.insertAdjacentHTML('beforeend', style);
-				document.head.insertAdjacentElement('beforeend', element);				
-			});
-
-		}
+		import GridControlPanel, { style as gridControlPanelStyle} from './src/components/GridControlPanel.js';
+		import { LoadGridJsonData, SelectCurrentlySelectedAttributeUpdate, LoadValuesIntoSchema, UpdateCells, SelectCellById } from './src/data/AppState.js';
 
 		const Main = () => {
 			// Inject the styles for all the loaded components.
-			// Todo: can I use this in components themselves instead of at the top level? Do I need to make it idempotent?
-			InjectStyles(gridStyle, persistenceStyle, schemaControlsStyle, tilesetViewStyle, modalViewStyle, gridConfigStyle, controlPanelStyle);
+			InjectStyles(gridStyle, tilesetViewStyle, modalViewStyle, gridControlPanelStyle);
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const gridMountElement = document.querySelector("#grid-mount-point");
@@ -122,47 +49,12 @@
 			BindDragEvents(window);
 
 			// Grid View
-			const { element: gridElement, RenderGridAndCells, RenderCell } = GridView();
-			const mapStateToPropsGrid = (state, ownProps) => { 
-				const gridSize = UseSelector(SelectGridSize);
-				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
-				const cellData = UseSelector(SelectAllCellData);
-				const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
-				return { width: gridSize.x, height: gridSize.y, cellSize: gridDisplayOptions.cellSize, cellGap: gridDisplayOptions.cellGap, showCoords: gridDisplayOptions.showCoords, cellData, defaultCellAttributes };
-			};
-			Connect(mapStateToPropsGrid)(RenderGridAndCells); 
-			MountElement(gridMountElement, gridElement);	
+			const { element: gridElement, RenderCell } = GridView();
+			MountElement(gridMountElement, gridElement);
 
-			// Persistence View. 
-			const { element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
-				{ 
-					onImportTilesetClicked: () => OpenTilesetModal()
-				} 
-			);
-			const mapStatePersist = (state, ownProps) => ({ gridName: UseSelector(SelectGridName)});
-			Connect(mapStatePersist)(RenderPersistenceView);
-			MountElement(controlPanelMountElement, persistenceElement);
-
-			// Grid Config View
-			const { element: gridConfigElement, Render: RenderGridConfig} = GridConfigView();
-			MountElement(controlPanelMountElement, gridConfigElement);
-			const mapStateGridConfig = (state, ownProps) => {
-				const gridSize = UseSelector(SelectGridSize);
-				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
-
-				return { columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions };
-			}
-			Connect(mapStateGridConfig)(RenderGridConfig);
-
-			// SchemaControls
-			const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls();
-			const mapStateSchemaControls = () => {
-				const loadedSchemas = UseSelector(SelectLoadedSchemas);
-				const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
-				return { loadedSchemas, ...selectedSchemaValue };
-			}
-			Connect(mapStateSchemaControls)(RenderSchemaControls);
-			MountElement(controlPanelMountElement, schemaControlsElement);
+			// Grid Control Panel
+			const { element: gridControlPanelElement} = GridControlPanel();
+			MountElement(controlPanelMountElement, gridControlPanelElement);	
 
 			// TilesetView
 			const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
@@ -180,12 +72,11 @@
 			RenderModal({title: 'Import a tileset', content: tilesetViewElement});
 
 			// Load the default grid profile. This contains default schema information.
-			ApplyMutation(LoadGridJsonData, {jsonText: JSON.stringify(profile)});
+			ApplyMutation(LoadGridJsonData, {jsonText: JSON.stringify(defaultSaveFile)});
 		};
 
 
 		document.addEventListener('DOMContentLoaded', Main);
-
 	</script>
 </body>
 </html>

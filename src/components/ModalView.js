@@ -1,3 +1,51 @@
+export const ModalView = (shownByDefault = false) => {
+	const element = document.createElement('div')
+	element.innerHTML = template;
+
+	const titleElement = element.querySelector('.modal-title');
+	const wrapperElement = element.querySelector('.modal-wrapper');
+	const contentElement = element.querySelector("#content-slot");
+	const closeButton = element.querySelector('.close');
+	const Open = () => {
+		wrapperElement.classList.remove('closed');
+	}
+	const Close = () => {
+		wrapperElement.classList.add('closed');
+	}
+
+	closeButton.addEventListener('click', Close);
+	wrapperElement.addEventListener('click', (e) => {
+		if (!e.target.classList.contains('modal-wrapper')) return;
+		Close();
+	});
+
+	document.addEventListener('keyup', (e) => {
+			if (e.keyCode !== 27) return; //esc
+			Close();
+	});
+
+	if (!shownByDefault) Close();
+
+
+	const Render = ({ title, content }) => {
+		// If the content they passed in is a string instead of an HTML element,
+		// Make a new element and 
+		if (content instanceof HTMLElement === false) {
+			const string = content;
+			content = document.createElement('div');
+			content.innerHTML = string;
+		}
+		titleElement.innerHTML = title;
+		// Clear whatever is there and render the new content.
+		contentElement.innerHTML = '';
+		contentElement.insertAdjacentElement('beforeend', content);
+	}
+
+	return { element, Render, Open, Close };
+}
+
+export default ModalView;
+
 export const style = 
 	`
 		.modal-wrapper {
@@ -54,61 +102,14 @@ export const style =
 		}
 	`
 
-		const template = 
-		`
-		<div class="modal-wrapper">
-			<div class="modal-panel">
-				<button class="close">&times;</button>
-				<h1 class="modal-title"></h1>
-				<section id="content-slot">
-				</section>
-			</div>
-		</div>
-		`;
-const ModalView = (shownByDefault = false) => {
-	const element = document.createElement('div')
-	element.innerHTML = template;
-
-	const titleElement = element.querySelector('.modal-title');
-	const wrapperElement = element.querySelector('.modal-wrapper');
-	const contentElement = element.querySelector("#content-slot");
-	const closeButton = element.querySelector('.close');
-	const Open = () => {
-		wrapperElement.classList.remove('closed');
-	}
-	const Close = () => {
-		wrapperElement.classList.add('closed');
-	}
-
-	closeButton.addEventListener('click', Close);
-	wrapperElement.addEventListener('click', (e) => {
-		if (!e.target.classList.contains('modal-wrapper')) return;
-		Close();
-	});
-
-	document.addEventListener('keyup', (e) => {
-			if (e.keyCode !== 27) return; //esc
-			Close();
-	});
-
-	if (!shownByDefault) Close();
-
-
-	const Render = ({ title, content }) => {
-		// If the content they passed in is a string instead of an HTML element,
-		// Make a new element and 
-		if (content instanceof HTMLElement === false) {
-			const string = content;
-			content = document.createElement('div');
-			content.innerHTML = string;
-		}
-		titleElement.innerHTML = title;
-		// Clear whatever is there and render the new content.
-		contentElement.innerHTML = '';
-		contentElement.insertAdjacentElement('beforeend', content);
-	}
-
-	return { element, Render, Open, Close };
-}
-
-export default ModalView;
+const template = 
+`
+<div class="modal-wrapper">
+	<div class="modal-panel">
+		<button class="close">&times;</button>
+		<h1 class="modal-title"></h1>
+		<section id="content-slot">
+		</section>
+	</div>
+</div>
+`;

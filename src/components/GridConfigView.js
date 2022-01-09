@@ -1,75 +1,5 @@
-import { ApplyMutation, UpdateGridSize, UpdateGridDisplayOptions } from "../data/AppState.js";
-export const style = 
-	`
-		.grid-config > div {
-			margin-bottom: 12px;
-		}
-		.size-config, .cell-config {
-			display: flex;
-			justify-content: space-between;
-		}
-		.grid-config label {
-			width: 50%;
-			display: flex;
-			justify-content: space-between;
-			align-content: center;
-		}
-		.grid-config label:first-child {
-			margin-right: 16px;
-		}
-
-		.grid-config span {
-			display: flex;
-			align-items: center;
-			flex-grow: 1;
-		}
-		.grid-config input {
-			flex-shrink: 0;
-			max-width: 64px;
-			text-align: center;
-		}
-	`;
-
-	const template =
-	`
-	<div class="grid-config">
-		<div class="size-config">
-			<label>
-				<span>
-					Columns:
-				</span>
-				<input name="columnCount" type="number" step="1" />
-			</label>
-			<label>
-				<span>
-					Rows:
-				</span>
-				<input name="rowCount" type="number" step="1" />
-			</label>
-		</div>
-		<div class="cell-config">
-			<label>
-				<span>		
-					Cell Size:
-				</span>
-				<input name="cellSize" type="number" step="1" />
-			</label>
-			<label>
-				<span>
-					Cell Gap:
-				</span>
-				<input name="cellGap" type="number" step="1" />
-			</label>
-		</div>
-					<label>
-				<span>
-					Show Coords:
-				</span>
-				<input name="showCoords" type="checkbox" />
-			</label>
-	</div>
-	`;
-const GridConfigView = () => {
+import { Connect, UseSelector, ApplyMutation, SelectGridSize, SelectGridDisplayOptions, UpdateGridSize, UpdateGridDisplayOptions } from "../data/AppState.js";
+export const GridConfigView = () => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 
@@ -123,4 +53,85 @@ const GridConfigView = () => {
 	return {element, Render};
 }
 
-export default GridConfigView;
+const mapStateToProps = (state, ownProps) => {
+	const gridSize = UseSelector(SelectGridSize);
+	const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
+
+	return { columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions };
+}
+export default () => {
+	const { element, Render: baseRender } = GridConfigView();
+	const Render = Connect(mapStateToProps)(baseRender);
+	return { element, Render };
+}
+
+export const style = 
+`
+	.grid-config > div {
+		margin-bottom: 12px;
+	}
+	.size-config, .cell-config {
+		display: flex;
+		justify-content: space-between;
+	}
+	.grid-config label {
+		width: 50%;
+		display: flex;
+		justify-content: space-between;
+		align-content: center;
+	}
+	.grid-config label:first-child {
+		margin-right: 16px;
+	}
+
+	.grid-config span {
+		display: flex;
+		align-items: center;
+		flex-grow: 1;
+	}
+	.grid-config input {
+		flex-shrink: 0;
+		max-width: 64px;
+		text-align: center;
+	}
+`;
+
+const template =
+`
+<div class="grid-config">
+	<div class="size-config">
+		<label>
+			<span>
+				Columns:
+			</span>
+			<input name="columnCount" type="number" step="1" />
+		</label>
+		<label>
+			<span>
+				Rows:
+			</span>
+			<input name="rowCount" type="number" step="1" />
+		</label>
+	</div>
+	<div class="cell-config">
+		<label>
+			<span>		
+				Cell Size:
+			</span>
+			<input name="cellSize" type="number" step="1" />
+		</label>
+		<label>
+			<span>
+				Cell Gap:
+			</span>
+			<input name="cellGap" type="number" step="1" />
+		</label>
+	</div>
+				<label>
+			<span>
+				Show Coords:
+			</span>
+			<input name="showCoords" type="checkbox" />
+		</label>
+</div>
+`;
