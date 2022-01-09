@@ -1,4 +1,4 @@
-	const defaultStyle = 
+export const style = 
 	`
 		.modal-wrapper {
 			position: fixed;
@@ -108,7 +108,7 @@ const ModalView = (shownByDefault = false) => {
 		contentElement.insertAdjacentElement('beforeend', content);
 	}
 
-	return { element, defaultStyle, Render, Open, Close };
+	return { element, Render, Open, Close };
 }
 
 export default ModalView;

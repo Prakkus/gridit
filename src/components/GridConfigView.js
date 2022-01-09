@@ -1,4 +1,4 @@
-	const defaultStyle = 
+export const style = 
 	`
 		.grid-config > div {
 			margin-bottom: 12px;
@@ -69,8 +69,8 @@
 	</div>
 	`;
 const GridConfigView = (OnSubmit) => {
-	const GridConfigElement = document.createElement('div');
-	GridConfigElement.innerHTML = template;
+	const element = document.createElement('div');
+	element.innerHTML = template;
 
 
 	const Submit = () => {
@@ -85,25 +85,25 @@ const GridConfigView = (OnSubmit) => {
 	}
 
 	// Submit if they press ENTER with this element focused.
-	GridConfigElement.addEventListener("keydown", (e) => {
+	element.addEventListener("keydown", (e) => {
 		if (e.keyCode == 13) {
 			Submit();
 		}
 	});
 
-	const rowCountInput = GridConfigElement.querySelector('input[name=rowCount]');
+	const rowCountInput = element.querySelector('input[name=rowCount]');
 	rowCountInput.addEventListener('blur', Submit);
 
-	const columnCountInput = GridConfigElement.querySelector('input[name=columnCount]');
+	const columnCountInput = element.querySelector('input[name=columnCount]');
 	columnCountInput.addEventListener('blur', Submit);
 
-	const cellSizeInput = GridConfigElement.querySelector('input[name=cellSize]');
+	const cellSizeInput = element.querySelector('input[name=cellSize]');
 	cellSizeInput.addEventListener('blur', Submit);
 
-	const cellGapInput = GridConfigElement.querySelector('input[name=cellGap]');
+	const cellGapInput = element.querySelector('input[name=cellGap]');
 	cellGapInput.addEventListener('blur', Submit);
 
-	const showCoordsInput = GridConfigElement.querySelector('input[name=showCoords]');
+	const showCoordsInput = element.querySelector('input[name=showCoords]');
 	showCoordsInput.addEventListener('change', Submit);
 
 	const Render = ({rowCount, columnCount, cellSize, cellGap, showCoords }) => {
@@ -115,7 +115,7 @@ const GridConfigView = (OnSubmit) => {
 	}
 
 
-	return {defaultStyle, GridConfigElement, Render};
+	return {element, Render};
 }
 
 export default GridConfigView;

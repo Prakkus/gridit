@@ -1,6 +1,6 @@
 import { SelectSaveData } from "../data/store.js";
 
-const defaultStyle = 
+export const style = 
 	`
 		.title {
 			padding-bottom: 16px;
@@ -199,7 +199,7 @@ const PersistenceView = ({ UseSelector, onFileSelected, onSubmit, onClearClicked
 		gridNameInput.value = gridName;
 	}
 
-	return {element, defaultStyle, Render};
+	return {element, Render};
 }
 
 export default PersistenceView;

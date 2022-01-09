@@ -1,32 +1,4 @@
-//margin is expected to be around the border of the entire tileset, as well as each image
-const getImageSlices = (image, numRowsToCut, numColsToCut, margin) => {
-	console.log('get slices', numRowsToCut, numColsToCut);
-	let imageSlices = [];
-	let widthOfOnePiece = Math.round((image.naturalWidth - (2 * margin))  / numColsToCut);
-    let heightOfOnePiece = Math.round((image.naturalHeight - (2 * margin)) / numRowsToCut);
-    let canvas = document.createElement('canvas');
-    canvas.width = widthOfOnePiece - (2 * margin);
-    canvas.height = heightOfOnePiece - (2 * margin);
-    let context = canvas.getContext('2d');
-    //This is what a completely 'blank' image for this tileset looks like. We use it to compare slices and remove them if they are also blank.
-    let emptyImage = canvas.toDataURL();
-
-	for(let x = 0; x < numColsToCut; x++) {
-    	for(let y = 0; y < numRowsToCut; y++) {
-    		context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(image, x * widthOfOnePiece + (margin * 2), y * heightOfOnePiece + (margin * 2), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            let imageData = canvas.toDataURL();
-            //Only keep this slice if it isn't an empty image
-            if (imageData !== emptyImage) {
-            	imageSlices.push(canvas.toDataURL());            	
-            } 
-        }
-    }
-
-    return imageSlices;
-}
-
-const defaultStyle = 
+export const style = 
 `
 	.tileset-view-wrapper {
 		margin-bottom: 16px;
@@ -141,6 +113,34 @@ const template =
 </div>
 `;
 
+//margin is expected to be around the border of the entire tileset, as well as each image
+const getImageSlices = (image, numRowsToCut, numColsToCut, margin) => {
+	console.log('get slices', numRowsToCut, numColsToCut);
+	let imageSlices = [];
+	let widthOfOnePiece = Math.round((image.naturalWidth - (2 * margin))  / numColsToCut);
+    let heightOfOnePiece = Math.round((image.naturalHeight - (2 * margin)) / numRowsToCut);
+    let canvas = document.createElement('canvas');
+    canvas.width = widthOfOnePiece - (2 * margin);
+    canvas.height = heightOfOnePiece - (2 * margin);
+    let context = canvas.getContext('2d');
+    //This is what a completely 'blank' image for this tileset looks like. We use it to compare slices and remove them if they are also blank.
+    let emptyImage = canvas.toDataURL();
+
+	for(let x = 0; x < numColsToCut; x++) {
+    	for(let y = 0; y < numRowsToCut; y++) {
+    		context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, x * widthOfOnePiece + (margin * 2), y * heightOfOnePiece + (margin * 2), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            let imageData = canvas.toDataURL();
+            //Only keep this slice if it isn't an empty image
+            if (imageData !== emptyImage) {
+            	imageSlices.push(canvas.toDataURL());            	
+            } 
+        }
+    }
+
+    return imageSlices;
+}
+
 
 const TilesetView = () => {
 	// let currentImage;
@@ -199,7 +199,7 @@ const TilesetView = () => {
 	element.querySelector('#load-tileset').addEventListener('click', () => onSlicesExtracted(extractedSlices));
 	form.addEventListener('submit', (e) => {e.preventDefault(); sliceCurrentImage()});
 
-	return {element, defaultStyle, Render};
+	return {element, Render};
 }
 
 export default TilesetView;

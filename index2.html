@@ -100,27 +100,37 @@
 	<script type="module">
 		import initStore from './src/data/store.js'
 		import profile from './src/config/default-save.js';
-		import PersistenceView from './src/components/PersistenceView.js'
-		import GridConfigView from './src/components/GridConfigView.js';
-		import GridView from './src/components/GridView.js'
-		import SchemaControls from './src/components/SchemaControls.js';
-		import TilesetView from './src/components/TilesetView.js';
 		import GridDrag from './src/components/GridDrag.js';
-		import ModalView from './src/components/ModalView.js';
+		import PersistenceView, { style as persistenceStyle} from './src/components/PersistenceView.js'
+		import GridConfigView, { style as gridConfigStyle } from './src/components/GridConfigView.js';
+		import GridView, { style as gridStyle } from './src/components/GridView.js'
+		import SchemaControls, { style as controlsStyle } from './src/components/SchemaControls.js';
+		import TilesetView, { style as tilesetViewStyle } from './src/components/TilesetView.js';
+		import ModalView, { style as modalViewStyle } from './src/components/ModalView.js';
 		import { 
 			loadGridJsonData, loadValuesIntoSchema, refreshGridFromLoadedJson, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells, ClearAllCellData,
 			SelectCurrentlySelectedAttributeUpdate, SelectGridName, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
 			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue } from './src/data/store.js';
+		
+		const MountElement = (parent, elementToMount) => parent.insertAdjacentElement('beforeend', elementToMount);	
+		
+		const InjectStyles = (...styleText) => {
+			styleText.forEach(style => {
+				const element = document.createElement('style');
+				element.insertAdjacentHTML('beforeend', style);
+				document.head.insertAdjacentElement('beforeend', element);				
+			});
 
+		}
 
 		const Main = () => {
+			// Inject the styles for all the loaded components.
+			// Todo: can I use this in components themselves instead of at the top level? Do I need to make it idempotent?
+			InjectStyles(gridStyle, persistenceStyle, controlsStyle, tilesetViewStyle, modalViewStyle, gridConfigStyle);
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
-			const styleMountElement = document.createElement('style');
 			const gridMountElement = document.querySelector("#grid-mount-point");
 			// Helpers for adding style and elements to the page.
-			const InjectStyle = (styles) => styleMountElement.insertAdjacentHTML('beforeend', styles);
-			const MountElement = (parent, elementToMount) => parent.insertAdjacentElement('beforeend', elementToMount);	
 			// Create the store which will contain all of our app state.
 			const { UseSelector, store } = initStore();
 			const isAnyCellDataLoaded = () => UseSelector(SelectAllCellData).size > 0;
@@ -128,7 +138,7 @@
 			
 			// Now let's start adding our components to the page.
 			// Initialize the GridView.
-			const { element: gridElement, defaultStyle: gridViewStyles, RenderGridAndCells, RenderCell } = GridView(UseSelector);
+			const { element: gridElement, RenderGridAndCells, RenderCell } = GridView(UseSelector);
 			// Update a set of cells with a given set of attributes and then rerender them individually.
 			const UpdateAndRenderCells = (cellIds, attributeUpdates) => {
 				UpdateCells(store, { cellIds, attributeUpdates});
@@ -171,12 +181,10 @@
 				});
 			}
 
-			MountElement(gridMountElement, gridElement);
-			InjectStyle(gridViewStyles);
-	
+			MountElement(gridMountElement, gridElement);	
 
 			// Initialize the Persistence View. 
-			const {defaultStyle: persistenceStyle, element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
+			const { element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
 				{ 
 					onFileSelected: handleFileSelected,
 					onClearClicked: () =>
@@ -206,7 +214,6 @@
 				RenderPersistenceView({ gridName });
 			}
 			MountElement(controlPanelMountElement, persistenceElement);
-			InjectStyle(persistenceStyle);
 
 			// Update the store value and re-render the panel.
 			const OnSubmit = (data) => {
@@ -215,9 +222,8 @@
 				RefreshGridConfig();
 				RefreshGrid();
 			}
-			const {defaultStyle: gridConfigStyle, GridConfigElement, Render: renderGridConfig} = GridConfigView(OnSubmit);
-			MountElement(controlPanelMountElement, GridConfigElement);
-			InjectStyle(gridConfigStyle);
+			const { element: gridConfigElement, Render: renderGridConfig} = GridConfigView(OnSubmit);
+			MountElement(controlPanelMountElement, gridConfigElement);
 			const RefreshGridConfig = () => {
 				const gridSize = UseSelector(SelectGridSize);
 				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
@@ -229,18 +235,16 @@
 				SetSelectedSchemaValue(store, { schemaIndex, valueIndex });
 				RefreshSchemaControls();
 			}
-			const { SchemaControlsElement, defaultStyle: schemaStyle, Render: RenderSchemaControls } = SchemaControls(OnSchemaSelection, UseSelector);
+			const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls(OnSchemaSelection, UseSelector);
 			const RefreshSchemaControls = () => {
 				const loadedSchemas = UseSelector(SelectLoadedSchemas);
 				const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
 				RenderSchemaControls({loadedSchemas, ...selectedSchemaValue });
 			}
-			MountElement(controlPanelMountElement, SchemaControlsElement);
-			InjectStyle(schemaStyle);
+			MountElement(controlPanelMountElement, schemaControlsElement);
 
 			// TilesetView
-			const { element: tilesetViewElement, defaultStyle: tilesetViewStyle, Render: RenderTilesetView } = TilesetView();
-			InjectStyle(tilesetViewStyle);
+			const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
 			RenderTilesetView({
 				slicesExtractedHandler: (slices) => {
 					// Prepend an empty image cell to act as the default value.
@@ -251,9 +255,8 @@
 			});
 
 			// ModalView
-			const { element: modalElement, defaultStyle: modalStyle, Render: RenderModal, Open: OpenTilesetModal, Close: CloseTilesetModal } = ModalView();
+			const { element: modalElement, Render: RenderModal, Open: OpenTilesetModal, Close: CloseTilesetModal } = ModalView();
 			MountElement(document.body, modalElement);
-			InjectStyle(modalStyle);
 			RenderModal({title: 'Import a tileset', content: tilesetViewElement});
 
 			// Load the default grid profile. This contains default schema information.
@@ -265,7 +268,6 @@
 			RefreshSchemaControls();
 			RefreshPersistenceView();
 
-			document.head.insertAdjacentElement('beforeend', styleMountElement);
 		};
 
 

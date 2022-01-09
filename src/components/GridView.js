@@ -3,7 +3,7 @@
 // const tileFromIndex = (index) => defaultProfile.tileset[index];
 import { SelectSchemaValue } from '../data/store.js';
 
-const defaultStyle = 
+export const style = 
 `
 		.grid-cell-symbol {
 			color: #fff;
@@ -156,7 +156,7 @@ const GridView = (UseSelector) => {
 		PopulateGridWithCells(cellData, defaultCellAttributes);
 	}
 
-	return {element, defaultStyle, RenderCell, RenderGridAndCells };
+	return {element, RenderCell, RenderGridAndCells };
 }
 
 export default GridView;

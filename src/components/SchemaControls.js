@@ -3,7 +3,7 @@ import { SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectS
 // Build a unique ID to refer to this schema value.
 const buildSchemaId = (schema, index) => `${schema.name}-${index}`;
 
-const defaultStyle =
+export const style =
 `
 	.cursor-controls .toolbar-section-title {
 		display: flex;
@@ -41,9 +41,9 @@ const template =
 
 `;
 const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
-	const SchemaControlsElement = document.createElement('div');
-	SchemaControlsElement.innerHTML = template;
-	SchemaControlsElement.classList.add('cursor-controls');
+	const element = document.createElement('div');
+	element.innerHTML = template;
+	element.classList.add('cursor-controls');
 
 	const getSchemaValue = (schemaIndex, valueIndex) => {
 		return UseSelector((state) => SelectSchemaValue(state, { schemaIndex, valueIndex }));
@@ -117,17 +117,17 @@ const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
 		`;
 
 		//Add the schema title
-		SchemaControlsElement.insertAdjacentHTML('beforeend', schemaTitle);
+		element.insertAdjacentHTML('beforeend', schemaTitle);
 		//Add the section
 		const schemaSectionElement = buildSchemaSection(schemaIndex);
-		SchemaControlsElement.appendChild(schemaSectionElement);
+		element.appendChild(schemaSectionElement);
 
 	}
 
 	const buildAndRenderSectionForSchema = (schemaIndex, isSelected, selectedIndex) => {
 		const schemaName = getSchemaName(schemaIndex);
 		const schemaSection = buildSchemaSection( schemaIndex, isSelected, selectedIndex);
-		const existingSection = SchemaControlsElement.querySelector('.' + schemaName + '-toolbar');
+		const existingSection = element.querySelector('.' + schemaName + '-toolbar');
 		if (existingSection === null) {
 			insertSchemaSection( schemaIndex);
 		} else {
@@ -136,15 +136,6 @@ const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
 		}
 	}
 
-	//We want to export everything except the first value in each schema, since those are the defaults which we generate when loading a schema
-	// const readData = () => {
-	// 	return loadedSchemas.map(schema => {
-	// 		return {...schema, values: [...schema.values.slice(1)] }
-	// 	});
-	// }
-
-
-
 	const Render = ({ loadedSchemas, selectedSchemaIndex, selectedValueIndex }) => {
 		for (var i = 0; i < loadedSchemas.length; i++) {
 			const isSelected = (i == selectedSchemaIndex);
@@ -152,7 +143,7 @@ const SchemaControls = ( OnSelectedValueChanged, UseSelector ) => {
 		}
 	}
 
-	return { SchemaControlsElement, defaultStyle, Render }
+	return { element, Render }
 } 
 
 
