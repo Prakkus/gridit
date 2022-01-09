@@ -1,4 +1,4 @@
-import { SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
+import { ApplyMutation, SetSelectedSchemaValue, SelectSchemaDisplayName, SelectSchemaValues, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
 
 // Build a unique ID to refer to this schema value.
 const buildSchemaId = (schema, index) => `${schema.name}-${index}`;
@@ -40,10 +40,14 @@ const template =
 `
 
 `;
-const SchemaControls = ( OnSelectedValueChanged ) => {
+const SchemaControls = () => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('cursor-controls');
+
+	const OnSchemaSelection = (schemaIndex, valueIndex) => {
+		ApplyMutation(SetSelectedSchemaValue, { schemaIndex, valueIndex });
+	}
 
 	const getSchemaValue = (schemaIndex, valueIndex) => {
 		return UseSelector((state) => SelectSchemaValue(state, { schemaIndex, valueIndex }));
@@ -72,7 +76,7 @@ const SchemaControls = ( OnSelectedValueChanged ) => {
 		}
 
 		swatchButton.addEventListener("click", () => {
-			OnSelectedValueChanged(schemaIndex, valueIndex);
+			OnSchemaSelection(schemaIndex, valueIndex);
 		});
 
 		return swatchButton;

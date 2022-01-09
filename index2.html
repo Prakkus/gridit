@@ -71,7 +71,7 @@
 	</div>
 </div>
 	<script type="module">
-		import { store, UseSelector } from './src/data/AppState.js'
+		import { store, Connect, UseSelector, ApplyMutation } from './src/data/AppState.js'
 		import profile from './src/config/default-save.js';
 		import GridDrag from './src/components/GridDrag.js';
 		import PersistenceView, { style as persistenceStyle} from './src/components/PersistenceView.js'
@@ -82,7 +82,7 @@
 		import TilesetView, { style as tilesetViewStyle } from './src/components/TilesetView.js';
 		import ModalView, { style as modalViewStyle } from './src/components/ModalView.js';
 		import { 
-			loadGridJsonData, loadValuesIntoSchema, refreshGridFromLoadedJson, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells, ClearAllCellData,
+			LoadGridJsonData, LoadValuesIntoSchema, RefreshGridFromLoadedJson, UpdateGridDisplayOptions, UpdateGridSize, UpdateGridName, UpdateCells, ClearAllCellData,
 			SelectCurrentlySelectedAttributeUpdate, SelectGridName, SelectCellById, SelectDefaultCellAttributes, SelectAllCellData, SelectGridSize, SelectGridDisplayOptions, 
 			SelectLoadedJsonData, SelectLoadedSchemas, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, IsAnyCellDataLoaded } from './src/data/AppState.js';
 		
@@ -104,114 +104,64 @@
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const gridMountElement = document.querySelector("#grid-mount-point");
-			// Helpers for adding style and elements to the page.
-			// Create the store which will contain all of our app state.
-
 			
-			// Now let's start adding our components to the page.
-			// Initialize the GridView.
-			const { element: gridElement, RenderGridAndCells, RenderCell } = GridView();
 			// Update a set of cells with a given set of attributes and then rerender them individually.
 			const UpdateAndRenderCells = (cellIds, attributeUpdates) => {
-				UpdateCells(store, { cellIds, attributeUpdates});
+				ApplyMutation(UpdateCells, { cellIds, attributeUpdates});
 				cellIds.forEach((cellId) => {
 					const { attributes } = UseSelector(state => SelectCellById(state, { cellId }));
-					RenderCell(cellId, attributes);
+					RenderCell({ cellId, attributes });
 				});
 			}
 			const HandleCellUpdate = (cellId) => {
 				const attributeUpdate = UseSelector(SelectCurrentlySelectedAttributeUpdate);
 				UpdateAndRenderCells([cellId], attributeUpdate)
 			}
+			
 			const { BindDragEvents } = GridDrag(HandleCellUpdate);
 			BindDragEvents(window);
 
-			// Update the size and display options for a grid and rerenders it with the currently loaded cell data.
-			const RefreshGrid = () => {
+			// Grid View
+			const { element: gridElement, RenderGridAndCells, RenderCell } = GridView();
+			const mapStateToPropsGrid = (state, ownProps) => { 
 				const gridSize = UseSelector(SelectGridSize);
 				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
 				const cellData = UseSelector(SelectAllCellData);
 				const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
-
-				// Update the view to match the new data. 
-				// Todo: this should be an Effect and be event driven.
-				RenderGridAndCells(gridSize.x, gridSize.y, gridDisplayOptions.cellSize, gridDisplayOptions.cellGap, gridDisplayOptions.showCoords, cellData, defaultCellAttributes);
-			}
-
-			// Handle a json file for import being selected in the PersistenceView.
-			const handleFileSelected = (file) => {
-				// If they have grid data currently loaded, confirm that they want to overwrite it
-				if (IsAnyCellDataLoaded() && (!confirm("Really load this grid? Your current grid will be overwritten."))) return;
-				if (!file.type.match('^application/json')) return;
-				file.text().then(value => {
-					// Loads the json and imports the data.
-					loadGridJsonData(store, { jsonText: value });
-					RefreshGridConfig();
-					RefreshGrid();
-					RefreshPersistenceView();
-					RefreshSchemaControls();
-				});
-			}
-
+				return { width: gridSize.x, height: gridSize.y, cellSize: gridDisplayOptions.cellSize, cellGap: gridDisplayOptions.cellGap, showCoords: gridDisplayOptions.showCoords, cellData, defaultCellAttributes };
+			};
+			Connect(mapStateToPropsGrid)(RenderGridAndCells); 
 			MountElement(gridMountElement, gridElement);	
 
-			// Initialize the Persistence View. 
+			// Persistence View. 
 			const { element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
 				{ 
-					onFileSelected: handleFileSelected,
-					onClearClicked: () =>
-					{
-						// If they have grid data currently loaded, confirm that they want to overwrite it.
-						if (IsAnyCellDataLoaded() && (!confirm("Really clear this grid? All cell data will be deleted."))) return;
-						ClearAllCellData(store);
-						RefreshGrid();
-					},
-					onReloadClicked: () => {
-						refreshGridFromLoadedJson(store);
-						RefreshPersistenceView();
-						RefreshGridConfig();
-						RefreshGrid();
-					},
-					onSubmit: (data) => {
-						UpdateGridName(store, { name: data.gridName });
-						RefreshPersistenceView();
-					},
-					onSaveClicked: (saveJson) => loadGridJsonData(store, { jsonText: saveJson }),
 					onImportTilesetClicked: () => OpenTilesetModal()
 				} 
 			);
-			const RefreshPersistenceView = () => {
-				const gridName = UseSelector(SelectGridName);
-				RenderPersistenceView({ gridName });
-			}
+			const mapStatePersist = (state, ownProps) => ({ gridName: UseSelector(SelectGridName)});
+			Connect(mapStatePersist)(RenderPersistenceView);
 			MountElement(controlPanelMountElement, persistenceElement);
 
-			// Update the store value and re-render the panel.
-			const OnSubmit = (data) => {
-				UpdateGridSize(store, { width: data.columnCount, height: data.rowCount });
-				UpdateGridDisplayOptions(store, { cellSize: data.cellSize, cellGap: data.cellGap, showCoords: data.showCoords });
-				RefreshGridConfig();
-				RefreshGrid();
-			}
-			const { element: gridConfigElement, Render: renderGridConfig} = GridConfigView(OnSubmit);
+			// Grid Config View
+			const { element: gridConfigElement, Render: RenderGridConfig} = GridConfigView();
 			MountElement(controlPanelMountElement, gridConfigElement);
-			const RefreshGridConfig = () => {
+			const mapStateGridConfig = (state, ownProps) => {
 				const gridSize = UseSelector(SelectGridSize);
 				const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
-				renderGridConfig({ columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions });
+
+				return { columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions };
 			}
+			Connect(mapStateGridConfig)(RenderGridConfig);
 
 			// SchemaControls
-			const OnSchemaSelection = (schemaIndex, valueIndex) => {
-				SetSelectedSchemaValue(store, { schemaIndex, valueIndex });
-				RefreshSchemaControls();
-			}
-			const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls(OnSchemaSelection);
-			const RefreshSchemaControls = () => {
+			const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls();
+			const mapStateSchemaControls = () => {
 				const loadedSchemas = UseSelector(SelectLoadedSchemas);
 				const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
-				RenderSchemaControls({loadedSchemas, ...selectedSchemaValue });
+				return { loadedSchemas, ...selectedSchemaValue };
 			}
+			Connect(mapStateSchemaControls)(RenderSchemaControls);
 			MountElement(controlPanelMountElement, schemaControlsElement);
 
 			// TilesetView
@@ -219,8 +169,7 @@
 			RenderTilesetView({
 				slicesExtractedHandler: (slices) => {
 					// Prepend an empty image cell to act as the default value.
-					loadValuesIntoSchema(store, { schemaIndex: 2, schemaValues: [{ imageDataUrl: '' }, ...slices] });
-					RefreshSchemaControls();
+					ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 2, schemaValues: [{ imageDataUrl: '' }, ...slices] });
 					CloseTilesetModal();
 				} 
 			});
@@ -231,14 +180,7 @@
 			RenderModal({title: 'Import a tileset', content: tilesetViewElement});
 
 			// Load the default grid profile. This contains default schema information.
-			loadGridJsonData(store, {jsonText: JSON.stringify(profile)});
-			// Build the grid now that the profile is loaded.
-			RefreshGrid();
-			// Render grid config
-			RefreshGridConfig();
-			RefreshSchemaControls();
-			RefreshPersistenceView();
-
+			ApplyMutation(LoadGridJsonData, {jsonText: JSON.stringify(profile)});
 		};
 
 

@@ -1,4 +1,4 @@
-import { SelectSaveData, UseSelector } from "../data/AppState.js";
+import { SelectSaveData, UseSelector, RefreshGridFromLoadedJson, LoadGridJsonData, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation,  UpdateGridName } from "../data/AppState.js";
 
 export const style = 
 	`
@@ -114,7 +114,7 @@ export const style =
 		input.click();
 	}
 	
-const PersistenceView = ({ onFileSelected, onSubmit, onClearClicked, onReloadClicked, onSaveClicked, onImportTilesetClicked }) => {
+const PersistenceView = ({ onImportTilesetClicked }) => {
 	let gridNameInput;
 	const element = document.createElement('div');
 	element.innerHTML = template;
@@ -131,21 +131,29 @@ const PersistenceView = ({ onFileSelected, onSubmit, onClearClicked, onReloadCli
 		dropPreview.classList.add('hidden');	
 	}
 
-	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow(handleFileSelect));
 	gridNameInput = element.querySelector("input[name=grid_name]");
-	gridNameInput.addEventListener('blur', (e) => {
-		Submit();
-	});
-	gridNameInput.addEventListener('keydown', (e) => {
-		if (e.keyCode == 13) {
-			Submit();
-		}
-	});
 
-	const handleFileSelect = (event) => {
+	const WithOverwriteConfirmation = (message, action) => {
+		return (params) => {
+			console.log(UseSelector(IsAnyCellDataLoaded));
+			if (UseSelector(IsAnyCellDataLoaded) && (!confirm(message))) return;
+			action(params);
+		}
+	}
+
+	const ClearCellData = () => ApplyMutation(ClearAllCellData);
+	const ReloadGrid = () => ApplyMutation(RefreshGridFromLoadedJson); 
+	const SaveGridName = (data) => ApplyMutation(UpdateGridName, { name: data.gridName }); 
+	const LoadJson = (saveJson) => ApplyMutation(LoadGridJsonData, { jsonText: saveJson });
+
+
+	const LoadJsonFile = (event) => {
 		let file = event.target.files[0];
 		if (!file.type.match('^application/json')) return;
-		onFileSelected(file);
+		file.text().then(value => {
+			// Loads the json and imports the data.
+			ApplyMutation(LoadGridJsonData, { jsonText: value });
+		});
 	}
 	
 	const handleFileDragEnter = (event) => {
@@ -164,7 +172,7 @@ const PersistenceView = ({ onFileSelected, onSubmit, onClearClicked, onReloadCli
 		//Presumably someone could drag multiple files, but we just grab the first one
 		const droppedItem = event.dataTransfer.items[0];
 		if (droppedItem.kind !== 'file' || !droppedItem.type.match('^application/json')) return;
-		onFileSelected(droppedItem.getAsFile());
+		WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile(droppedItem.getAsFile()));
 	}
 
 
@@ -172,7 +180,7 @@ const PersistenceView = ({ onFileSelected, onSubmit, onClearClicked, onReloadCli
 		const data = {
 			gridName: gridNameInput.value
 		}
-		onSubmit(data);
+		SaveGridName(data);
 	}
 
 	const DownloadJsonSave = () =>
@@ -189,11 +197,19 @@ const PersistenceView = ({ onFileSelected, onSubmit, onClearClicked, onReloadCli
 	// In order for 'drop' to trigger on an event, you must cancel the dragenter and dragover events.
 	element.addEventListener('dragover', (e) => e.preventDefault());
 	element.addEventListener('drop', handleFileDrop);
-	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); onSaveClicked(saveJson); });
-	element.querySelector("#clear-all").addEventListener('click', (e) => onClearClicked());
-	element.querySelector("#reload-file").addEventListener('click', (e) => onReloadClicked());
+	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); LoadJson(saveJson); });
+	element.querySelector("#clear-all").addEventListener('click', (e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearCellData)() );
+	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", ReloadGrid)() );
 	element.querySelector("#import-tilesheet").addEventListener('click', (e) => onImportTilesetClicked());
-
+	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow(WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile)));
+	gridNameInput.addEventListener('blur', (e) => {
+		Submit();
+	});
+	gridNameInput.addEventListener('keydown', (e) => {
+		if (e.keyCode == 13) {
+			Submit();
+		}
+	});
 
 	const Render = ({ gridName }) => {
 		gridNameInput.value = gridName;

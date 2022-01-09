@@ -133,13 +133,13 @@ const GridView = () => {
 		UpdateDOMGrid(element, width, height, cellSize, cellGap, showCoords);
 	}
 
-	const RenderCell = (cellId, attributes) => {
+	const RenderCell = ({ cellId, attributes }) => {
 		const cellNode = cellToNodeMap.get(cellId);
 		UpdateDOMCell(cellNode, attributes, ResolveCellValue);
 	}
 
 	// Render a view from a set of grid display options and optional cellData.
-	const RenderGridAndCells = (width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes) => {
+	const RenderGridAndCells = ({ width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes }) => {
 		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
 		PopulateGridWithCells(cellData, defaultCellAttributes);
 	}

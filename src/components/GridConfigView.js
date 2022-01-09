@@ -1,3 +1,4 @@
+import { ApplyMutation, UpdateGridSize, UpdateGridDisplayOptions } from "../data/AppState.js";
 export const style = 
 	`
 		.grid-config > div {
@@ -68,10 +69,14 @@ export const style =
 			</label>
 	</div>
 	`;
-const GridConfigView = (OnSubmit) => {
+const GridConfigView = () => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 
+	const OnSubmit = (data) => {
+		ApplyMutation(UpdateGridSize, { width: data.columnCount, height: data.rowCount });
+		ApplyMutation(UpdateGridDisplayOptions, { cellSize: data.cellSize, cellGap: data.cellGap, showCoords: data.showCoords });
+	}
 
 	const Submit = () => {
 		const data = {
