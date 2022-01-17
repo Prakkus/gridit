@@ -1,26 +1,46 @@
+import { ApplyMutation ,LoadValuesIntoSchema } from '../data/AppState.js';
 import { InjectStyles, MountElement } from '../DOMUtils.js';
 import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
 import SchemaControls, { style as schemaControlsStyle } from './SchemaControls.js';
+import TilesetView, { style as tilesetViewStyle } from './TilesetView.js';
+// import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
+import ModalView, { style as modalViewStyle } from './ModalView.js';
 
 export const GridControlPanel =  () => {
 	const element = document.createElement('div');
-	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle);
+	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, modalViewStyle);
 
+	// TilesetView
+	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
+	RenderTilesetView({
+		slicesExtractedHandler: (slices) => {
+			// Prepend an empty image cell to act as the default value.
+			ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 2, schemaValues: [{ imageDataUrl: '' }, ...slices] });
+			CloseControlsModal();
+		} 
+	});
+	// Controls Modal
+	const { element: modalElement, Render: RenderModal, Open: OpenControlsModal, Close: CloseControlsModal } = ModalView();
+	// Todo: am I concerned about mounting directly to the body?
+	MountElement(document.body, modalElement);
 	// Persistence View. 
-	const { element: persistenceElement, Render: RenderPersistenceView} = PersistenceView( 
+	const { element: persistenceElement } = PersistenceView( 
 		{ 
-			onImportTilesetClicked: () => OpenTilesetModal()
+			onImportTilesetClicked: () => {
+				RenderModal({title: "Configure Tilesets", content: tilesetViewElement});
+				OpenControlsModal();
+			}
 		} 
 	);
 	MountElement(element, persistenceElement);
 
 	// Grid Config View
-	const { element: gridConfigElement, Render: RenderGridConfig} = GridConfigView();
+	const { element: gridConfigElement } = GridConfigView();
 	MountElement(element, gridConfigElement);
 
 	// SchemaControls
-	const { element: schemaControlsElement, Render: RenderSchemaControls } = SchemaControls();
+	const { element: schemaControlsElement } = SchemaControls();
 	MountElement(element, schemaControlsElement);
 	
 	const Render = () => {

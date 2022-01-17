@@ -2,6 +2,7 @@ const ObjectsAreShallowEqual = (obj1, obj2) =>
   Object.keys(obj1).length === Object.keys(obj2).length &&
   Object.keys(obj1).every(key => obj1[key] === obj2[key]);
 
+
 export default (initialState) => {
 	const store = {...initialState};
 	let connectedComponents = new Map();
@@ -20,8 +21,11 @@ export default (initialState) => {
 				const allProps = {...userProps, ...propData};
 				const previousProps = connectionRecord.lastPropsUpdate;
 				// Don't re-render if the props are the same as last time.
+				// console.log(JSON.stringify(propData));
 				if (ObjectsAreShallowEqual(allProps, previousProps)) return;
-				console.log(`[${thisID}] Has new data, re-rendering!`)
+				console.log(`[${thisID}] Has new data, re-rendering!`);
+				// console.log(`[${thisID}] old: `, JSON.stringify(previousProps));
+				// console.log(`[${thisID}] new: `, JSON.stringify(allProps));
 				renderComponent(allProps);
 				connectionRecord.lastPropsUpdate = allProps;
 			}

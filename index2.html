@@ -20,14 +20,13 @@
 		import defaultSaveFile from './src/config/default-save.js';
 		import GridDrag from './src/components/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/components/GridView.js'
-		import TilesetView, { style as tilesetViewStyle } from './src/components/TilesetView.js';
-		import ModalView, { style as modalViewStyle } from './src/components/ModalView.js';
 		import GridControlPanel, { style as gridControlPanelStyle} from './src/components/GridControlPanel.js';
 		import { LoadGridJsonData, SelectCurrentlySelectedAttributeUpdate, LoadValuesIntoSchema, UpdateCells, SelectCellById } from './src/data/AppState.js';
+		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/data/UndoSystem.js';
 
 		const Main = () => {
 			// Inject the styles for all the loaded components.
-			InjectStyles(gridStyle, tilesetViewStyle, modalViewStyle, gridControlPanelStyle);
+			InjectStyles(gridStyle, gridControlPanelStyle);
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const gridMountElement = document.querySelector("#grid-mount-point");
@@ -44,7 +43,7 @@
 				const attributeUpdate = UseSelector(SelectCurrentlySelectedAttributeUpdate);
 				UpdateAndRenderCells([cellId], attributeUpdate)
 			}
-			
+
 			const { BindDragEvents } = GridDrag(HandleCellUpdate);
 			BindDragEvents(window);
 
@@ -56,23 +55,18 @@
 			const { element: gridControlPanelElement} = GridControlPanel();
 			MountElement(controlPanelMountElement, gridControlPanelElement);	
 
-			// TilesetView
-			const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
-			RenderTilesetView({
-				slicesExtractedHandler: (slices) => {
-					// Prepend an empty image cell to act as the default value.
-					ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 2, schemaValues: [{ imageDataUrl: '' }, ...slices] });
-					CloseTilesetModal();
-				} 
-			});
-
-			// ModalView
-			const { element: modalElement, Render: RenderModal, Open: OpenTilesetModal, Close: CloseTilesetModal } = ModalView();
-			MountElement(document.body, modalElement);
-			RenderModal({title: 'Import a tileset', content: tilesetViewElement});
-
 			// Load the default grid profile. This contains default schema information.
 			ApplyMutation(LoadGridJsonData, {jsonText: JSON.stringify(defaultSaveFile)});
+
+			// const DoAction = () => {
+			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 1 });
+			// }
+			// const UndoAction = () => {
+			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 0 });
+			// }
+			// IncrementUpdateBatch();
+			// RecordAction(DoAction, UndoAction);
+			// DoAction();
 		};
 
 

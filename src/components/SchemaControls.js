@@ -117,7 +117,7 @@ export const SchemaControls = () => {
 const mapStateToProps = () => {
 	const loadedSchemas = UseSelector(SelectLoadedSchemas);
 	const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
-	return { loadedSchemas, ...selectedSchemaValue };
+	return { loadedSchemas: [...loadedSchemas], ...selectedSchemaValue };
 }
 export default () => {
 	const { element, Render: baseRender } = SchemaControls();
