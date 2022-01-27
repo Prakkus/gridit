@@ -162,7 +162,6 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 }
 export const ClearAllCellData = (state) => {
 	state.cellData.clear();
-	console.log(state.cellData);
 }
 
 // Commands
