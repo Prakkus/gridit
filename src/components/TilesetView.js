@@ -1,6 +1,5 @@
 //margin is expected to be around the border of the entire tileset, as well as each image
 const getImageSlices = (image, numRowsToCut, numColsToCut, margin) => {
-	console.log('get slices', numRowsToCut, numColsToCut);
 	let imageSlices = [];
 	let widthOfOnePiece = Math.round((image.naturalWidth - (2 * margin))  / numColsToCut);
     let heightOfOnePiece = Math.round((image.naturalHeight - (2 * margin)) / numRowsToCut);
@@ -55,9 +54,10 @@ export const TilesetView = () => {
 	}
 
 	const previewSlices = (slices) => {
+		let nodes = tilesetSlicedPreview.querySelectorAll("img");
 		for (var i = 0; i < slices.length; i++) {
-			if (tilesetSlicedPreview.childNodes[i]) {
-				tilesetSlicedPreview.childNodes[i].src = slices[i];
+			if (nodes[i]) {
+				nodes[i].src = slices[i];
 			} else {
 				let image = document.createElement('img');
 				image.src = slices[i];
@@ -175,11 +175,11 @@ const template =
 				<div class="toolbar-fields">
 					<label>
 						Rows:
-						<input name="tileset_rows" type="number" step="1" min="0" max="50" required />
+						<input name="tileset_rows" type="number" step="1" min="0" max="50" value="1" required />
 					</label>
 					<label>
 						Columns:
-						<input name="tileset_columns" type="number" step="1" min="0" max="50" required />
+						<input name="tileset_columns" type="number" step="1" min="0" max="50" value="1" required />
 					</label>
 					<label>
 						Margin:

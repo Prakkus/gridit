@@ -25,7 +25,7 @@ import { Connect, UseSelector, SelectSaveData, SelectGridName, RefreshGridFromLo
 		input.click();
 	}
 	
-const PersistenceView = ({ onImportTilesetClicked }) => {
+const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) => {
 	let gridNameInput;
 	const element = document.createElement('div');
 	element.innerHTML = template;
@@ -111,6 +111,7 @@ const PersistenceView = ({ onImportTilesetClicked }) => {
 	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); LoadJson(saveJson); });
 	element.querySelector("#clear-all").addEventListener('click', (e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearCellData)() );
 	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", ReloadGrid)() );
+	element.querySelector("#configure-colors").addEventListener('click', (e) => onConfigureColorsClicked());
 	element.querySelector("#import-tilesheet").addEventListener('click', (e) => onImportTilesetClicked());
 	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow(WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile)));
 	gridNameInput.addEventListener('blur', (e) => {
@@ -160,6 +161,9 @@ export const style =
 	}
 
 	#import-tilesheet {
+		float: right;
+	}
+	#configure-colors {
 		margin-left: auto;
 	}
 
@@ -218,6 +222,9 @@ const template =
 			</button>
 			<button title="Clear all cells and history" id="clear-all">
 				<span class="material-icons">delete</span>
+			</button>
+			<button title="Configure colors" id="configure-colors">
+				<span class="material-icons">palette</span>
 			</button>
 			<button title="Import a tilesheet" id="import-tilesheet">
 				<span class="material-icons">grid_view</span>

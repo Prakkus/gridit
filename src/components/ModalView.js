@@ -4,7 +4,7 @@ export const ModalView = (shownByDefault = false) => {
 
 	const titleElement = element.querySelector('.modal-title');
 	const wrapperElement = element.querySelector('.modal-wrapper');
-	const contentElement = element.querySelector("#content-slot");
+	const contentElement = element.querySelector(".content-slot");
 	const closeButton = element.querySelector('.close');
 	const Open = () => {
 		wrapperElement.classList.remove('closed');
@@ -108,7 +108,7 @@ const template =
 	<div class="modal-panel">
 		<button class="close">&times;</button>
 		<h1 class="modal-title"></h1>
-		<section id="content-slot">
+		<section class="content-slot">
 		</section>
 	</div>
 </div>

@@ -31,17 +31,11 @@
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const gridMountElement = document.querySelector("#grid-mount-point");
 			
-			// Update a set of cells with a given set of attributes and then rerender them individually.
-			const UpdateAndRenderCells = (cellIds, attributeUpdates) => {
-				ApplyMutation(UpdateCells, { cellIds, attributeUpdates});
-				cellIds.forEach((cellId) => {
-					const { attributes } = UseSelector(state => SelectCellById(state, { cellId }));
-					RenderCell({ cellId, attributes });
-				});
-			}
+			// Update a set of cells with a given set of attributes.
 			const HandleCellUpdate = (cellId) => {
-				const attributeUpdate = UseSelector(SelectCurrentlySelectedAttributeUpdate);
-				UpdateAndRenderCells([cellId], attributeUpdate)
+				const cellIds = [cellId];
+				const attributeUpdates = UseSelector(SelectCurrentlySelectedAttributeUpdate);
+				ApplyMutation(UpdateCells, { cellIds, attributeUpdates});
 			}
 
 			const { BindDragEvents } = GridDrag(HandleCellUpdate);

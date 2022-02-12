@@ -11,6 +11,14 @@ export const SelectDefaultCellAttributes = (state) => {
 	return types;
 }
 
+const NULL_SCHEMA = {
+	name: '',
+	displayName: '',
+	cellAttribute: '',
+	values : [
+	]	
+}
+
 export const IsAnyCellDataLoaded = (state) => {
 	return SelectAllCellData(state).size > 0;
 }
@@ -47,6 +55,8 @@ export const SelectLoadedSchemas = (state) => {
 	return SelectAllSchemaData(state).tables;
 } 
 export const SelectSchema = (state, { schemaIndex }) => {
+	const schemas = SelectLoadedSchemas(state);
+	if (schemaIndex > schemas.length - 1) return NULL_SCHEMA;
 	return SelectLoadedSchemas(state)[schemaIndex];
 }
 export const SelectSchemaDisplayName = (state, { schemaIndex }) => {
@@ -199,7 +209,6 @@ export const LoadCellData = (state, { cellData }) => {
 }
 
 const initialState = {
-	isDirty: true,
 	loadedJson: {
 		title: '',
 		rawJson: '',
@@ -222,8 +231,8 @@ const initialState = {
 		selectedSchemaIndex: 0,
 		selectedValueIndex: 0,
 	},
-	cellData: new Map()
+	cellData: new Map(),
 };
 
 const state = InitStore(initialState);
-export const { store, Connect, UseSelector, ApplyMutation } = state;
+export const { store, Connect, UseSelector, ApplyMutation,  } = state;

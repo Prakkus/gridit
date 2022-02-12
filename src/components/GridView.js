@@ -1,11 +1,14 @@
-import { Connect, UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, SelectSchemaValue  } from '../data/AppState.js';
+import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, ApplyMutation, SelectCellById } from '../data/AppState.js';
+
+// Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
+const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
 // Update a given DOM node to reflect a given cellState.
-const UpdateDOMCell = (cellElement, cellAttributes, resolveCellValue) => {
-	cellElement.style.backgroundColor = '#' + resolveCellValue(0, cellAttributes.fillColor).hex;
+const UpdateDOMCell = (cellElement, cellAttributes) => {
+	cellElement.style.backgroundColor = '#' + ResolveCellAttributeValue(0, cellAttributes.fillColor).hex;
 	const symbolNode = cellElement.querySelector('.grid-cell-symbol');
-	const symbolData = resolveCellValue(1, cellAttributes.symbol);
-	const tileData = resolveCellValue(2, cellAttributes.backgroundTileIndex);
+	const symbolData = ResolveCellAttributeValue(1, cellAttributes.symbol);
+	const tileData = ResolveCellAttributeValue(2, cellAttributes.backgroundTileIndex);
 	symbolNode.innerHTML = symbolData.display;
 	symbolNode.style.left = symbolData.xOffset;
 	symbolNode.style.bottom = symbolData.yOffset;
@@ -14,8 +17,8 @@ const UpdateDOMCell = (cellElement, cellAttributes, resolveCellValue) => {
 	cellElement.style.backgroundSize = 'cover';
 }
 
-// Fills the given (grid) element with cells, each with optional data.
-const PopulateDOMGridCells = (mountElement, width, height, cellData, resolveCellValue, defaultCellAttributes) => {
+// Fills the given (grid) element with cells
+const PopulateDOMGridCells = (mountElement, width, height, defaultCellAttributes) => {
 	let nodeMap = new Map();
 	for (var y = height - 1; y >= 0; y--) {
 		for (var x = 0; x < width; x++) {
@@ -34,9 +37,8 @@ const PopulateDOMGridCells = (mountElement, width, height, cellData, resolveCell
 			appendedNode.dataset.cellId = cellId;
 			appendedNode.ondragstart = () => {return false;};
 			nodeMap.set(cellId, appendedNode);
-
-			const attributes = cellData.has(cellId) ? cellData.get(cellId).attributes : defaultCellAttributes;
-			UpdateDOMCell(appendedNode, attributes, resolveCellValue);
+			
+			UpdateDOMCell(thisCell, defaultCellAttributes);
 		}
 	}
 	return nodeMap;
@@ -62,6 +64,7 @@ const UpdateDOMGrid = (mountElement, width, height, cellSize, cellGap, showCoord
 // Renders cells from Map of cellData.
 export const GridView = () => {
 	let cellToNodeMap = new Map();
+	let dirtyCells = new Set();
 	let displayOptions = {
 		width: 0,
 		height: 0,
@@ -69,6 +72,16 @@ export const GridView = () => {
 		cellGap: 0,
 		showCoords: false
 	}
+
+
+	const RenderDirtyCells = () => {
+		const cellData = UseSelector(SelectAllCellData);
+		if (dirtyCells.size > 0) {
+			console.log("Rendering some dirtycells! ");
+			dirtyCells.forEach(cellId => RenderCell(cellId, cellData.get(cellId).attributes));
+			dirtyCells.clear();
+		}
+	};
 
 	const element = document.createElement('div');
 
@@ -78,13 +91,10 @@ export const GridView = () => {
 		cellToNodeMap.clear();
 	}
 
-	// Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
-	const ResolveCellValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
-
 	// Populate THIS grid with cells, properly rendering any with pre-existing data.
-	const PopulateGridWithCells = (cellData,  defaultCellAttributes) => {
+	const PopulateGridWithCells = (defaultCellAttributes) => {
 		DeleteGridCells();
-		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, cellData, ResolveCellValue, defaultCellAttributes);
+		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, defaultCellAttributes);
 	}
 
 	// Update display options for THIS grid.
@@ -93,32 +103,42 @@ export const GridView = () => {
 		UpdateDOMGrid(element, width, height, cellSize, cellGap, showCoords);
 	}
 
-	const RenderCell = ({ cellId, attributes }) => {
+	
+	
+	const RenderCell = (cellId, attributes) => {
 		const cellNode = cellToNodeMap.get(cellId);
-		UpdateDOMCell(cellNode, attributes, ResolveCellValue);
+		UpdateDOMCell(cellNode, attributes);
 	}
 
 	// Render a view from a set of grid display options and optional cellData.
-	const Render = ({ width, height, cellSize, cellGap, showCoords, cellData, defaultCellAttributes }) => {
+	const Render = ({ width, height, cellSize, cellGap, showCoords, defaultCellAttributes }) => {
 		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
-		PopulateGridWithCells(cellData, defaultCellAttributes);
+		PopulateGridWithCells(defaultCellAttributes);
 	}
 
-	return {element, Render, RenderCell };
+	const Tick = () => {
+		RenderDirtyCells();
+		window.requestAnimationFrame(Tick);
+	}
+
+	// Rerender dirty cells every frame.
+	window.requestAnimationFrame(Tick);
+
+	return { element, Render };
 }
+
 const mapStateToProps = (state) => { 
 	const gridSize = UseSelector(SelectGridSize);
 	const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
-	const cellData = UseSelector(SelectAllCellData);
 	const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
-	return { width: gridSize.x, height: gridSize.y, cellSize: gridDisplayOptions.cellSize, cellGap: gridDisplayOptions.cellGap, showCoords: gridDisplayOptions.showCoords, cellData, defaultCellAttributes };
+	return { width: gridSize.x, height: gridSize.y, cellSize: gridDisplayOptions.cellSize, cellGap: gridDisplayOptions.cellGap, showCoords: gridDisplayOptions.showCoords, defaultCellAttributes };
 };
-; 
+ 
 
 export default () => {
-	const { element, RenderCell, Render: baseRender } = GridView();
+	const { element, Render: baseRender } = GridView();
 	const Render = Connect(mapStateToProps)(baseRender);
-	return { element, RenderCell, Render };
+	return { element, Render };
 }
 
 

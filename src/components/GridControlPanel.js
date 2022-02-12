@@ -4,12 +4,13 @@ import PersistenceView, { style as persistenceViewStyle } from './PersistenceVie
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
 import SchemaControls, { style as schemaControlsStyle } from './SchemaControls.js';
 import TilesetView, { style as tilesetViewStyle } from './TilesetView.js';
+import ColorSchemaEditor, {style as configureColorsStyle } from './ColorSchemaEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
 import ModalView, { style as modalViewStyle } from './ModalView.js';
 
 export const GridControlPanel =  () => {
 	const element = document.createElement('div');
-	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, modalViewStyle);
+	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
 
 	// TilesetView
 	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
@@ -17,19 +18,36 @@ export const GridControlPanel =  () => {
 		slicesExtractedHandler: (slices) => {
 			// Prepend an empty image cell to act as the default value.
 			ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 2, schemaValues: [{ imageDataUrl: '' }, ...slices] });
-			CloseControlsModal();
+			CloseTiliesetModal();
 		} 
 	});
-	// Controls Modal
-	const { element: modalElement, Render: RenderModal, Open: OpenControlsModal, Close: CloseControlsModal } = ModalView();
-	// Todo: am I concerned about mounting directly to the body?
-	MountElement(document.body, modalElement);
+	// Tileset Modal
+	const { element: tilsetModalElement, Render: RenderTilesetModal, Open: OpenTilesetModal, Close: CloseTiliesetModal } = ModalView();
+	MountElement(document.body, tilsetModalElement);
+
+	// Configure Colors View
+	const { element: configureColorsElement, Render: RenderConfigureColors } = ColorSchemaEditor();
+	RenderConfigureColors({
+		colorsSubmittedHandler: (colors) => {
+			// Prepend an empty image cell to act as the default value.
+			// ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 0, schemaValues: [{ imageDataUrl: '' }, ...slices] });
+			// CloseTiliesetModal();
+		} 
+	});
+	// Colors Modal
+	const { element: colorsModalElement, Render: RenderColorsModal, Open: OpenColorsModal, Close: CloseColorsModal } = ModalView();
+	MountElement(document.body, colorsModalElement);
+
 	// Persistence View. 
 	const { element: persistenceElement } = PersistenceView( 
 		{ 
 			onImportTilesetClicked: () => {
-				RenderModal({title: "Configure Tilesets", content: tilesetViewElement});
-				OpenControlsModal();
+				RenderTilesetModal({title: "Configure Tilesets", content: tilesetViewElement});
+				OpenTilesetModal();
+			},
+			onConfigureColorsClicked: () => {
+				RenderColorsModal({title: "Configure Colors", content: configureColorsElement});
+				OpenColorsModal();
 			}
 		} 
 	);
