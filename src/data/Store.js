@@ -24,8 +24,11 @@ export default (initialState) => {
 			// Todo: do I ever pass in userProps? Maybe they only make sense if components render their own children.
 			const Render = (userProps) => {
 				console.log(`[${thisID}] Render called, mapping state to props...`);
-				const propData = mapStateToProps(store);
+				console.log("UserProps is: " + JSON.stringify(userProps));
+				const propData = mapStateToProps(store, userProps);
 				const allProps = {...userProps, ...propData};
+				console.log("FINALProps is: " + JSON.stringify(allProps));
+
 				const previousProps = {...connectionRecord.lastPropsUpdate};
 				// Don't re-render if the props are the same as last time.
 				// console.log(JSON.stringify(propData));

@@ -1,16 +1,20 @@
-import { ApplyMutation ,LoadValuesIntoSchema } from '../data/AppState.js';
+import { ApplyMutation ,LoadValuesIntoSchema, SelectCurrentlySelectedSchemaValue, UseSelector } from '../data/AppState.js';
 import { InjectStyles, MountElement } from '../DOMUtils.js';
 import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
 import SchemaControls, { style as schemaControlsStyle } from './SchemaControls.js';
 import TilesetView, { style as tilesetViewStyle } from './TilesetView.js';
-import ColorSchemaEditor, {style as configureColorsStyle } from './ColorSchemaEditor.js';
+import ColorSchemaEditor, {style as configureColorsStyle } from './SchemaEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
 import ModalView, { style as modalViewStyle } from './ModalView.js';
 
 export const GridControlPanel =  () => {
 	const element = document.createElement('div');
 	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
+
+	// Todo: These 'render's are called here in the parent constructor, which effectively means they are only called once.
+	// Can I have these props still be dependencies without calling Render here manually, so that it's only ever called in one place?
+	// What about for components that aren't connected?
 
 	// TilesetView
 	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
@@ -32,7 +36,8 @@ export const GridControlPanel =  () => {
 			// Prepend an empty image cell to act as the default value.
 			// ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 0, schemaValues: [{ imageDataUrl: '' }, ...slices] });
 			// CloseTiliesetModal();
-		} 
+		},
+		schemaIndex: 0
 	});
 	// Colors Modal
 	const { element: colorsModalElement, Render: RenderColorsModal, Open: OpenColorsModal, Close: CloseColorsModal } = ModalView();
@@ -62,7 +67,6 @@ export const GridControlPanel =  () => {
 	MountElement(element, schemaControlsElement);
 	
 	const Render = () => {
-
 	}
 
 	return { element, Render }

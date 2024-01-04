@@ -1,5 +1,5 @@
 import { Connect, ApplyMutation, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
-	SelectLoadedSchemas, SelectSchemaValues, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
+	SelectLoadedSchemas, SelectSchema, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
 
 	
 const getSchemaValue = (schemaIndex, valueIndex) => {
@@ -11,15 +11,41 @@ const getSchemaName = (schemaIndex) => {
 	
 	//make sure to always have an 'empty' default
 	//how to handle title sections, made it so i can load a schema and have it replace that section
-export const buildSchemaSection = ( schemaIndex, isSelected, selectedIndex, onValueClicked) => {
-	const schemaName = getSchemaName(schemaIndex);
-	const schemaValues = UseSelector((state) => SelectSchemaValues(state, { schemaIndex }));
+// export const buildSchemaSection = ( schemaIndex, isSelected, selectedIndex, onValueClicked) => {
+// 	const schemaName = getSchemaName(schemaIndex);
+// 	const schemaValues = UseSelector((state) => SelectSchemaValues(state, { schemaIndex }));
+// 	//If a schema with this name already exists, we replace it
+// 	const sectionWrapper = document.createElement('div');
+
+// 	//Render a button for each schema value
+// 	schemaValues.forEach((schemaValue, valueIndex) => {
+// 		const button = buildBrushSelectionButton(schemaIndex, valueIndex, onValueClicked);
+// 		sectionWrapper.appendChild(button);
+
+// 		// If this one should be selected, show it as selected.
+// 		if (isSelected && selectedIndex == valueIndex) {
+// 			button.classList.add('active-color');
+// 		} else {
+// 			button.classList.remove('active-color');
+// 		}
+// 	})
+// 	sectionWrapper.classList.add( schemaName + '-toolbar');
+// 	sectionWrapper.classList.add('schema-toolbar');
+
+// 	return sectionWrapper;
+// }
+
+export const buildSchemaSection = ( schema, schemaIndex, isSelected, selectedIndex, onValueClicked) => {
+	console.log("build schema called with " + JSON.stringify({schema, schemaIndex, isSelected, onValueClicked}));
+	const schemaName = schema.name;
+	const schemaValues = schema.values;
 	//If a schema with this name already exists, we replace it
 	const sectionWrapper = document.createElement('div');
 
 	//Render a button for each schema value
 	schemaValues.forEach((schemaValue, valueIndex) => {
-		const button = buildBrushSelectionButton(schemaIndex, valueIndex, onValueClicked);
+		const button = buildBrushSelectionButton(schema.name, schemaValue, () => onValueClicked(schemaIndex, valueIndex));
+		button.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
 		sectionWrapper.appendChild(button);
 
 		// If this one should be selected, show it as selected.
@@ -36,13 +62,10 @@ export const buildSchemaSection = ( schemaIndex, isSelected, selectedIndex, onVa
 }
 
 
-const buildBrushSelectionButton = (schemaIndex, valueIndex, onClick) => {
-	const swatchButton = document.createElement('button');
-	const schemaName = getSchemaName(schemaIndex);
 
+const buildBrushSelectionButton = (schemaName, thisSchemaValue, onClick) => {
+	const swatchButton = document.createElement('button');
 	swatchButton.classList.add("brush-selection-button");
-	swatchButton.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
-	const thisSchemaValue = getSchemaValue(schemaIndex, valueIndex);
 
 		
 	if (schemaName === 'background_color') {
@@ -55,13 +78,37 @@ const buildBrushSelectionButton = (schemaIndex, valueIndex, onClick) => {
 		console.warn("Unsupported tileset name: " + schemaName);
 	}
 
-	swatchButton.addEventListener("click", (e) => onClick(schemaIndex, valueIndex));
+	swatchButton.addEventListener("click", (e) => onClick());
 
 	return swatchButton;
 };
 
+// const buildBrushSelectionButton = (schemaIndex, valueIndex, onClick) => {
+// 	const swatchButton = document.createElement('button');
+// 	const schemaName = getSchemaName(schemaIndex);
+
+// 	swatchButton.classList.add("brush-selection-button");
+// 	swatchButton.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
+// 	const thisSchemaValue = getSchemaValue(schemaIndex, valueIndex);
+
+		
+// 	if (schemaName === 'background_color') {
+// 		swatchButton.style.backgroundColor = '#' + thisSchemaValue.hex;
+// 	} else if (schemaName === 'symbol') {
+// 		swatchButton.textContent = thisSchemaValue.display;
+// 	} else if (schemaName === 'tile_index_background') {
+// 		swatchButton.style.backgroundImage = `url('${thisSchemaValue.imageDataUrl}')`;
+// 	} else {
+// 		console.warn("Unsupported tileset name: " + schemaName);
+// 	}
+
+// 	swatchButton.addEventListener("click", (e) => onClick(schemaIndex, valueIndex));
+
+// 	return swatchButton;
+// };
+
 // Build a unique ID to refer to this schema value.
-const buildSchemaId = (schema, index) => `${schema.name}-${index}`;
+export const buildSchemaId = (schemaName, valueIndex) => `${schemaName}-${valueIndex}`;
 
 export const SchemaControls = () => {
 	const element = document.createElement('div');
@@ -90,12 +137,11 @@ export const SchemaControls = () => {
 	}
 
 	const buildAndRenderSectionForSchema = (schemaIndex, isSelected, selectedIndex) => {
-		const schemaSection = buildSchemaSection( schemaIndex, isSelected, selectedIndex, SelectSchemaValue);
-		const schemaName = getSchemaName(schemaIndex);
-		const existingSection = element.querySelector('.' + schemaName + '-toolbar');
+		const schema = UseSelector(state => SelectSchema(state, { schemaIndex }));
+		const schemaSection = buildSchemaSection( schema, schemaIndex, isSelected, selectedIndex, SelectSchemaValue);
+		const existingSection = element.querySelector('.' + schema.name + '-toolbar');
 		if (existingSection === null) {
-			const schemaDisplayName = UseSelector((state) => SelectSchemaDisplayName(state, { schemaIndex }));
-			insertSchemaSection(schemaName, schemaDisplayName, schemaSection);
+			insertSchemaSection(schema.name, schema.displayName, schemaSection);
 		} else {
 			existingSection.insertAdjacentElement('afterend', schemaSection);
 			existingSection.remove();
