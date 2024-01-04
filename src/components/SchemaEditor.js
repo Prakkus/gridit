@@ -16,7 +16,7 @@ export const SchemaEditor =  () => {
 	
 	const Render = ({ schemas, schemaIndex, colorsSubmittedHandler }) => {
         console.log("render called!");
-        if (schemas.length < 1) return;
+        if (schemas.length < 1 || schemaIndex === undefined) return;
         const schema = schemas[schemaIndex];
         const SelectValueIndex = (index) => {
             const oldSelectedValueButton = element.querySelector(`[data-selection-id='${buildSchemaId(schema.name, selectedValueIndex)}']`);
