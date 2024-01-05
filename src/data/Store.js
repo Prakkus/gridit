@@ -1,3 +1,5 @@
+import { EventBus } from "../Utils.js";
+
 // Todo: There's probably a smarter way to diff these.
 const ObjectsAreDeepEqual = (obj1, obj2) =>
   Object.keys(obj1).length === Object.keys(obj2).length &&
@@ -13,6 +15,8 @@ export default (initialState) => {
 	const store = {...initialState};
 	// let OnMutationCompleted = new Set();
 	let connectedComponents = new Map();
+	let beforeMutationEvent = EventBus();
+	let afterMutationEvent = EventBus();
 	let nextID = 0;
 
 	const Connect = (mapStateToProps) => {
@@ -44,6 +48,11 @@ export default (initialState) => {
 		}
 	}
 
+	// Todo: I should probably have a way to unsubscribe 
+	// but there's no case where I'd do that in this app so I'm not worrying about it.
+	const AddBeforeMutationListener = (callback) => beforeMutationEvent.AddListener(callback);
+	const AddAfterMutationListener = (callback) => afterMutationEvent.AddListener(callback);
+
 	const RenderAllConnected = () => {
 		connectedComponents.forEach(({ Render }) => {
 			Render();
@@ -55,9 +64,11 @@ export default (initialState) => {
 	}
 	
 	const ApplyMutation = (mutation, args) => {
+		beforeMutationEvent.Trigger(mutation, args);
 		mutation(store, args);
 		console.log("mutation applied: " + mutation.name);
 		// Todo: What if this mutation was a no-op? Can we detect that and bail quicker than just rendering everything?
+		afterMutationEvent.Trigger(mutation, args);
 		RenderAllConnected();
 		// OnMutationCompleted.forEach((listener) => listener(store, mutation, args));
 	}
@@ -70,5 +81,5 @@ export default (initialState) => {
 	// 	OnMutationCompleted.remove(listener);
 	// }
 
-	return { store, Connect, UseSelector, ApplyMutation, }
+	return { store, Connect, UseSelector, ApplyMutation, AddBeforeMutationListener, AddAfterMutationListener}
 }

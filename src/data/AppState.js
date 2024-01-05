@@ -23,8 +23,21 @@ export const IsAnyCellDataLoaded = (state) => {
 	return SelectAllCellData(state).size > 0;
 }
 
-export const SelectCellById = (state, { cellId }) => {
-	return state.cellData.get(cellId);
+
+export const SelectCellById = (state) => {
+	return (cellId) => {
+		if (!state.cellData.has(cellId)) {
+			const defaultAttributes = SelectDefaultCellAttributes(state);
+			const nullCell = {
+				cellId,
+				attributes: {...defaultAttributes}
+			}
+			// Todo: maybe this can be handled somewhere more globally?
+			return nullCell;
+		}
+		
+		return state.cellData.get(cellId);
+	}
 }
 
 export const SelectAllCellData = (state) => {
@@ -235,4 +248,4 @@ const initialState = {
 };
 
 const state = InitStore(initialState);
-export const { store, Connect, UseSelector, ApplyMutation,  } = state;
+export const { store, Connect, UseSelector, ApplyMutation, AddBeforeMutationListener, AddAfterMutationListener} = state;

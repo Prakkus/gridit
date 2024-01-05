@@ -1,4 +1,4 @@
-import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, ApplyMutation, SelectCellById } from '../data/AppState.js';
+import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, ApplyMutation, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData } from '../data/AppState.js';
 
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
@@ -78,7 +78,12 @@ export const GridView = () => {
 		const cellData = UseSelector(SelectAllCellData);
 		if (dirtyCells.size > 0) {
 			console.log("Rendering some dirtycells! ");
-			dirtyCells.forEach(cellId => RenderCell(cellId, cellData.get(cellId).attributes));
+			
+			dirtyCells.forEach(cellId => {
+				const thisCellData = UseSelector(SelectCellById)(cellId);
+				console.log(thisCellData);
+				RenderCell(cellId, thisCellData.attributes)
+			});
 			dirtyCells.clear();
 		}
 	};
@@ -120,6 +125,24 @@ export const GridView = () => {
 		RenderDirtyCells();
 		window.requestAnimationFrame(Tick);
 	}
+
+	// When all cells are about to be cleared, grab the 'dirty' cells beforehand so that we can mark them dirty.
+	AddBeforeMutationListener((mutation, args) => {
+		if (mutation === ClearAllCellData) {
+			const cellData =  UseSelector(SelectAllCellData);
+			dirtyCells = new Set(cellData.keys());
+			console.log(dirtyCells);
+			// dirtyCells =.map(cell => cell.cellId);
+		} 	
+	});
+
+	// When a cell is edited, mark it dirty afterwards.
+	AddAfterMutationListener((mutation, args) => {
+		if (mutation === UpdateCells) {
+			const {cellIds} = args;
+			cellIds.forEach(cellId => dirtyCells.add(cellId));
+		}
+	});
 
 	// Rerender dirty cells every frame.
 	window.requestAnimationFrame(Tick);
