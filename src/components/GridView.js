@@ -73,12 +73,19 @@ export const GridView = () => {
 		showCoords: false
 	}
 
+	// When loading or resetting a full grid, we want to re-render all possible cells. 
+	const RenderAllCells = () => {
+		const gridSize = UseSelector(SelectGridSize);
+		for (var y = gridSize.y - 1; y >= 0; y--) {
+			for (var x = 0; x < gridSize.x; x++) {
+				let cellId = x + ',' + y;
+				dirtyCells.add(cellId);
+			}
+		}
+	}
 
 	const RenderDirtyCells = () => {
-		const cellData = UseSelector(SelectAllCellData);
 		if (dirtyCells.size > 0) {
-			console.log("Rendering some dirtycells! ");
-			
 			dirtyCells.forEach(cellId => {
 				const thisCellData = UseSelector(SelectCellById)(cellId);
 				RenderCell(cellId, thisCellData.attributes)
@@ -95,7 +102,7 @@ export const GridView = () => {
 		cellToNodeMap.clear();
 	}
 
-	// Populate THIS grid with cells, properly rendering any with pre-existing data.
+	// Populate THIS grid with empty cells.
 	const PopulateGridWithCells = (defaultCellAttributes) => {
 		DeleteGridCells();
 		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, defaultCellAttributes);
@@ -128,7 +135,7 @@ export const GridView = () => {
 	// When all cells are about to be cleared, grab the 'dirty' cells beforehand so that we can mark them dirty.
 	AddBeforeMutationListener((mutation, args) => {
 		if (mutation === ClearAllCellData) {
-			const cellData =  UseSelector(SelectAllCellData);
+			const cellData = UseSelector(SelectAllCellData);
 			dirtyCells = new Set(cellData.keys());
 		} 	
 	});
@@ -142,9 +149,9 @@ export const GridView = () => {
 
 		// After loading a fresh grid or reverting to a past grid, all cells are potentially dirty.
 		// Todo: I can probably figure out which ones actually are dirty in some cleverer way eventually.
-		// if (mutation === LoadGridJsonData || mutation === RefreshGridFromLoadedJson) {
-
-		// }
+		if (mutation === LoadGridJsonData || mutation === RefreshGridFromLoadedJson) {
+			RenderAllCells();
+		}
 	});
 
 	// Rerender dirty cells every frame.

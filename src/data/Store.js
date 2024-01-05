@@ -70,16 +70,7 @@ export default (initialState) => {
 		// Todo: What if this mutation was a no-op? Can we detect that and bail quicker than just rendering everything?
 		afterMutationEvent.Trigger(mutation, args);
 		RenderAllConnected();
-		// OnMutationCompleted.forEach((listener) => listener(store, mutation, args));
 	}
-
-	// const AddMutationStartingListener = (listener) => {
-	// 	OnMutationCompleted.add(listener);
-	// }
-
-	// const RemoveMutationStartingListener = (listener) => {
-	// 	OnMutationCompleted.remove(listener);
-	// }
 
 	return { store, Connect, UseSelector, ApplyMutation, AddBeforeMutationListener, AddAfterMutationListener}
 }
