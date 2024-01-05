@@ -1,4 +1,4 @@
-import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, ApplyMutation, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData } from '../data/AppState.js';
+import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, ApplyMutation, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData, LoadCellData, RefreshGridFromLoadedJson, LoadGridJsonData } from '../data/AppState.js';
 
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
@@ -81,7 +81,6 @@ export const GridView = () => {
 			
 			dirtyCells.forEach(cellId => {
 				const thisCellData = UseSelector(SelectCellById)(cellId);
-				console.log(thisCellData);
 				RenderCell(cellId, thisCellData.attributes)
 			});
 			dirtyCells.clear();
@@ -131,17 +130,21 @@ export const GridView = () => {
 		if (mutation === ClearAllCellData) {
 			const cellData =  UseSelector(SelectAllCellData);
 			dirtyCells = new Set(cellData.keys());
-			console.log(dirtyCells);
-			// dirtyCells =.map(cell => cell.cellId);
 		} 	
 	});
 
-	// When a cell is edited, mark it dirty afterwards.
+	// When a cell is individually edited, mark it dirty afterwards.
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === UpdateCells) {
 			const {cellIds} = args;
 			cellIds.forEach(cellId => dirtyCells.add(cellId));
 		}
+
+		// After loading a fresh grid or reverting to a past grid, all cells are potentially dirty.
+		// Todo: I can probably figure out which ones actually are dirty in some cleverer way eventually.
+		// if (mutation === LoadGridJsonData || mutation === RefreshGridFromLoadedJson) {
+
+		// }
 	});
 
 	// Rerender dirty cells every frame.
