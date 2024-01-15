@@ -21,8 +21,10 @@
 		import GridDrag from './src/components/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/components/GridView.js'
 		import GridControlPanel, { style as gridControlPanelStyle} from './src/components/GridControlPanel.js';
-		import { LoadGridJsonData, SelectCurrentlySelectedAttributeUpdate, UpdateCells, SelectCellById } from './src/data/AppState.js';
+		import { SelectCurrentlySelectedAttributeUpdate, UpdateCells, SelectCellById } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/data/UndoSystem.js';
+		import { SetJsonData } from './src/Mutations.js';
+		import { LoadGridJsonData, RefreshGridFromLoadedJson } from './src/Actions.js';
 
 		const Main = () => {
 			// Inject the styles for all the loaded components.
@@ -42,15 +44,16 @@
 			BindDragEvents(window);
 
 			// Grid View
-			const { element: gridElement, RenderCell } = GridView();
+			const { element: gridElement, RenderCell } = GridView(store);
 			MountElement(gridMountElement, gridElement);
 
 			// Grid Control Panel
-			const { element: gridControlPanelElement} = GridControlPanel();
+			const { element: gridControlPanelElement} = GridControlPanel(store);
 			MountElement(controlPanelMountElement, gridControlPanelElement);	
 
 			// Load the default grid profile. This contains default schema information.
-			ApplyMutation(LoadGridJsonData, {jsonText: JSON.stringify(defaultSaveFile)});
+			LoadGridJsonData(JSON.stringify(defaultSaveFile));
+			RefreshGridFromLoadedJson();
 
 			// const DoAction = () => {
 			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 1 });

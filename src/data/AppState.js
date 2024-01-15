@@ -1,5 +1,4 @@
 import InitStore from './Store.js';
-import { RefreshGridFromLoadedJson } from '../Actions.js';
 
 // Loops through the existing schemas and builds a set of default cell attributes for each.
 // Used as the initial attributes state for any cell.
@@ -131,22 +130,6 @@ export const SelectGridName = (state) => {
 	return state.grid.name;
 }
 
-// Mutations
-export const UpdateGridName = (state, { name }) => {
-	state.grid.name = name;
-}
-
-export const UpdateGridSize = (state, { width, height }) => {
-	state.grid.size.x = width;
-	state.grid.size.y = height;
-}
-
-export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords }) => {
-	state.grid.displayOptions.cellSize = cellSize;
-	state.grid.displayOptions.cellGap = cellGap;
-	state.grid.displayOptions.showCoords = showCoords;
-}
-
 //// Cells
 // Mutations
 // Todo: Remove data for cells which were once changed, but once again match the defaults.
@@ -185,17 +168,6 @@ export const LoadCellData = (state, { cellData }) => {
 	const map = new Map(cellData.map(value => [value.cellId, {...value}]));
 	state.cellData = map;
 }
-
-
-
-// Load a grid save file into the store.
-export const LoadGridJsonData = (state, { jsonText }) => {
-	state.loadedJson.rawJson = jsonText;
-	state.loadedJson.parsedJson = JSON.parse(jsonText);
-	state.loadedJson.title = state.loadedJson.parsedJson.title;
-	RefreshGridFromLoadedJson(state);
-}
-
 
 const initialState = {
 	loadedJson: {

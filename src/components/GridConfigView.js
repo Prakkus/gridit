@@ -1,8 +1,15 @@
-import { Connect, UseSelector, SelectGridSize, SelectGridDisplayOptions, UpdateGridSize, UpdateGridDisplayOptions } from "../data/AppState.js";
+import { UseSelector, SelectGridSize, SelectGridDisplayOptions, AddAfterMutationListener } from "../data/AppState.js";
 import { UpdateGridConfig } from '../Actions.js';
-export const GridConfigView = () => {
+import { UpdateGridDisplayOptions, UpdateGridSize, SetJsonData } from "../Mutations.js";
+export const GridConfigView = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
+
+	AddAfterMutationListener((mutation, args) => {
+		if (mutation === UpdateGridSize || mutation === UpdateGridConfig || mutation === UpdateGridDisplayOptions || mutation === SetJsonData) {
+			Render(mapStateToProps(state));
+		}
+	});
 
 	const OnSubmit = ({rowCount, columnCount, cellSize, cellGap, showCoords}) => {
 		UpdateGridConfig(columnCount, rowCount, cellSize, cellGap, showCoords);
@@ -59,9 +66,9 @@ const mapStateToProps = (state, ownProps) => {
 
 	return { columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions };
 }
-export default () => {
-	const { element, Render: baseRender } = GridConfigView();
-	const Render = Connect(mapStateToProps)(baseRender);
+export default (state) => {
+	const { element, Render: baseRender } = GridConfigView(state);
+	const Render = () => baseRender(mapStateToProps(state));
 	return { element, Render };
 }
 

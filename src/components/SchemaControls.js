@@ -1,4 +1,4 @@
-import { Connect, ApplyMutation, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
+import { ApplyMutation, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
 	SelectLoadedSchemas, SelectSchema, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
 
 	
@@ -163,9 +163,10 @@ const mapStateToProps = () => {
 	const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
 	return { loadedSchemas: [...loadedSchemas], ...selectedSchemaValue };
 }
-export default () => {
+
+export default (state) => {
 	const { element, Render: baseRender } = SchemaControls();
-	const Render = Connect(mapStateToProps)(baseRender);
+	const Render = () =>baseRender(mapStateToProps(state));
 	return { element, Render };
 }
 

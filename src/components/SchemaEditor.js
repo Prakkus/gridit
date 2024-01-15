@@ -1,4 +1,4 @@
-import { ApplyMutation, UseSelector, SelectSchema, Connect, SelectSchemaName, SelectLoadedSchemas } from '../data/AppState.js';
+import { ApplyMutation, UseSelector, SelectSchema, SelectSchemaName, SelectLoadedSchemas } from '../data/AppState.js';
 import { InjectStyles, MountElement } from '../DOMUtils.js';
 import { buildSchemaSection, buildSchemaId } from './SchemaControls.js';
 
@@ -39,9 +39,9 @@ const mapStateToProps = (state, ownProps) => {
 
 	return { schemas: schemas };
 }
-export default () => {
+export default (state) => {
 	const { element, Render: baseRender } = SchemaEditor();
-	const Render = Connect(mapStateToProps)(baseRender);
+	const Render = () => baseRender(mapStateToProps(state));
 	return { element, Render };
 }
 

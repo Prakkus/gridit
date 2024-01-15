@@ -1,5 +1,6 @@
-import { Connect, UseSelector, SelectSaveData, SelectGridName, LoadGridJsonData, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation, UpdateGridName } from "../data/AppState.js";
+import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation  } from "../data/AppState.js";
 import { RefreshGridFromLoadedJson } from "../Actions.js";
+import { SetJsonData, UpdateGridName } from "../Mutations.js";
 
 	const downloadBlob = (blob, fileName) => {
 		const blobUrl = URL.createObjectURL(blob);
@@ -54,7 +55,7 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	const ClearCellData = () => ApplyMutation(ClearAllCellData);
 	const ReloadGrid = () => ApplyMutation(RefreshGridFromLoadedJson); 
 	const SaveGridName = (data) => ApplyMutation(UpdateGridName, { name: data.gridName }); 
-	const LoadJson = (saveJson) => ApplyMutation(LoadGridJsonData, { jsonText: saveJson });
+	const LoadJson = (saveJson) => ApplyMutation(SetJsonData, saveJson);
 
 
 	const LoadJsonFile = (event) => {
@@ -62,7 +63,7 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 		if (!file.type.match('^application/json')) return;
 		file.text().then(value => {
 			// Loads the json and imports the data.
-			ApplyMutation(LoadGridJsonData, { jsonText: value });
+			LoadGridJsonData(value);
 		});
 	}
 	
@@ -130,9 +131,9 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 }
 
 const mapStateToProps = (state, ownProps) => ({ gridName: UseSelector(SelectGridName)});
-export default (initProps) => {
+export default (initProps, state) => {
 	const { element, Render: baseRender } = PersistenceView(initProps);
-	const Render = Connect(mapStateToProps)(baseRender);
+	const Render = () => baseRender(mapStateToProps(state));
 	return { element, Render };
 }
 

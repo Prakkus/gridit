@@ -9,7 +9,8 @@ import ColorSchemaEditor, {style as configureColorsStyle } from './SchemaEditor.
 import ModalView, { style as modalViewStyle } from './ModalView.js';
 import { SetValuesForSchema } from '../Actions.js';
 
-export const GridControlPanel =  () => {
+export const GridControlPanel = (state) => {
+	console.log(state);
 	const element = document.createElement('div');
 	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
 
@@ -60,11 +61,11 @@ export const GridControlPanel =  () => {
 	MountElement(element, persistenceElement);
 
 	// Grid Config View
-	const { element: gridConfigElement } = GridConfigView();
+	const { element: gridConfigElement } = GridConfigView(state);
 	MountElement(element, gridConfigElement);
 
 	// SchemaControls
-	const { element: schemaControlsElement } = SchemaControls();
+	const { element: schemaControlsElement } = SchemaControls(state);
 	MountElement(element, schemaControlsElement);
 	
 	const Render = () => {

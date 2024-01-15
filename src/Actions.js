@@ -1,6 +1,26 @@
-import { ClearAllSchema, AppendSchema, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
-import { ApplyMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName, SetSelectedSchemaValue, SelectLoadedJsonData, LoadCellData } from "./data/AppState.js";
+import { ClearAllSchema, AppendSchema, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
+import { ApplyMutation, SelectLoadedSchemas, SetSelectedSchemaValue, SelectLoadedJsonData, LoadCellData, UseSelector } from "./data/AppState.js";
  
+
+// Load a grid save file into the store.
+export const LoadGridJsonData = (jsonText) => {
+	ApplyMutation(SetJsonData, {rawJson: jsonText});
+}
+
+// Loads a configuration profile (not a grid save file!).
+const LoadGridProfile = ({title, config, schema}) => {
+    // Clear the current profile.
+    ApplyMutation(ClearCurrentProfile);
+    // Update grid attributes.
+    ApplyMutation(UpdateGridDisplayOptions, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
+    ApplyMutation(UpdateGridSize, { width: config.columnCount, height: config.rowCount });
+    ApplyMutation(UpdateGridName,  { name: title });
+    // Load schema.
+    schema.forEach((schemaDef) => {
+        AddSchema(schemaDef);
+    });
+}
+
 
  //// Grid
  export const UpdateGridConfig = (width, height, cellSize, cellGap, showCoords) => {
@@ -8,23 +28,10 @@ import { ApplyMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName
     ApplyMutation(UpdateGridDisplayOptions, { cellSize, cellGap, showCoords });
 }
 
-export const RefreshGridFromLoadedJson = (state) => {
-	// Loads a configuration profile (not a grid save file!).
-	const LoadGridProfile = (state, {title, config, schema}) => {
-		// Clear the current profile.
-		ClearCurrentProfile(state);
-		// Update grid attributes.
-		UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
-		UpdateGridSize(state, { width: config.columnCount, height: config.rowCount });
-		UpdateGridName(state, { name: title });
-		// Load schema.
-		schema.forEach((schemaDef) => {
-			AddSchema(state, { schema: schemaDef });
-		});
-	}
-	const profile = SelectLoadedJsonData(state);
-	LoadGridProfile(state, profile);
-	LoadCellData(state, { cellData: profile.cellData });
+export const RefreshGridFromLoadedJson = () => {
+	const profile = UseSelector(SelectLoadedJsonData);
+	LoadGridProfile(profile);
+	ApplyMutation(LoadCellData, { cellData: profile.cellData });
 }
 
 
@@ -36,11 +43,12 @@ export const ClearCurrentProfile = () => {
 }
 
 export const AddSchema = (schema) => {
-    ApplyMutation(AppendSchema(schema), {});
-    ApplyMutation(SetValuesForSchemaMutation(newIndex, schema.values), {});
+    const newIndex = UseSelector(SelectLoadedSchemas).length;
+    ApplyMutation(AppendSchema, {schema});
+    ApplyMutation(SetValuesForSchemaMutation, {schemaIndex: newIndex, schemaValues: schema.values});
 }
 
 export const SetValuesForSchema = (index, values) => {
-    ApplyMutation(SetValuesForSchemaMutation(index, values), {});
+    ApplyMutation(SetValuesForSchemaMutation, {schemaIndex: index, schemaValues: values});
 }
 

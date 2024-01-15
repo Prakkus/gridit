@@ -1,5 +1,6 @@
-import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData,  LoadGridJsonData } from '../data/AppState.js';
-import { RefreshGridFromLoadedJson } from '../Actions.js';
+import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData } from '../data/AppState.js';
+import { UpdateGridConfig } from '../Actions.js';
+import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions,  } from '../Mutations.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
@@ -18,7 +19,7 @@ const UpdateDOMCell = (cellElement, cellAttributes) => {
 }
 
 // Renders cells from Map of cellData.
-export const GridView = () => {
+export const GridView = (state) => {
 	const element = document.createElement('div');
 	let cellToNodeMap = new Map();
 	let dirtyCells = new Set();
@@ -35,6 +36,13 @@ export const GridView = () => {
 		}
 	}
 
+	// Rerender the grid when the grid options change.
+	AddAfterMutationListener((mutation, args) => {
+		if (mutation === UpdateGridSize || mutation === UpdateGridConfig || mutation === UpdateGridDisplayOptions || mutation === SetJsonData) {
+			Render(mapStateToProps(state));
+		}
+	});
+
 	// Renders up to Count dirty cells from their cellData in the State. 
 	// That way large grids can be updated without any hanging.
 	const RenderDirtyCells = (count = Infinity) => {
@@ -50,6 +58,7 @@ export const GridView = () => {
 	
 	const RenderCell = (cellId, attributes) => {
 		const cellNode = cellToNodeMap.get(cellId);
+		if (!cellNode) return;
 		UpdateDOMCell(cellNode, attributes);
 	}
 	
@@ -124,7 +133,7 @@ export const GridView = () => {
 
 		// After loading a fresh grid or reverting to a past grid, all cells are potentially dirty.
 		// Todo: I can probably figure out which ones actually are dirty in some cleverer way eventually.
-		if (mutation === LoadGridJsonData || mutation === RefreshGridFromLoadedJson) {
+		if (mutation === SetJsonData) {
 			MarkAllCellsDirty();
 		}
 	});
@@ -143,9 +152,9 @@ const mapStateToProps = (state) => {
 };
  
 
-export default () => {
+export default (state) => {
 	const { element, Render: baseRender } = GridView();
-	const Render = Connect(mapStateToProps)(baseRender);
+	const Render = () => baseRender(mapStateToProps(state));
 	return { element, Render };
 }
 
