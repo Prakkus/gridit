@@ -1,5 +1,5 @@
-import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes, ApplyMutation, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData, LoadCellData, RefreshGridFromLoadedJson, LoadGridJsonData } from '../data/AppState.js';
-
+import { Connect, UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData,  LoadGridJsonData } from '../data/AppState.js';
+import { RefreshGridFromLoadedJson } from '../Actions.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
@@ -63,7 +63,7 @@ export const GridView = () => {
 		element.style.height = `${height * (cellSize + cellGap)}px`;
 		element.style.display = 'grid';
 		element.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
-		element.style.gridGap = cellGap + "px";
+		element.style.gap = cellGap + "px";
 		element.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
 		element.style.fontSize = Math.round(.6 * cellSize) + 'px';
 		if (showCoords) {
@@ -99,10 +99,10 @@ export const GridView = () => {
 		}
 	}
 
-	// Each tick, render up to Limit dirty cells. 
+	// Each tick, render up to maxCellsToRenderPerTick dirty cells. 
 	// Limit can be tweaked to set a max number of updates per 'frame'.
 	const Tick = () => {
-		const maxCellsToRenderPerTick = 40;
+		const maxCellsToRenderPerTick = 150;
 		RenderDirtyCells(maxCellsToRenderPerTick);
 		window.requestAnimationFrame(Tick);
 	}

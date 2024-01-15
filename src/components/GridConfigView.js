@@ -1,22 +1,22 @@
-import { Connect, UseSelector, ApplyMutation, SelectGridSize, SelectGridDisplayOptions, UpdateGridSize, UpdateGridDisplayOptions } from "../data/AppState.js";
+import { Connect, UseSelector, SelectGridSize, SelectGridDisplayOptions, UpdateGridSize, UpdateGridDisplayOptions } from "../data/AppState.js";
+import { UpdateGridConfig } from '../Actions.js';
 export const GridConfigView = () => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 
-	const OnSubmit = (data) => {
-		ApplyMutation(UpdateGridSize, { width: data.columnCount, height: data.rowCount });
-		ApplyMutation(UpdateGridDisplayOptions, { cellSize: data.cellSize, cellGap: data.cellGap, showCoords: data.showCoords });
+	const OnSubmit = ({rowCount, columnCount, cellSize, cellGap, showCoords}) => {
+		UpdateGridConfig(columnCount, rowCount, cellSize, cellGap, showCoords);
 	}
 
 	const Submit = () => {
-		const data = {
+		const formData = {
 			rowCount: parseInt(rowCountInput.value),
 			columnCount: parseInt(columnCountInput.value),
 			cellSize: parseInt(cellSizeInput.value),
 			cellGap: parseInt(cellGapInput.value),
 			showCoords: showCoordsInput.checked
 		}
-		OnSubmit(data);
+		OnSubmit(formData);
 	}
 
 	// Submit if they press ENTER with this element focused.

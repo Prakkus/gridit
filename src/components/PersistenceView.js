@@ -1,5 +1,5 @@
-import { Connect, UseSelector, SelectSaveData, SelectGridName, RefreshGridFromLoadedJson, LoadGridJsonData, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation, UpdateGridName } from "../data/AppState.js";
-
+import { Connect, UseSelector, SelectSaveData, SelectGridName, LoadGridJsonData, IsAnyCellDataLoaded, ClearAllCellData, ApplyMutation, UpdateGridName } from "../data/AppState.js";
+import { RefreshGridFromLoadedJson } from "../Actions.js";
 
 	const downloadBlob = (blob, fileName) => {
 		const blobUrl = URL.createObjectURL(blob);
@@ -46,7 +46,6 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 
 	const WithOverwriteConfirmation = (message, action) => {
 		return (params) => {
-			console.log(UseSelector(IsAnyCellDataLoaded));
 			if (UseSelector(IsAnyCellDataLoaded) && (!confirm(message))) return;
 			action(params);
 		}

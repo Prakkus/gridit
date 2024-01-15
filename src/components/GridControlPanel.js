@@ -1,4 +1,4 @@
-import { ApplyMutation ,LoadValuesIntoSchema, SelectCurrentlySelectedSchemaValue, UseSelector } from '../data/AppState.js';
+import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '../data/AppState.js';
 import { InjectStyles, MountElement } from '../DOMUtils.js';
 import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
@@ -7,6 +7,7 @@ import TilesetView, { style as tilesetViewStyle } from './TilesetView.js';
 import ColorSchemaEditor, {style as configureColorsStyle } from './SchemaEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
 import ModalView, { style as modalViewStyle } from './ModalView.js';
+import { SetValuesForSchema } from '../Actions.js';
 
 export const GridControlPanel =  () => {
 	const element = document.createElement('div');
@@ -21,7 +22,7 @@ export const GridControlPanel =  () => {
 	RenderTilesetView({
 		slicesExtractedHandler: (slices) => {
 			// Prepend an empty image cell to act as the default value.
-			ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 2, schemaValues: [{ imageDataUrl: '' }, ...slices] });
+			SetValuesForSchema(2, [{ imageDataUrl: '' }, ...slices]);
 			CloseTiliesetModal();
 		} 
 	});

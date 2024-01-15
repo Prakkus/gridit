@@ -1,4 +1,5 @@
 import InitStore from './Store.js';
+import { RefreshGridFromLoadedJson } from '../Actions.js';
 
 // Loops through the existing schemas and builds a set of default cell attributes for each.
 // Used as the initial attributes state for any cell.
@@ -48,19 +49,8 @@ export const SelectLoadedJsonData = (state) => {
 	return state.loadedJson.parsedJson;
 }
 
-export const SelectGridDisplayOptions = (state) => {
-	return state.grid.displayOptions;
-}
-
-export const SelectGridSize = (state) => {
-	return state.grid.size;
-}
-
-export const SelectGridName = (state) => {
-	return state.grid.name;
-}
-
-// Schema
+//// Schema
+// Selectors
 const SelectAllSchemaData = (state) => {
 	return state.schema;
 }
@@ -87,15 +77,6 @@ export const SelectSchemaName = (state, { schemaIndex }) => {
 export const SelectSchemaTables = (state, { schemaIndex }) => {
 	return SelectSchema(state, { schemaIndex }).tables;
 }
-
-export const ClearCurrentProfile = (state) => {
-	state.schema.tables = [];
-	SetSelectedSchemaValue(state, { schemaIndex: 0, valueIndex: 0 });	
-}
-export const SetSelectedSchemaValue = (state, { schemaIndex, valueIndex }) => {
-	state.schema.selectedSchemaIndex = schemaIndex;
-	state.schema.selectedValueIndex = valueIndex;
-}
 export const SelectCurrentlySelectedSchemaValue = (state) => {
 	return {
 		selectedSchemaIndex: state.schema.selectedSchemaIndex,
@@ -109,15 +90,6 @@ export const SelectCurrentlySelectedAttributeUpdate = state => {
 		[loadedSchemas[selectedSchemaIndex].cellAttribute] : selectedValueIndex
 	};
 }
-export const LoadValuesIntoSchema = (state, { schemaIndex, schemaValues }) => {
-	const schema = state.schema.tables[schemaIndex];
-	state.schema.tables[schemaIndex] = {...schema, values: [...schemaValues]};
-}
-export const LoadSchema = (state, { schema }) => {
-	const newIndex = state.schema.tables.push({...schema}) - 1;
-	LoadValuesIntoSchema(state, { schemaIndex: newIndex, schemaValues: schema.values });
-}
-
 export const SelectSaveData = (state) => {
 	const gridName = SelectGridName(state);
 	const gridSize = SelectGridSize(state);
@@ -139,7 +111,27 @@ export const SelectSaveData = (state) => {
 }
 
 
-// Grid 
+// Mutations
+export const SetSelectedSchemaValue = (state, { schemaIndex, valueIndex }) => {
+	state.schema.selectedSchemaIndex = schemaIndex;
+	state.schema.selectedValueIndex = valueIndex;
+}
+
+//// Grid 
+// Selectors
+export const SelectGridDisplayOptions = (state) => {
+	return state.grid.displayOptions;
+}
+
+export const SelectGridSize = (state) => {
+	return state.grid.size;
+}
+
+export const SelectGridName = (state) => {
+	return state.grid.name;
+}
+
+// Mutations
 export const UpdateGridName = (state, { name }) => {
 	state.grid.name = name;
 }
@@ -155,7 +147,8 @@ export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 	state.grid.displayOptions.showCoords = showCoords;
 }
 
-// Cells
+//// Cells
+// Mutations
 // Todo: Remove data for cells which were once changed, but once again match the defaults.
 // The store only tracks cells which have been modified, but doesn't know if something has been modified, then reset.
 // If I update a cell's attributes, it gets added to CellData and those values are used instead of the default values. 
@@ -186,8 +179,15 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 export const ClearAllCellData = (state) => {
 	state.cellData.clear();
 }
+export const LoadCellData = (state, { cellData }) => {
+	// Our cells are serialized as an array of objects.
+	// Pull them out into a map by cellId and store that instead.
+	const map = new Map(cellData.map(value => [value.cellId, {...value}]));
+	state.cellData = map;
+}
 
-// Commands
+
+
 // Load a grid save file into the store.
 export const LoadGridJsonData = (state, { jsonText }) => {
 	state.loadedJson.rawJson = jsonText;
@@ -195,31 +195,7 @@ export const LoadGridJsonData = (state, { jsonText }) => {
 	state.loadedJson.title = state.loadedJson.parsedJson.title;
 	RefreshGridFromLoadedJson(state);
 }
-export const RefreshGridFromLoadedJson = (state) => {
-	// Loads a configuration profile (not a grid save file!).
-	const LoadGridProfile = (state, {title, config, schema}) => {
-		// Clear the current profile.
-		ClearCurrentProfile(state);
-		// Update grid attributes.
-		UpdateGridDisplayOptions(state, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
-		UpdateGridSize(state, { width: config.columnCount, height: config.rowCount });
-		UpdateGridName(state, { name: title });
-		// Load schema.
-		schema.forEach((schemaDef) => {
-			LoadSchema(state, { schema: schemaDef });
-		});
-	}
-	const profile = SelectLoadedJsonData(state);
-	LoadGridProfile(state, profile);
-	LoadCellData(state, { cellData: profile.cellData });
-}
 
-export const LoadCellData = (state, { cellData }) => {
-	// Our cells are serialized as an array of objects.
-	// Pull them out into a map by cellId and store that instead.
-	const map = new Map(cellData.map(value => [value.cellId, {...value}]));
-	state.cellData = map;
-}
 
 const initialState = {
 	loadedJson: {
