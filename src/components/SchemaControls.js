@@ -1,5 +1,6 @@
-import { ApplyMutation, SetSelectedSchemaValue, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
+import { ApplyMutation, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
 	SelectLoadedSchemas, SelectSchema, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
+	import { SetSelectedSchemaValue } from '../Mutations.js';
 
 	
 const getSchemaValue = (schemaIndex, valueIndex) => {

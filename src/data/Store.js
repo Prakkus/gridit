@@ -20,7 +20,7 @@ export default (initialState) => {
 		beforeMutationEvent.Trigger(mutation, args);
 		mutation(store, args);
 		console.log("mutation applied: " + mutation.name);
-		// Todo: What if this mutation was a no-op? Can we detect that and bail quicker than just rendering everything?
+		// Todo: What if this mutation was a no-op? Can we detect that and bail quicker?
 		afterMutationEvent.Trigger(mutation, args);
 	}
 

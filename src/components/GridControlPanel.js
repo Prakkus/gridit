@@ -1,16 +1,15 @@
 import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '../data/AppState.js';
 import { InjectStyles, MountElement } from '../DOMUtils.js';
-import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
-import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
+import PersistenceView, { style as persistenceViewStyle } from '../views/PersistenceView.js';
+import GridConfigView, { style as gridConfigViewStyle } from '../views/GridConfigView.js';
 import SchemaControls, { style as schemaControlsStyle } from './SchemaControls.js';
-import TilesetView, { style as tilesetViewStyle } from './TilesetView.js';
+import TilesetEditor, { style as tilesetViewStyle } from './TilesetEditor.js';
 import ColorSchemaEditor, {style as configureColorsStyle } from './SchemaEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
-import ModalView, { style as modalViewStyle } from './ModalView.js';
+import Modal, { style as modalViewStyle } from './Modal.js';
 import { SetValuesForSchema } from '../Actions.js';
 
 export const GridControlPanel = (state) => {
-	console.log(state);
 	const element = document.createElement('div');
 	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
 
@@ -19,7 +18,7 @@ export const GridControlPanel = (state) => {
 	// What about for components that aren't connected?
 
 	// TilesetView
-	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetView();
+	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetEditor();
 	RenderTilesetView({
 		slicesExtractedHandler: (slices) => {
 			// Prepend an empty image cell to act as the default value.
@@ -28,7 +27,7 @@ export const GridControlPanel = (state) => {
 		} 
 	});
 	// Tileset Modal
-	const { element: tilsetModalElement, Render: RenderTilesetModal, Open: OpenTilesetModal, Close: CloseTiliesetModal } = ModalView();
+	const { element: tilsetModalElement, Render: RenderTilesetModal, Open: OpenTilesetModal, Close: CloseTiliesetModal } = Modal();
 	MountElement(document.body, tilsetModalElement);
 
 	// Configure Colors View
@@ -42,7 +41,7 @@ export const GridControlPanel = (state) => {
 		schemaIndex: 0
 	});
 	// Colors Modal
-	const { element: colorsModalElement, Render: RenderColorsModal, Open: OpenColorsModal, Close: CloseColorsModal } = ModalView();
+	const { element: colorsModalElement, Render: RenderColorsModal, Open: OpenColorsModal, Close: CloseColorsModal } = Modal();
 	MountElement(document.body, colorsModalElement);
 
 	// Persistence View. 

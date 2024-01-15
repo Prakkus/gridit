@@ -1,6 +1,6 @@
-import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, ClearAllCellData } from '../data/AppState.js';
-import { UpdateGridConfig } from '../Actions.js';
-import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions,  } from '../Mutations.js';
+import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener } from '../data/AppState.js';
+import { UpdateGridConfig, ClearAllCellData } from '../Actions.js';
+import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions, } from '../Mutations.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
@@ -63,7 +63,7 @@ export const GridView = (state) => {
 	}
 	
 
-	// Render a view from a set of grid display options and optional cellData.
+	// Render a view from a set of grid display options.
 	// This ensures that all the necessary cells exist, but is not responsible for actually 
 	// keeping them synced with their cellData.
 	const Render = ({ width, height, cellSize, cellGap, showCoords }) => {

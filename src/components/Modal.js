@@ -1,4 +1,4 @@
-export const ModalView = (shownByDefault = false) => {
+export const Modal = (shownByDefault = false) => {
 	const element = document.createElement('div')
 	element.innerHTML = template;
 
@@ -44,7 +44,7 @@ export const ModalView = (shownByDefault = false) => {
 	return { element, Render, Open, Close };
 }
 
-export default ModalView;
+export default Modal;
 
 export const style = 
 	`

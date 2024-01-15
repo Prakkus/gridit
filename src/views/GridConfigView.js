@@ -66,11 +66,8 @@ const mapStateToProps = (state, ownProps) => {
 
 	return { columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions };
 }
-export default (state) => {
-	const { element, Render: baseRender } = GridConfigView(state);
-	const Render = () => baseRender(mapStateToProps(state));
-	return { element, Render };
-}
+
+export default GridConfigView;
 
 export const style = 
 `

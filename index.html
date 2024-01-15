@@ -18,11 +18,11 @@
 		import { InjectStyles, MountElement } from './src/DOMUtils.js';
 		import { store, Connect, UseSelector, ApplyMutation } from './src/data/AppState.js'
 		import defaultSaveFile from './src/config/default-save.js';
-		import GridDrag from './src/components/GridDrag.js';
-		import GridView, { style as gridStyle } from './src/components/GridView.js'
+		import GridDrag from './src/modules/GridDrag.js';
+		import GridView, { style as gridStyle } from './src/views/GridView.js'
 		import GridControlPanel, { style as gridControlPanelStyle} from './src/components/GridControlPanel.js';
 		import { SelectCurrentlySelectedAttributeUpdate, UpdateCells, SelectCellById } from './src/data/AppState.js';
-		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/data/UndoSystem.js';
+		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
 		import { SetJsonData } from './src/Mutations.js';
 		import { LoadGridJsonData, RefreshGridFromLoadedJson } from './src/Actions.js';
 
@@ -53,7 +53,6 @@
 
 			// Load the default grid profile. This contains default schema information.
 			LoadGridJsonData(JSON.stringify(defaultSaveFile));
-			RefreshGridFromLoadedJson();
 
 			// const DoAction = () => {
 			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 1 });

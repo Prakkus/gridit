@@ -109,13 +109,6 @@ export const SelectSaveData = (state) => {
 	}
 }
 
-
-// Mutations
-export const SetSelectedSchemaValue = (state, { schemaIndex, valueIndex }) => {
-	state.schema.selectedSchemaIndex = schemaIndex;
-	state.schema.selectedValueIndex = valueIndex;
-}
-
 //// Grid 
 // Selectors
 export const SelectGridDisplayOptions = (state) => {
@@ -159,9 +152,7 @@ export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
 		}
 	});
 }
-export const ClearAllCellData = (state) => {
-	state.cellData.clear();
-}
+
 export const LoadCellData = (state, { cellData }) => {
 	// Our cells are serialized as an array of objects.
 	// Pull them out into a map by cellId and store that instead.

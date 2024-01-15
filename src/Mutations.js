@@ -1,5 +1,5 @@
 export const AppendSchema = (state, {schema}) => state.schema.tables.push({...schema}) - 1;
-export const ClearAllSchema = (state) => state.schema.tables = [];
+export const DeleteAllSchema = (state) => state.schema.tables = [];
 export const SetValuesForSchema = (state, {schemaIndex, schemaValues}) => {
 	const schema = state.schema.tables[schemaIndex];
 	state.schema.tables[schemaIndex] = {...schema, values: [...schemaValues]};
@@ -21,4 +21,13 @@ export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords 
 	state.grid.displayOptions.cellSize = cellSize;
 	state.grid.displayOptions.cellGap = cellGap;
 	state.grid.displayOptions.showCoords = showCoords;
+}
+
+export const SetSelectedSchemaValue = (state, { schemaIndex, valueIndex }) => {
+	state.schema.selectedSchemaIndex = schemaIndex;
+	state.schema.selectedValueIndex = valueIndex;
+}
+
+export const ClearAllCellData = (state) => {
+	state.cellData.clear();
 }

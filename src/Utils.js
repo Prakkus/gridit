@@ -3,7 +3,6 @@ export const EventBus = () => {
 
     const Trigger = (...args) => {
         for (var i = 0; i < callbacks.length; i++) {
-            console.log("triggering callback: " + i);
             callbacks[i](...args);
         }
     }

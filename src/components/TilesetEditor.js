@@ -25,7 +25,7 @@ const getImageSlices = (image, numRowsToCut, numColsToCut, margin) => {
     return imageSlices;
 }
 
-export const TilesetView = () => {
+export const TilesetEditor = () => {
 	// Make a FileReader which we will reuse for the lifetime of this component
 	const fileReader = new FileReader();
 	let extractedSlices = [];
@@ -85,7 +85,7 @@ export const TilesetView = () => {
 	return {element, Render};
 }
 
-export default TilesetView;
+export default TilesetEditor;
 
 export const style = 
 `
