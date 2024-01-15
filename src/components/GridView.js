@@ -17,64 +17,15 @@ const UpdateDOMCell = (cellElement, cellAttributes) => {
 	cellElement.style.backgroundSize = 'cover';
 }
 
-// Fills the given (grid) element with cells
-const PopulateDOMGridCells = (mountElement, width, height, defaultCellAttributes) => {
-	let nodeMap = new Map();
-	for (var y = height - 1; y >= 0; y--) {
-		for (var x = 0; x < width; x++) {
-			let cellId = x + ',' + y;
-			const thisCell = document.createElement('div');
-			const symbol = document.createElement('span');
-			symbol.classList.add('grid-cell-symbol');
-			const coords = document.createElement('span');
-			coords.classList.add('grid-coords-display');
-			coords.innerHTML = `(${x}, ${y})`;
-			thisCell.insertAdjacentElement('beforeend', symbol);
-			thisCell.insertAdjacentElement('beforeend', coords);
-
-			const appendedNode = mountElement.appendChild(thisCell);
-			appendedNode.classList.add('grid-cell');
-			appendedNode.dataset.cellId = cellId;
-			appendedNode.ondragstart = () => {return false;};
-			nodeMap.set(cellId, appendedNode);
-			
-			UpdateDOMCell(thisCell, defaultCellAttributes);
-		}
-	}
-	return nodeMap;
-}
-
-// Sets the Grid wrapper css to match the grid properties.
-const UpdateDOMGrid = (mountElement, width, height, cellSize, cellGap, showCoords) => {
-	mountElement.style.width = `${width * (cellSize + cellGap)}px`;
-	mountElement.style.height = `${height * (cellSize + cellGap)}px`;
-	mountElement.style.display = 'grid';
-	mountElement.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
-	mountElement.style.gridGap = cellGap + "px";
-	mountElement.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
-	mountElement.style.fontSize = Math.round(.6 * cellSize) + 'px';
-	if (showCoords) {
-		mountElement.classList.remove('grid-coords-hidden');
-	} else {
-		mountElement.classList.add('grid-coords-hidden');
-	}
-}
-
-
 // Renders cells from Map of cellData.
 export const GridView = () => {
+	const element = document.createElement('div');
 	let cellToNodeMap = new Map();
 	let dirtyCells = new Set();
-	let displayOptions = {
-		width: 0,
-		height: 0,
-		cellSize: 0,
-		cellGap: 0,
-		showCoords: false
-	}
 
-	// When loading or resetting a full grid, we want to re-render all possible cells. 
-	const RenderAllCells = () => {
+	// When loading or resetting a full grid, we want to re-render all possible cells, 
+	// so this makes that simple. 
+	const MarkAllCellsDirty = () => {
 		const gridSize = UseSelector(SelectGridSize);
 		for (var y = gridSize.y - 1; y >= 0; y--) {
 			for (var x = 0; x < gridSize.x; x++) {
@@ -84,51 +35,75 @@ export const GridView = () => {
 		}
 	}
 
-	const RenderDirtyCells = () => {
-		if (dirtyCells.size > 0) {
-			dirtyCells.forEach(cellId => {
-				const thisCellData = UseSelector(SelectCellById)(cellId);
-				RenderCell(cellId, thisCellData.attributes)
-			});
-			dirtyCells.clear();
-		}
+	// Renders up to Count dirty cells from their cellData in the State. 
+	// That way large grids can be updated without any hanging.
+	const RenderDirtyCells = (count = Infinity) => {
+		if (dirtyCells.size < 1) return;
+		const toRender = dirtyCells.size > count ? [...dirtyCells].slice(0, count) : [...dirtyCells];
+		toRender.forEach(cellId => {
+			const thisCellData = UseSelector(SelectCellById)(cellId);
+			RenderCell(cellId, thisCellData.attributes)
+			dirtyCells.delete(cellId);
+		});
 	};
 
-	const element = document.createElement('div');
-
-	// Empty the grid of cells and remove our references to them.
-	const DeleteGridCells = () => {
-		cellToNodeMap.forEach(node => node.remove());
-		cellToNodeMap.clear();
-	}
-
-	// Populate THIS grid with empty cells.
-	const PopulateGridWithCells = (defaultCellAttributes) => {
-		DeleteGridCells();
-		cellToNodeMap = PopulateDOMGridCells(element, displayOptions.width, displayOptions.height, defaultCellAttributes);
-	}
-
-	// Update display options for THIS grid.
-	const UpdateGridConfig = (width, height, cellSize, cellGap, showCoords) => {
-		displayOptions = { width, height, cellSize, cellGap, showCoords };
-		UpdateDOMGrid(element, width, height, cellSize, cellGap, showCoords);
-	}
-
-	
 	
 	const RenderCell = (cellId, attributes) => {
 		const cellNode = cellToNodeMap.get(cellId);
 		UpdateDOMCell(cellNode, attributes);
 	}
+	
 
 	// Render a view from a set of grid display options and optional cellData.
-	const Render = ({ width, height, cellSize, cellGap, showCoords, defaultCellAttributes }) => {
-		UpdateGridConfig(width, height, cellSize, cellGap, showCoords);
-		PopulateGridWithCells(defaultCellAttributes);
+	// This ensures that all the necessary cells exist, but is not responsible for actually 
+	// keeping them synced with their cellData.
+	const Render = ({ width, height, cellSize, cellGap, showCoords }) => {
+		// Update the grid CSS
+		element.style.width = `${width * (cellSize + cellGap)}px`;
+		element.style.height = `${height * (cellSize + cellGap)}px`;
+		element.style.display = 'grid';
+		element.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
+		element.style.gridGap = cellGap + "px";
+		element.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
+		element.style.fontSize = Math.round(.6 * cellSize) + 'px';
+		if (showCoords) {
+			element.classList.remove('grid-coords-hidden');
+		} else {
+			element.classList.add('grid-coords-hidden');
+		}
+		
+		//Ensure a DOM element exists for every cell in the grid.
+		for (var y = height - 1; y >= 0; y--) {
+			for (var x = 0; x < width; x++) {
+				let cellId = x + ',' + y;
+				// If we don't already have a cell element for this node id, create one.
+				if (!cellToNodeMap.has(cellId)) {
+					const thisCell = document.createElement('div');
+					const symbol = document.createElement('span');
+					symbol.classList.add('grid-cell-symbol');
+					const coords = document.createElement('span');
+					coords.classList.add('grid-coords-display');
+					coords.innerHTML = `(${x}, ${y})`;
+					thisCell.insertAdjacentElement('beforeend', symbol);
+					thisCell.insertAdjacentElement('beforeend', coords);
+		
+					const appendedNode = element.appendChild(thisCell);
+					appendedNode.classList.add('grid-cell');
+					appendedNode.dataset.cellId = cellId;
+					appendedNode.ondragstart = () => {return false;};
+					cellToNodeMap.set(cellId, appendedNode);
+					// Since this cell is newly created, we also want to flag it as dirty.
+					dirtyCells.add(cellId);
+				}
+			}
+		}
 	}
 
+	// Each tick, render up to Limit dirty cells. 
+	// Limit can be tweaked to set a max number of updates per 'frame'.
 	const Tick = () => {
-		RenderDirtyCells();
+		const maxCellsToRenderPerTick = 40;
+		RenderDirtyCells(maxCellsToRenderPerTick);
 		window.requestAnimationFrame(Tick);
 	}
 
@@ -150,7 +125,7 @@ export const GridView = () => {
 		// After loading a fresh grid or reverting to a past grid, all cells are potentially dirty.
 		// Todo: I can probably figure out which ones actually are dirty in some cleverer way eventually.
 		if (mutation === LoadGridJsonData || mutation === RefreshGridFromLoadedJson) {
-			RenderAllCells();
+			MarkAllCellsDirty();
 		}
 	});
 
