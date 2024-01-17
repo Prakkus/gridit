@@ -1,5 +1,5 @@
-import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, ApplyMutation  } from "../data/AppState.js";
-import { RefreshGridFromLoadedJson, ClearAllCellData } from "../Actions.js";
+import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, ApplyMutation, AddAfterMutationListener  } from "../data/AppState.js";
+import { RefreshGridFromLoadedJson, ClearAllCellData, LoadGridJsonData } from "../Actions.js";
 import { SetJsonData, UpdateGridName } from "../Mutations.js";
 
 	const downloadBlob = (blob, fileName) => {
@@ -45,6 +45,12 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 
 	gridNameInput = element.querySelector("input[name=grid_name]");
 
+	AddAfterMutationListener((mutation, args) => {
+		if (mutation === UpdateGridName) {
+			Render();
+		}
+	});
+
 	const WithOverwriteConfirmation = (message, action) => {
 		return (params) => {
 			if (UseSelector(IsAnyCellDataLoaded) && (!confirm(message))) return;
@@ -55,8 +61,8 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	const ClearCellData = () => ApplyMutation(ClearAllCellData);
 	const ReloadGrid = () => ApplyMutation(RefreshGridFromLoadedJson); 
 	const SaveGridName = (data) => ApplyMutation(UpdateGridName, { name: data.gridName }); 
-	const LoadJson = (saveJson) => ApplyMutation(SetJsonData, saveJson);
-
+	const LoadJson = (rawJson) => LoadGridJsonData(rawJson);
+ 
 
 	const LoadJsonFile = (event) => {
 		let file = event.target.files[0];
@@ -123,19 +129,14 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 		}
 	});
 
-	const Render = ({ gridName }) => {
-		gridNameInput.value = gridName;
+	const Render = () => {
+		gridNameInput.value = UseSelector(SelectGridName);
 	}
 
-	return {element, Render};
+	return { element };
 }
 
-const mapStateToProps = (state, ownProps) => ({ gridName: UseSelector(SelectGridName)});
-export default (initProps, state) => {
-	const { element, Render: baseRender } = PersistenceView(initProps);
-	const Render = () => baseRender(mapStateToProps(state));
-	return { element, Render };
-}
+export default PersistenceView;
 
 export const style = 
 `

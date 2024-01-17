@@ -1,4 +1,4 @@
-import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener } from '../data/AppState.js';
+import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, LoadCellData } from '../data/AppState.js';
 import { UpdateGridConfig, ClearAllCellData } from '../Actions.js';
 import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions, } from '../Mutations.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
@@ -39,7 +39,7 @@ export const GridView = (state) => {
 	// Rerender the grid when the grid options change.
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === UpdateGridSize || mutation === UpdateGridConfig || mutation === UpdateGridDisplayOptions || mutation === SetJsonData) {
-			Render(mapStateToProps(state));
+			Render();
 		}
 	});
 
@@ -66,7 +66,10 @@ export const GridView = (state) => {
 	// Render a view from a set of grid display options.
 	// This ensures that all the necessary cells exist, but is not responsible for actually 
 	// keeping them synced with their cellData.
-	const Render = ({ width, height, cellSize, cellGap, showCoords }) => {
+	const Render = () => {
+		const { x: width, y: height } = UseSelector(SelectGridSize);
+		const { cellSize, cellGap, showCoords } = UseSelector(SelectGridDisplayOptions);
+		
 		// Update the grid CSS
 		element.style.width = `${width * (cellSize + cellGap)}px`;
 		element.style.height = `${height * (cellSize + cellGap)}px`;
@@ -141,22 +144,10 @@ export const GridView = (state) => {
 	// Rerender dirty cells every frame.
 	window.requestAnimationFrame(Tick);
 
-	return { element, Render };
+	return { element };
 }
 
-const mapStateToProps = (state) => { 
-	const gridSize = UseSelector(SelectGridSize);
-	const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
-	const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
-	return { width: gridSize.x, height: gridSize.y, cellSize: gridDisplayOptions.cellSize, cellGap: gridDisplayOptions.cellGap, showCoords: gridDisplayOptions.showCoords, defaultCellAttributes };
-};
- 
-
-export default (state) => {
-	const { element, Render: baseRender } = GridView();
-	const Render = () => baseRender(mapStateToProps(state));
-	return { element, Render };
-}
+export default GridView;
 
 
 export const style = 

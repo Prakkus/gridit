@@ -70,7 +70,7 @@ export const GridControlPanelView = (state) => {
 	const Render = () => {
 	}
 
-	return { element, Render }
+	return { element }
 } 
 
 
