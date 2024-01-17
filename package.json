@@ -1,0 +1,14 @@
+{
+  "name": "gridviz",
+  "version": "1.0.0",
+  "description": "Gridit is a tool for visualizing things on a grid.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Logan Stolmaker",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  }
+}
