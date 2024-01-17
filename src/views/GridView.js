@@ -1,6 +1,6 @@
 import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, LoadCellData } from '../data/AppState.js';
 import { UpdateGridConfig, ClearAllCellData } from '../Actions.js';
-import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions, } from '../Mutations.js';
+import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions, ClearAllCellData as ClearAllCellDataMutation } from '../Mutations.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
@@ -121,7 +121,7 @@ export const GridView = (state) => {
 
 	// When all cells are about to be cleared, grab the 'dirty' cells beforehand so that we can mark them dirty.
 	AddBeforeMutationListener((mutation, args) => {
-		if (mutation === ClearAllCellData) {
+		if (mutation === ClearAllCellDataMutation) {
 			const cellData = UseSelector(SelectAllCellData);
 			dirtyCells = new Set(cellData.keys());
 		} 	

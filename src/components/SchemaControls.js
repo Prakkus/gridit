@@ -37,7 +37,6 @@ import { SetSelectedSchemaValue as SetSelectedSchemaValueMutation, AppendSchema,
 // }
 
 export const buildSchemaSection = ( schema, schemaIndex, isSelected, selectedIndex, onValueClicked) => {
-	console.log("build schema called with " + JSON.stringify({schema, schemaIndex, isSelected, onValueClicked}));
 	const schemaName = schema.name;
 	const schemaValues = schema.values;
 	//If a schema with this name already exists, we replace it

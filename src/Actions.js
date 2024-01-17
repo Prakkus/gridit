@@ -15,7 +15,7 @@ const LoadGridProfile = ({title, config, schema}) => {
     // Update grid attributes.
     ApplyMutation(UpdateGridDisplayOptions, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
     ApplyMutation(UpdateGridSize, { width: config.columnCount, height: config.rowCount });
-    ApplyMutation(UpdateGridName,  { name: title });
+    UpdateGridName(title);
     // Load schema.
     schema.forEach((schemaDef) => {
         AddSchema(schemaDef);
