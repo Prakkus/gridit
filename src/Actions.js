@@ -1,4 +1,4 @@
-import { DeleteAllSchema, AppendSchema, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
+import { DeleteAllSchema, AppendSchema, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
 import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, LoadCellData, UseSelector } from "./data/AppState.js";
  
 
@@ -39,6 +39,10 @@ export const ClearAllCellData = () => {
 	ApplyMutation(ClearAllCellDataMutation, {});
 }
 
+export const UpdateGridName = (name) => {
+    ApplyMutation(UpdateGridNameMutation, { name });
+}
+
 //// Schema
 export const ClearCurrentProfile = () => {
     ApplyMutation(DeleteAllSchema, {});
@@ -47,12 +51,12 @@ export const ClearCurrentProfile = () => {
 
 export const AddSchema = (schema) => {
     const newIndex = UseSelector(SelectLoadedSchemas).length;
-    ApplyMutation(AppendSchema, {schema});
-    ApplyMutation(SetValuesForSchemaMutation, {schemaIndex: newIndex, schemaValues: schema.values});
+    ApplyMutation(AppendSchema, { schema });
+    ApplyMutation(SetValuesForSchemaMutation, { schemaIndex: newIndex, schemaValues: schema.values });
 }
 
 export const SetValuesForSchema = (index, values) => {
-    ApplyMutation(SetValuesForSchemaMutation, {schemaIndex: index, schemaValues: values});
+    ApplyMutation(SetValuesForSchemaMutation, { schemaIndex: index, schemaValues: values });
 }
 
 export const SetSelectedSchemaValue = (schemaIndex, valueIndex) => {

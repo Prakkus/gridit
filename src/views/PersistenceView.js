@@ -1,6 +1,6 @@
-import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, ApplyMutation, AddAfterMutationListener  } from "../data/AppState.js";
-import { RefreshGridFromLoadedJson, ClearAllCellData, LoadGridJsonData } from "../Actions.js";
-import { SetJsonData, UpdateGridName } from "../Mutations.js";
+import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, AddAfterMutationListener  } from "../data/AppState.js";
+import { UpdateGridName, RefreshGridFromLoadedJson, ClearAllCellData, LoadGridJsonData } from "../Actions.js";
+import { UpdateGridName as UpdateGridNameMutation } from "../Mutations.js";
 
 	const downloadBlob = (blob, fileName) => {
 		const blobUrl = URL.createObjectURL(blob);
@@ -37,7 +37,7 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	const gridNameInput = element.querySelector("input[name=grid_name]");
 
 	AddAfterMutationListener((mutation, args) => {
-		if (mutation === UpdateGridName) {
+		if (mutation === UpdateGridNameMutation) {
 			Render();
 		}
 	});
@@ -48,12 +48,6 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 			action(params);
 		}
 	}
-
-	const ClearCellData = () => ApplyMutation(ClearAllCellData);
-	const ReloadGrid = () => ApplyMutation(RefreshGridFromLoadedJson); 
-	const SaveGridName = (data) => ApplyMutation(UpdateGridName, { name: data.gridName }); 
-	const LoadJson = (rawJson) => LoadGridJsonData(rawJson);
- 
 
 	const LoadJsonFile = (event) => {
 		let file = event.target.files[0];
@@ -85,10 +79,7 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 
 
 	const Submit = () => {
-		const data = {
-			gridName: gridNameInput.value
-		}
-		SaveGridName(data);
+		UpdateGridName(gridNameInput.value);
 	}
 
 	const DownloadJsonSave = () =>
@@ -105,9 +96,9 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	// In order for 'drop' to trigger on an event, you must cancel the dragenter and dragover events.
 	element.addEventListener('dragover', (e) => e.preventDefault());
 	element.addEventListener('drop', handleFileDrop);
-	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); LoadJson(saveJson); });
-	element.querySelector("#clear-all").addEventListener('click', (e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearCellData)() );
-	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", ReloadGrid)() );
+	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); LoadGridJsonData(saveJson); });
+	element.querySelector("#clear-all").addEventListener('click', (e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearAllCellData)() );
+	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", RefreshGridFromLoadedJson)() );
 	element.querySelector("#configure-colors").addEventListener('click', (e) => onConfigureColorsClicked());
 	element.querySelector("#import-tilesheet").addEventListener('click', (e) => onImportTilesetClicked());
 	element.querySelector("#import-from-json").addEventListener('click', (e) => loadSaveFileInputElement.click());
