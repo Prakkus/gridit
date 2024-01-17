@@ -44,6 +44,10 @@ button:hover {
     background-color: var(--light);		
 }
 
+.hidden {
+    display: none;
+}
+
 #grid-mount-point {
     display: grid;
   }

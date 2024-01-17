@@ -16,18 +16,8 @@ import { SetJsonData, UpdateGridName } from "../Mutations.js";
 		// This is required
 		URL.revokeObjectURL(blobUrl);
 	}
-	const openFileSelectionWindow = (onSelect) => {
-		let input = document.createElement('input');
-		input.type = 'file';
-		input.accept = 'application/json'
-	
-		input.onchange = onSelect;
-	
-		input.click();
-	}
 	
 const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) => {
-	let gridNameInput;
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('persistence-view-wrapper');
@@ -43,7 +33,8 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 		dropPreview.classList.add('hidden');	
 	}
 
-	gridNameInput = element.querySelector("input[name=grid_name]");
+	const loadSaveFileInputElement = element.querySelector("input[name=save_file_upload]");
+	const gridNameInput = element.querySelector("input[name=grid_name]");
 
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === UpdateGridName) {
@@ -119,7 +110,8 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", ReloadGrid)() );
 	element.querySelector("#configure-colors").addEventListener('click', (e) => onConfigureColorsClicked());
 	element.querySelector("#import-tilesheet").addEventListener('click', (e) => onImportTilesetClicked());
-	element.querySelector("#import-from-json").addEventListener('click', (e) => openFileSelectionWindow(WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile)));
+	element.querySelector("#import-from-json").addEventListener('click', (e) => loadSaveFileInputElement.click());
+	loadSaveFileInputElement.addEventListener("change", WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile));
 	gridNameInput.addEventListener('blur', (e) => {
 		Submit();
 	});
@@ -204,6 +196,7 @@ export const style =
 const template = 
 `
 <div class="persistence-panel">
+	<input name="save_file_upload" class="hidden" type="file" accept="application/json">
 	<div class="persistence-drop-preview hidden">
 		<p>Drop JSON file here to load...</p>
 	</div>
