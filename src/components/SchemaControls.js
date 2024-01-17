@@ -1,6 +1,7 @@
+import { AddSchema } from '../Actions.js';
 import { ApplyMutation, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
-	SelectLoadedSchemas, SelectSchema, SelectSchemaValue, SelectSchemaName, UseSelector } from '../data/AppState.js';
-	import { SetSelectedSchemaValue } from '../Mutations.js';
+	SelectLoadedSchemas, SelectSchema, SelectSchemaValue, SelectSchemaName, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
+	import { AppendSchema, DeleteAllSchema, SetSelectedSchemaValue, SetValuesForSchema } from '../Mutations.js';
 
 	
 const getSchemaValue = (schemaIndex, valueIndex) => {
@@ -111,10 +112,19 @@ const buildBrushSelectionButton = (schemaName, thisSchemaValue, onClick) => {
 // Build a unique ID to refer to this schema value.
 export const buildSchemaId = (schemaName, valueIndex) => `${schemaName}-${valueIndex}`;
 
-export const SchemaControls = () => {
+export const SchemaControls = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('cursor-controls');
+
+	// A set of all the mutations after which this component should re-sync data to the DOM.
+	const renderAfter = new Set([AppendSchema, SetValuesForSchema, DeleteAllSchema]);
+
+	AddAfterMutationListener((mutation, _) => {
+		if (renderAfter.has(mutation)) {
+			Render(mapStateToProps(state));
+		}
+	})
 
 	const SelectSchemaValue = (schemaIndex, valueIndex) => {
 		console.log("selectschemavalue", {schemaIndex, valueIndex});
@@ -159,16 +169,12 @@ export const SchemaControls = () => {
 	return { element, Render }
 } 
 
+export default SchemaControls;
+
 const mapStateToProps = () => {
 	const loadedSchemas = UseSelector(SelectLoadedSchemas);
 	const selectedSchemaValue = UseSelector(SelectCurrentlySelectedSchemaValue);
 	return { loadedSchemas: [...loadedSchemas], ...selectedSchemaValue };
-}
-
-export default (state) => {
-	const { element, Render: baseRender } = SchemaControls();
-	const Render = () =>baseRender(mapStateToProps(state));
-	return { element, Render };
 }
 
 export const style =
