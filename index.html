@@ -20,7 +20,7 @@
 		import defaultSaveFile from './src/config/default-save.js';
 		import GridDrag from './src/modules/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/views/GridView.js'
-		import GridControlPanel, { style as gridControlPanelStyle} from './src/components/GridControlPanel.js';
+		import GridControlPanelView, { style as gridControlPanelStyle} from './src/views/GridControlPanelView.js';
 		import { SelectCurrentlySelectedAttributeUpdate, UpdateCells, SelectCellById } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
 		import { SetJsonData } from './src/Mutations.js';
@@ -48,7 +48,7 @@
 			MountElement(gridMountElement, gridElement);
 
 			// Grid Control Panel
-			const { element: gridControlPanelElement} = GridControlPanel(store);
+			const { element: gridControlPanelElement} = GridControlPanelView(store);
 			MountElement(controlPanelMountElement, gridControlPanelElement);	
 
 			// Load the default grid profile. This contains default schema information.

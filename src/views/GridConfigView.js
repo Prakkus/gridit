@@ -1,13 +1,14 @@
 import { UseSelector, SelectGridSize, SelectGridDisplayOptions, AddAfterMutationListener } from "../data/AppState.js";
 import { UpdateGridConfig } from '../Actions.js';
 import { UpdateGridDisplayOptions, UpdateGridSize, SetJsonData } from "../Mutations.js";
+
 export const GridConfigView = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === UpdateGridSize || mutation === UpdateGridConfig || mutation === UpdateGridDisplayOptions || mutation === SetJsonData) {
-			Render(mapStateToProps(state));
+			Render();
 		}
 	});
 
@@ -48,23 +49,19 @@ export const GridConfigView = (state) => {
 	const showCoordsInput = element.querySelector('input[name=showCoords]');
 	showCoordsInput.addEventListener('change', Submit);
 
-	const Render = ({rowCount, columnCount, cellSize, cellGap, showCoords }) => {
-		rowCountInput.value = rowCount;
-		columnCountInput.value = columnCount;
-		cellSizeInput.value = cellSize;
-		cellGapInput.value = cellGap;
-		showCoordsInput.checked = showCoords;
+	const Render = () => {
+		const gridSize = UseSelector(SelectGridSize);
+		const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
+
+		rowCountInput.value = gridSize.y;
+		columnCountInput.value =  gridSize.x;
+		cellSizeInput.value = gridDisplayOptions.cellSize;
+		cellGapInput.value = gridDisplayOptions.cellGap;
+		showCoordsInput.checked = gridDisplayOptions.showCoords;
 	}
 
 
-	return {element, Render};
-}
-
-const mapStateToProps = (state, ownProps) => {
-	const gridSize = UseSelector(SelectGridSize);
-	const gridDisplayOptions = UseSelector(SelectGridDisplayOptions);
-
-	return { columnCount: gridSize.x, rowCount: gridSize.y, ...gridDisplayOptions };
+	return { element };
 }
 
 export default GridConfigView;

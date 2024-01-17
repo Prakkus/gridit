@@ -1,15 +1,15 @@
 import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '../data/AppState.js';
 import { InjectStyles, MountElement } from '../DOMUtils.js';
-import PersistenceView, { style as persistenceViewStyle } from '../views/PersistenceView.js';
-import GridConfigView, { style as gridConfigViewStyle } from '../views/GridConfigView.js';
-import SchemaControls, { style as schemaControlsStyle } from './SchemaControls.js';
-import TilesetEditor, { style as tilesetViewStyle } from './TilesetEditor.js';
-import ColorSchemaEditor, {style as configureColorsStyle } from './SchemaEditor.js';
+import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
+import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
+import SchemaControls, { style as schemaControlsStyle } from '../components/SchemaControls.js';
+import TilesetEditor, { style as tilesetViewStyle } from '../components/TilesetEditor.js';
+import ColorSchemaEditor, {style as configureColorsStyle } from '../components/SchemaEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
-import Modal, { style as modalViewStyle } from './Modal.js';
+import Modal, { style as modalViewStyle } from '../components/Modal.js';
 import { SetValuesForSchema } from '../Actions.js';
 
-export const GridControlPanel = (state) => {
+export const GridControlPanelView = (state) => {
 	const element = document.createElement('div');
 	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
 
@@ -45,19 +45,19 @@ export const GridControlPanel = (state) => {
 	// MountElement(document.body, colorsModalElement);
 
 	// Persistence View. 
-	// const { element: persistenceElement } = PersistenceView( 
-	// 	{ 
-	// 		onImportTilesetClicked: () => {
-	// 			RenderTilesetModal({title: "Configure Tilesets", content: tilesetViewElement});
-	// 			OpenTilesetModal();
-	// 		},
-	// 		onConfigureColorsClicked: () => {
-	// 			RenderColorsModal({title: "Configure Colors", content: configureColorsElement});
-	// 			OpenColorsModal();
-	// 		}
-	// 	} 
-	// );
-	// MountElement(element, persistenceElement);
+	const { element: persistenceElement } = PersistenceView( 
+		{ 
+			onImportTilesetClicked: () => {
+				// RenderTilesetModal({title: "Configure Tilesets", content: tilesetViewElement});
+				// OpenTilesetModal();
+			},
+			onConfigureColorsClicked: () => {
+			// 	RenderColorsModal({title: "Configure Colors", content: configureColorsElement});
+			// 	OpenColorsModal();
+			}
+		} 
+	);
+	MountElement(element, persistenceElement);
 
 	// Grid Config View
 	const { element: gridConfigElement } = GridConfigView(state);
@@ -74,7 +74,7 @@ export const GridControlPanel = (state) => {
 } 
 
 
-export default GridControlPanel;
+export default GridControlPanelView;
 
 export const style =
 `
