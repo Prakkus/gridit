@@ -1,15 +1,14 @@
-import { AddSchema } from '../Actions.js';
-import { ApplyMutation, SelectCurrentlySelectedSchemaValue, SelectSchemaDisplayName, 
-	SelectLoadedSchemas, SelectSchema, SelectSchemaValue, SelectSchemaName, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
-	import { AppendSchema, DeleteAllSchema, SetSelectedSchemaValue, SetValuesForSchema } from '../Mutations.js';
+import { SetSelectedSchemaValue } from '../Actions.js';
+import { SelectCurrentlySelectedSchemaValue, SelectLoadedSchemas, SelectSchema, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
+import { SetSelectedSchemaValue as SetSelectedSchemaValueMutation, AppendSchema, DeleteAllSchema, SetValuesForSchema } from '../Mutations.js';
 
 	
-const getSchemaValue = (schemaIndex, valueIndex) => {
-	return UseSelector((state) => SelectSchemaValue(state, { schemaIndex, valueIndex }));
-}
-const getSchemaName = (schemaIndex) => {
-	return UseSelector((state) => SelectSchemaName(state, { schemaIndex }));
-}
+// const getSchemaValue = (schemaIndex, valueIndex) => {
+// 	return UseSelector((state) => SelectSchemaValue(state, { schemaIndex, valueIndex }));
+// }
+// const getSchemaName = (schemaIndex) => {
+// 	return UseSelector((state) => SelectSchemaName(state, { schemaIndex }));
+// }
 	
 	//make sure to always have an 'empty' default
 	//how to handle title sections, made it so i can load a schema and have it replace that section
@@ -118,18 +117,13 @@ export const SchemaControls = (state) => {
 	element.classList.add('cursor-controls');
 
 	// A set of all the mutations after which this component should re-sync data to the DOM.
-	const renderAfter = new Set([AppendSchema, SetValuesForSchema, DeleteAllSchema]);
+	const renderAfter = new Set([AppendSchema, SetValuesForSchema, DeleteAllSchema, SetSelectedSchemaValueMutation]);
 
 	AddAfterMutationListener((mutation, _) => {
 		if (renderAfter.has(mutation)) {
 			Render(mapStateToProps(state));
 		}
 	})
-
-	const SelectSchemaValue = (schemaIndex, valueIndex) => {
-		console.log("selectschemavalue", {schemaIndex, valueIndex});
-		ApplyMutation(SetSelectedSchemaValue, { schemaIndex, valueIndex });
-	}
 
 	const insertSchemaSection = (schemaName, schemaDisplayName, schemaSectionElement) => {
 		const schemaTitle = 	
@@ -149,7 +143,7 @@ export const SchemaControls = (state) => {
 
 	const buildAndRenderSectionForSchema = (schemaIndex, isSelected, selectedIndex) => {
 		const schema = UseSelector(state => SelectSchema(state, { schemaIndex }));
-		const schemaSection = buildSchemaSection( schema, schemaIndex, isSelected, selectedIndex, SelectSchemaValue);
+		const schemaSection = buildSchemaSection( schema, schemaIndex, isSelected, selectedIndex, SetSelectedSchemaValue);
 		const existingSection = element.querySelector('.' + schema.name + '-toolbar');
 		if (existingSection === null) {
 			insertSchemaSection(schema.name, schema.displayName, schemaSection);

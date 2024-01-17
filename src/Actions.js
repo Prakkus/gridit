@@ -1,4 +1,4 @@
-import { DeleteAllSchema, AppendSchema, SetSelectedSchemaValue, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
+import { DeleteAllSchema, AppendSchema, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
 import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, LoadCellData, UseSelector } from "./data/AppState.js";
  
 
@@ -35,7 +35,7 @@ export const RefreshGridFromLoadedJson = () => {
 	ApplyMutation(LoadCellData, { cellData: profile.cellData });
 }
 
-export const ClearAllCellData = (state) => {
+export const ClearAllCellData = () => {
 	ApplyMutation(ClearAllCellDataMutation, {});
 }
 
@@ -55,3 +55,6 @@ export const SetValuesForSchema = (index, values) => {
     ApplyMutation(SetValuesForSchemaMutation, {schemaIndex: index, schemaValues: values});
 }
 
+export const SetSelectedSchemaValue = (schemaIndex, valueIndex) => {
+    ApplyMutation(SetSelectedSchemaValueMutation, { schemaIndex, valueIndex });
+}
