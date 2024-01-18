@@ -1,6 +1,6 @@
-import { UseSelector, UpdateCells, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectDefaultCellAttributes,  SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, LoadCellData } from '../data/AppState.js';
-import { UpdateGridConfig, ClearAllCellData } from '../Actions.js';
-import { SetJsonData, UpdateGridSize, UpdateGridDisplayOptions, ClearAllCellData as ClearAllCellDataMutation } from '../Mutations.js';
+import { UseSelector, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener } from '../data/AppState.js';
+import { UpdateGridConfig } from '../Actions.js';
+import { LoadCellData, UpdateGridSize, UpdateGridDisplayOptions, UpdateCells, ClearAllCellData as ClearAllCellDataMutation } from '../Mutations.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
@@ -38,8 +38,14 @@ export const GridView = (state) => {
 
 	// Rerender the grid when the grid options change.
 	AddAfterMutationListener((mutation, args) => {
-		if (mutation === UpdateGridSize || mutation === UpdateGridConfig || mutation === UpdateGridDisplayOptions || mutation === SetJsonData) {
-			Render();
+		// When the size changes, we have to render everything.
+		if (mutation === UpdateGridSize) {
+			RenderGrid();
+			RenderCells();
+		}
+		// If just the display options are changing, we can just update the grid css.
+		if (mutation === UpdateGridDisplayOptions) {
+			RenderGrid();
 		}
 	});
 
@@ -61,12 +67,9 @@ export const GridView = (state) => {
 		if (!cellNode) return;
 		UpdateDOMCell(cellNode, attributes);
 	}
-	
 
-	// Render a view from a set of grid display options.
-	// This ensures that all the necessary cells exist, but is not responsible for actually 
-	// keeping them synced with their cellData.
-	const Render = () => {
+	// Updates the grid itself, which uses css to handle most of the grid logic.
+	const RenderGrid = () => {
 		const { x: width, y: height } = UseSelector(SelectGridSize);
 		const { cellSize, cellGap, showCoords } = UseSelector(SelectGridDisplayOptions);
 		
@@ -83,32 +86,47 @@ export const GridView = (state) => {
 		} else {
 			element.classList.add('grid-coords-hidden');
 		}
+	}
+	
+
+	// Builds each cell, ensuring that all the necessary cells exist.
+	// Not responsible for actually keeping them synced with their cellData.
+	const RenderCells = () => {
+		const { x: width, y: height } = UseSelector(SelectGridSize);
+
+		// We'll build our grid and store it in a fragment, then append the fragment
+		// to the DOM all at once to minimize reflows.
+		let fragment = new DocumentFragment();
+		cellToNodeMap.clear();
 		
-		//Ensure a DOM element exists for every cell in the grid.
+		// Build a DOM cell element for every cell in the grid.
 		for (var y = height - 1; y >= 0; y--) {
 			for (var x = 0; x < width; x++) {
 				let cellId = x + ',' + y;
-				// If we don't already have a cell element for this node id, create one.
-				if (!cellToNodeMap.has(cellId)) {
-					const thisCell = document.createElement('div');
-					const symbol = document.createElement('span');
-					symbol.classList.add('grid-cell-symbol');
-					const coords = document.createElement('span');
-					coords.classList.add('grid-coords-display');
-					coords.innerHTML = `(${x}, ${y})`;
-					thisCell.insertAdjacentElement('beforeend', symbol);
-					thisCell.insertAdjacentElement('beforeend', coords);
-		
-					const appendedNode = element.appendChild(thisCell);
-					appendedNode.classList.add('grid-cell');
-					appendedNode.dataset.cellId = cellId;
-					appendedNode.ondragstart = () => {return false;};
-					cellToNodeMap.set(cellId, appendedNode);
-					// Since this cell is newly created, we also want to flag it as dirty.
-					dirtyCells.add(cellId);
-				}
+				const thisCell = document.createElement('div');
+				const symbol = document.createElement('span');
+				symbol.classList.add('grid-cell-symbol');
+				const coords = document.createElement('span');
+				coords.classList.add('grid-coords-display');
+				coords.innerHTML = `(${x}, ${y})`;
+				thisCell.insertAdjacentElement('beforeend', symbol);
+				thisCell.insertAdjacentElement('beforeend', coords);
+				thisCell.classList.add('grid-cell');
+				thisCell.dataset.cellId = cellId;
+				thisCell.ondragstart = () => {return false;};
+				// Append it to our fragment and track the node in our map so we can get it again later.
+				const appendedNode = fragment.appendChild(thisCell);
+				cellToNodeMap.set(cellId, appendedNode);
+				// Since this cell is newly created, we also want to flag it as dirty.
+				dirtyCells.add(cellId);
 			}
 		}
+
+		// Note: Technically we might be able to preserve all of the cells, only add necessary new nodes, and rerender accordingly.
+		// Due to how the css grid/node ordering works though, this ends up being a little tricky in practice and might still be slower
+		// than swapping the whole thing out at once, so I haven't bothered.
+		element.innerHTML = "";
+		element.appendChild(fragment);
 	}
 
 	// Each tick, render up to maxCellsToRenderPerTick dirty cells. 
@@ -136,7 +154,7 @@ export const GridView = (state) => {
 
 		// After loading a fresh grid or reverting to a past grid, all cells are potentially dirty.
 		// Todo: I can probably figure out which ones actually are dirty in some cleverer way eventually.
-		if (mutation === SetJsonData) {
+		if (mutation === LoadCellData) {
 			MarkAllCellsDirty();
 		}
 	});

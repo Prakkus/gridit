@@ -1,5 +1,5 @@
-import { DeleteAllSchema, AppendSchema, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
-import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, LoadCellData, UseSelector } from "./data/AppState.js";
+import { DeleteAllSchema, AppendSchema, LoadCellData, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
+import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, UseSelector, SelectGridSize, SelectGridDisplayOptions } from "./data/AppState.js";
  
 
 // Load a grid save file into the store.
@@ -25,8 +25,15 @@ const LoadGridProfile = ({title, config, schema}) => {
 
  //// Grid
  export const UpdateGridConfig = (width, height, cellSize, cellGap, showCoords) => {
-    ApplyMutation(UpdateGridSize, { width, height });
-    ApplyMutation(UpdateGridDisplayOptions, { cellSize, cellGap, showCoords });
+    // Only dispatch these if they actually will change.
+    let currentSize = UseSelector(SelectGridSize);
+    if (width != currentSize.x || height != currentSize.y) {
+        ApplyMutation(UpdateGridSize, { width, height });
+    }
+    let currentOptions = UseSelector(SelectGridDisplayOptions);
+    if (cellSize != currentOptions.cellSize || cellGap != currentOptions.cellGap || showCoords != currentOptions.showCoords) {
+        ApplyMutation(UpdateGridDisplayOptions, { cellSize, cellGap, showCoords });
+    }
 }
 
 export const RefreshGridFromLoadedJson = () => {

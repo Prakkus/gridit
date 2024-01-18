@@ -159,7 +159,7 @@ export const SchemaControls = (state) => {
 		}
 	}
 
-	return { element, Render }
+	return { element }
 } 
 
 export default SchemaControls;

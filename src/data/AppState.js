@@ -123,43 +123,6 @@ export const SelectGridName = (state) => {
 	return state.grid.name;
 }
 
-//// Cells
-// Mutations
-// Todo: Remove data for cells which were once changed, but once again match the defaults.
-// The store only tracks cells which have been modified, but doesn't know if something has been modified, then reset.
-// If I update a cell's attributes, it gets added to CellData and those values are used instead of the default values. 
-// If I then change those attributes back so that the cell matches the 'default' values again, it remains in cellData unecessarily.
-export const UpdateCells = (state, { cellIds, attributeUpdates }) => {
-	cellIds.forEach((cellId) => {
-		const existingData = state.cellData.get(cellId);
-		if (existingData) {
-			// If the cell already exists, update its attributes
-			existingData.attributes = {
-				...existingData.attributes,
-				...attributeUpdates
-			}
-		} else {
-			// Otherwise we need to create a new data entry for this cell.
-			const defaultAttributes = SelectDefaultCellAttributes(state);
-			const newEntry = {
-				cellId,
-				attributes: {
-					...defaultAttributes,
-					...attributeUpdates
-				}
-			}
-			state.cellData.set(cellId, newEntry);
-		}
-	});
-}
-
-export const LoadCellData = (state, { cellData }) => {
-	// Our cells are serialized as an array of objects.
-	// Pull them out into a map by cellId and store that instead.
-	const map = new Map(cellData.map(value => [value.cellId, {...value}]));
-	state.cellData = map;
-}
-
 const initialState = {
 	loadedJson: {
 		title: '',

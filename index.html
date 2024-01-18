@@ -21,9 +21,9 @@
 		import GridDrag from './src/modules/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/views/GridView.js'
 		import GridControlPanelView, { style as gridControlPanelStyle} from './src/views/GridControlPanelView.js';
-		import { SelectCurrentlySelectedAttributeUpdate, UpdateCells, SelectCellById } from './src/data/AppState.js';
+		import { SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
-		import { SetJsonData } from './src/Mutations.js';
+		import { SetJsonData, UpdateCells } from './src/Mutations.js';
 		import { LoadGridJsonData, RefreshGridFromLoadedJson } from './src/Actions.js';
 
 		const Main = () => {
@@ -37,7 +37,8 @@
 			const HandleCellUpdate = (cellId) => {
 				const cellIds = [cellId];
 				const attributeUpdates = UseSelector(SelectCurrentlySelectedAttributeUpdate);
-				ApplyMutation(UpdateCells, { cellIds, attributeUpdates});
+				const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
+				ApplyMutation(UpdateCells, { cellIds, attributeUpdates, defaultCellAttributes});
 			}
 
 			const { BindDragEvents } = GridDrag(HandleCellUpdate);
