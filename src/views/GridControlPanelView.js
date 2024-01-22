@@ -13,22 +13,18 @@ export const GridControlPanelView = (state) => {
 	const element = document.createElement('div');
 	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
 
-	// Todo: These 'render's are called here in the parent constructor, which effectively means they are only called once.
-	// Can I have these props still be dependencies without calling Render here manually, so that it's only ever called in one place?
-	// What about for components that aren't connected?
-
 	// TilesetView
-	// const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetEditor();
-	// RenderTilesetView({
-	// 	slicesExtractedHandler: (slices) => {
-	// 		// Prepend an empty image cell to act as the default value.
-	// 		SetValuesForSchema(2, [{ imageDataUrl: '' }, ...slices]);
-	// 		CloseTiliesetModal();
-	// 	} 
-	// });
+	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetEditor();
+	RenderTilesetView({
+		slicesExtractedHandler: (slices) => {
+			// Prepend an empty image cell to act as the default value.
+			SetValuesForSchema(2, [{ imageDataUrl: '' }, ...slices]);
+			CloseTiliesetModal();
+		} 
+	});
 	// Tileset Modal
-	// const { element: tilsetModalElement, Render: RenderTilesetModal, Open: OpenTilesetModal, Close: CloseTiliesetModal } = Modal();
-	// MountElement(document.body, tilsetModalElement);
+	const { element: tilesetModalElement, Render: RenderTilesetModal, Open: OpenTilesetModal, Close: CloseTiliesetModal } = Modal();
+	MountElement(document.body, tilesetModalElement);
 
 	// Configure Colors View
 	// const { element: configureColorsElement, Render: RenderConfigureColors } = ColorSchemaEditor();
@@ -48,8 +44,8 @@ export const GridControlPanelView = (state) => {
 	const { element: persistenceElement } = PersistenceView( 
 		{ 
 			onImportTilesetClicked: () => {
-				// RenderTilesetModal({title: "Configure Tilesets", content: tilesetViewElement});
-				// OpenTilesetModal();
+				RenderTilesetModal({title: "Configure Tilesets", content: tilesetViewElement});
+				OpenTilesetModal();
 			},
 			onConfigureColorsClicked: () => {
 			// 	RenderColorsModal({title: "Configure Colors", content: configureColorsElement});

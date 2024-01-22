@@ -113,7 +113,6 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	});
 
 	const Render = () => {
-		console.log( UseSelector(SelectGridName));
 		gridNameInput.value = UseSelector(SelectGridName);
 	}
 

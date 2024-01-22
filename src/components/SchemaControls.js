@@ -1,5 +1,5 @@
 import { SetSelectedSchemaValue } from '../Actions.js';
-import { SelectCurrentlySelectedSchemaValue, SelectLoadedSchemas, SelectSchema, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
+import { SelectCurrentlySelectedSchemaValue, SelectLoadedSchemas, SelectSchema, UseSelector, AddAfterMutationListener, SelectGridDisplayOptions } from '../data/AppState.js';
 import { SetSelectedSchemaValue as SetSelectedSchemaValueMutation, AppendSchema, DeleteAllSchema, SetValuesForSchema } from '../Mutations.js';
 
 	
@@ -72,6 +72,14 @@ const buildBrushSelectionButton = (schemaName, thisSchemaValue, onClick) => {
 		swatchButton.style.backgroundColor = '#' + thisSchemaValue.hex;
 	} else if (schemaName === 'symbol') {
 		swatchButton.textContent = thisSchemaValue.display;
+
+		// Size the preview of this piece of content relative to the actual difference
+		// in size between the cells and the preview swatch.
+		const { cellSize} = UseSelector(SelectGridDisplayOptions);
+		const symbolScale = thisSchemaValue.fontSize.split('%')[0] / 100;
+		const contentSizeFactor = 50 / cellSize * symbolScale;
+		swatchButton.style.fontSize = `${contentSizeFactor * 100}%`; 
+
 	} else if (schemaName === 'tile_index_background') {
 		swatchButton.style.backgroundImage = `url('${thisSchemaValue.imageDataUrl}')`;
 	} else {
@@ -187,11 +195,12 @@ export const style =
 	.brush-selection-button {
 		width: 50px;
 		height: 50px;
+		line-height: 50px;
 		margin-right: 6px;
 		margin-bottom: 6px;
 		outline: 1px solid rgba(255,255,255, .5);
-		font-size: 24px;
 		background-size: cover;
+		overflow: hidden;
 	}
 	.color-swatch:hover, .active-color {
 		outline: 2px solid rgba(255,255,255, .7);
