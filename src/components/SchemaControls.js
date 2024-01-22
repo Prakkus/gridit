@@ -1,6 +1,6 @@
 import { SetSelectedSchemaValue } from '../Actions.js';
 import { SelectCurrentlySelectedSchemaValue, SelectLoadedSchemas, SelectSchema, UseSelector, AddAfterMutationListener, SelectGridDisplayOptions } from '../data/AppState.js';
-import { SetSelectedSchemaValue as SetSelectedSchemaValueMutation, AppendSchema, DeleteAllSchema, SetValuesForSchema } from '../Mutations.js';
+import { SetSelectedSchemaValue as SetSelectedSchemaValueMutation, AppendSchema, DeleteAllSchema, SetValuesForSchema, UpdateGridDisplayOptions } from '../Mutations.js';
 
 	
 // const getSchemaValue = (schemaIndex, valueIndex) => {
@@ -44,7 +44,7 @@ export const buildSchemaSection = ( schema, schemaIndex, isSelected, selectedInd
 
 	//Render a button for each schema value
 	schemaValues.forEach((schemaValue, valueIndex) => {
-		const button = buildBrushSelectionButton(schema.name, schemaValue, () => onValueClicked(schemaIndex, valueIndex));
+		const button = buildBrushSelectionButton(schemaName, schemaValue, () => onValueClicked(schemaIndex, valueIndex));
 		button.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
 		sectionWrapper.appendChild(button);
 
@@ -124,7 +124,7 @@ export const SchemaControls = (state) => {
 	element.classList.add('cursor-controls');
 
 	// A set of all the mutations after which this component should re-sync data to the DOM.
-	const renderAfter = new Set([AppendSchema, SetValuesForSchema, DeleteAllSchema, SetSelectedSchemaValueMutation]);
+	const renderAfter = new Set([AppendSchema, SetValuesForSchema, DeleteAllSchema, SetSelectedSchemaValueMutation, UpdateGridDisplayOptions]);
 
 	AddAfterMutationListener((mutation, _) => {
 		if (renderAfter.has(mutation)) {
@@ -195,12 +195,13 @@ export const style =
 	.brush-selection-button {
 		width: 50px;
 		height: 50px;
-		line-height: 50px;
+		padding: 0;
 		margin-right: 6px;
 		margin-bottom: 6px;
 		outline: 1px solid rgba(255,255,255, .5);
 		background-size: cover;
 		overflow: hidden;
+		text-align: initial;
 	}
 	.color-swatch:hover, .active-color {
 		outline: 2px solid rgba(255,255,255, .7);
@@ -210,6 +211,7 @@ export const style =
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
+		font-size: 30px;
 	}
 `;
 const template = 

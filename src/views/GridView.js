@@ -80,7 +80,6 @@ export const GridView = (state) => {
 		element.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
 		element.style.gap = cellGap + "px";
 		element.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
-		element.style.fontSize = Math.round(.6 * cellSize) + 'px';
 		if (showCoords) {
 			element.classList.remove('grid-coords-hidden');
 		} else {
@@ -170,6 +169,9 @@ export default GridView;
 
 export const style = 
 `
+	#grid-mount-point {
+		font-size: 30px;
+	}
 	.grid-coords-hidden .grid-coords-display {
 		display: none;
 	}
@@ -177,11 +179,6 @@ export const style =
 		color: #fff;
 		width: 100%;
 		display: block;
-		height: 100%;
-		text-align: center;
-		line-height: 1.35;
-		pointer-events: none;
-		position: relative;
 	}
 
 	.grid-coords-display {
