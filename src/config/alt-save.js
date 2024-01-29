@@ -12,6 +12,7 @@ const defaultProfile = {
 		//Colors
 		{
 			name: 'background_color',
+			type: 'color',
 			displayName: 'Fill Colors: ',
 			cellAttribute: 'fillColor',
 			values : [
@@ -29,6 +30,7 @@ const defaultProfile = {
 		//Symbols
 		{
 			name: 'symbol',
+			type: 'text',
 			displayName: 'Symbols: ',
 			cellAttribute: 'symbol',
 			values : [
@@ -136,6 +138,7 @@ const defaultProfile = {
 		//Tiles
 		{
 			name: 'tile_index_background',
+			type: 'background',
 			displayName: 'Tiles: ',
 			cellAttribute: 'backgroundTileIndex',
 			values : [

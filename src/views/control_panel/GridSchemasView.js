@@ -29,11 +29,11 @@ export const GridSchemasView = (state) => {
 			if (schema.name in renderedSections) {
 				sectionElement = renderedSections[schema.name];
 			} else {
-				if (schema.name == 'background_color') {
+				if (schema.type == 'color') {
 					sectionElement = GridColorSchemaView(index, SetSelectedSchemaValue).element;					
-				} else if (schema.name === 'symbol') {
+				} else if (schema.type === 'text') {
 					sectionElement = GridTextSchemaView(index, SetSelectedSchemaValue).element;					
-				} else if (schema.name === 'tile_index_background') {
+				} else if (schema.type === 'background') {
 					sectionElement = GridBackgroundImageSchemaView(index, SetSelectedSchemaValue).element;					
 				}
 				renderedSections[schema.name] = sectionElement;
