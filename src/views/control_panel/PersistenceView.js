@@ -1,6 +1,6 @@
-import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, AddAfterMutationListener  } from "../data/AppState.js";
-import { UpdateGridName, RefreshGridFromLoadedJson, ClearAllCellData, LoadGridJsonData } from "../Actions.js";
-import { UpdateGridName as UpdateGridNameMutation } from "../Mutations.js";
+import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, AddAfterMutationListener  } from "../../data/AppState.js";
+import { UpdateGridName, RefreshGridFromLoadedJson, ClearAllCellData, LoadGridJsonData } from "../../Actions.js";
+import { UpdateGridName as UpdateGridNameMutation } from "../../Mutations.js";
 
 	const downloadBlob = (blob, fileName) => {
 		const blobUrl = URL.createObjectURL(blob);

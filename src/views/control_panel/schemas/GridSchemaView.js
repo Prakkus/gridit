@@ -1,8 +1,8 @@
-import { ApplyMutation, UseSelector, SelectSchema, SelectSchemaName, SelectLoadedSchemas, SelectCurrentlySelectedSchemaValue, SelectSchemaValue, AddAfterMutationListener, AddBeforeMutationListener, SelectGridDisplayOptions } from '../data/AppState.js';
-import { buildSchemaValueId } from '../Utils.js';
-import { SetSelectedSchemaValue, SetValuesForSchema, UpdateGridDisplayOptions } from '../Mutations.js';
+import { ApplyMutation, UseSelector, SelectSchema, SelectSchemaName, SelectLoadedSchemas, SelectCurrentlySelectedSchemaValue, SelectSchemaValue, AddAfterMutationListener, AddBeforeMutationListener, SelectGridDisplayOptions } from '../../../data/AppState.js';
+import { buildSchemaValueId } from '../../../Utils.js';
+import { SetSelectedSchemaValue, SetValuesForSchema, UpdateGridDisplayOptions } from '../../../Mutations.js';
 
-export const GridTextSchema =  (schemaIndex, onValueClicked) => {
+export const GridSchemaView =  (schemaIndex, setSelectedSchemaValue, buildSchemaButton, renderSchemaButton ) => {
 	const element = document.createElement('div');
     element.innerHTML = template;
     const schemaName = UseSelector((state => SelectSchemaName(state, { schemaIndex })));
@@ -31,8 +31,7 @@ export const GridTextSchema =  (schemaIndex, onValueClicked) => {
 
     AddAfterMutationListener((mutation, args) => {
         // When the schema at this index changes, re-render.
-        if (mutation === SetValuesForSchema && args.schemaIndex == schemaIndex || mutation === UpdateGridDisplayOptions) {
-            console.log('rendering thing');
+        if (mutation === SetValuesForSchema && args.schemaIndex == schemaIndex) {
             Render();
         }
     });
@@ -64,39 +63,25 @@ export const GridTextSchema =  (schemaIndex, onValueClicked) => {
             if (schemaValueID in renderedOptions) {
                 buttonElement = renderedOptions[schemaValueID];
             } else {
-                buttonElement = document.createElement('button');
-                buttonElement.classList.add("brush-selection-button");
-                buttonElement.dataset.selectionId = schemaValueID;
-                buttonElement.addEventListener('click', (e) => onValueClicked(schemaIndex, index));
+                buttonElement = buildSchemaButton(schemaValueID, (e) => setSelectedSchemaValue(schemaIndex, index));
                 renderedOptions[schemaValueID] = buttonElement;
-                // Create a child element which will later hold the content.
-                const buttonContent = document.createElement('span');
-                buttonContent.classList.add('content-preview');
-                buttonElement.insertAdjacentElement('beforeend', buttonContent);
                 valuesContainer.insertAdjacentElement("beforeend", buttonElement)
             }
 
-            // Render each button's content.
             const thisSchemaValue = schemaValues[index];
-            const buttonContent = buttonElement.querySelector('.content-preview');
-            buttonContent.style.backgroundColor = '#' + schemaValues[index].hex;
-            buttonContent.textContent = thisSchemaValue.display;
-	
-			// Size the preview of this piece of content relative to the actual difference
-			// in size between the cells and the preview swatch.
-			const { cellSize } = UseSelector(SelectGridDisplayOptions);
-			const symbolScale = thisSchemaValue.fontSize.split('%')[0] / 100;
-			const contentSizeFactor = 50 / cellSize * symbolScale;
-			buttonContent.style.fontSize = `${contentSizeFactor * 100}%`; 
+
+            // Render each button's content.
+            renderSchemaButton(buttonElement, thisSchemaValue);
+          
         }        
 	}
     
     element.insertAdjacentElement("beforeend", valuesContainer);
 
-	return { element }
+	return { element, Render }
 } 
 
-export default GridTextSchema;
+export default GridSchemaView;
 
 export const style =
 `

@@ -1,10 +1,10 @@
-import { SetSelectedSchemaValue } from '../Actions.js';
-import { InjectStyles } from '../DOMUtils.js';
-import { SetValuesForSchema } from '../Mutations.js';
-import GridBackgroundImageSchema, { style as gridBackgroundImageSchemaStyle } from '../components/GridBackgroundImageSchema.js';
-import GridColorSchema, { style as gridColorSchemaStyle } from '../components/GridColorSchema.js';
-import GridTextSchema, { style as gridTextSchemaStyle } from '../components/GridTextSchema.js';
-import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
+import { SetSelectedSchemaValue } from '../../Actions.js';
+import { InjectStyles } from '../../DOMUtils.js';
+import { SetValuesForSchema } from '../../Mutations.js';
+import GridBackgroundImageSchemaView, { style as gridBackgroundImageSchemaStyle } from './schemas/GridBackgroundImageSchemaView.js';
+import GridColorSchemaView, { style as gridColorSchemaStyle } from './schemas/GridColorSchemaView.js';
+import GridTextSchemaView, { style as gridTextSchemaStyle } from './schemas/GridTextSchemaView.js';
+import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener } from '../../data/AppState.js';
 
 export const GridSchemasView = (state) => {
 	const element = document.createElement('div');
@@ -29,13 +29,12 @@ export const GridSchemasView = (state) => {
 			if (schema.name in renderedSections) {
 				sectionElement = renderedSections[schema.name];
 			} else {
-				// Todo: render toolbars that aren't colors
 				if (schema.name == 'background_color') {
-					sectionElement = GridColorSchema(index, SetSelectedSchemaValue).element;					
+					sectionElement = GridColorSchemaView(index, SetSelectedSchemaValue).element;					
 				} else if (schema.name === 'symbol') {
-					sectionElement = GridTextSchema(index, SetSelectedSchemaValue).element;					
+					sectionElement = GridTextSchemaView(index, SetSelectedSchemaValue).element;					
 				} else if (schema.name === 'tile_index_background') {
-					sectionElement = GridBackgroundImageSchema(index, SetSelectedSchemaValue).element;					
+					sectionElement = GridBackgroundImageSchemaView(index, SetSelectedSchemaValue).element;					
 				}
 				renderedSections[schema.name] = sectionElement;
 				element.insertAdjacentElement("beforeend", sectionElement);

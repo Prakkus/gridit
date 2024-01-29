@@ -1,6 +1,6 @@
-import { UseSelector, SelectGridSize, SelectGridDisplayOptions, AddAfterMutationListener } from "../data/AppState.js";
-import { UpdateGridConfig } from '../Actions.js';
-import { UpdateGridDisplayOptions, UpdateGridSize } from "../Mutations.js";
+import { UseSelector, SelectGridSize, SelectGridDisplayOptions, AddAfterMutationListener } from "../../data/AppState.js";
+import { UpdateGridConfig } from '../../Actions.js';
+import { UpdateGridDisplayOptions, UpdateGridSize } from "../../Mutations.js";
 
 export const GridConfigView = (state) => {
 	const element = document.createElement('div');

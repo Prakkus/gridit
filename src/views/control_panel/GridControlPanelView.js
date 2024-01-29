@@ -1,12 +1,12 @@
-import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '../data/AppState.js';
-import { InjectStyles, MountElement } from '../DOMUtils.js';
+import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '../../data/AppState.js';
+import { InjectStyles, MountElement } from '../../DOMUtils.js';
 import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
 import GridSchemasView, { style as schemaControlsStyle } from './GridSchemasView.js';
-import TilesetEditor, { style as tilesetViewStyle } from '../components/TilesetEditor.js';
+import TilesetEditor, { style as tilesetViewStyle } from '../../components/TilesetEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
-import Modal, { style as modalViewStyle } from '../components/Modal.js';
-import { SetValuesForSchema } from '../Actions.js';
+import Modal, { style as modalViewStyle } from '../../components/Modal.js';
+import { SetValuesForSchema } from '../../Actions.js';
 
 export const GridControlPanelView = (state) => {
 	const element = document.createElement('div');
