@@ -79,7 +79,7 @@ export const GridView = (state) => {
 		element.style.display = 'grid';
 		element.style.gridTemplate = `repeat(auto-fill, ${cellSize}px) / repeat(auto-fill, ${cellSize}px)`;
 		element.style.gap = cellGap + "px";
-		element.style.padding = `${cellGap + "px"} 0px ${cellGap + "px"} ${cellGap + "px"}`;
+		element.style.padding = `${cellGap + "px"} 400px ${cellGap + "px"} ${cellGap + "px"}`;
 		if (showCoords) {
 			element.classList.remove('grid-coords-hidden');
 		} else {
