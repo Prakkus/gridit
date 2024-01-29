@@ -1,6 +1,7 @@
 import { SetSelectedSchemaValue } from '../Actions.js';
 import { InjectStyles } from '../DOMUtils.js';
 import { SetValuesForSchema } from '../Mutations.js';
+import GridBackgroundImageSchema, { style as gridBackgroundImageSchemaStyle } from '../components/GridBackgroundImageSchema.js';
 import GridColorSchema, { style as gridColorSchemaStyle } from '../components/GridColorSchema.js';
 import GridTextSchema, { style as gridTextSchemaStyle } from '../components/GridTextSchema.js';
 import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
@@ -10,7 +11,7 @@ export const GridSchemasViewNew = (state) => {
 	element.innerHTML = template;
 	const renderedSections = {};
 
-	InjectStyles(gridColorSchemaStyle, gridTextSchemaStyle);
+	InjectStyles(gridColorSchemaStyle, gridTextSchemaStyle, gridBackgroundImageSchemaStyle);
 
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === SetValuesForSchema) {
@@ -21,7 +22,7 @@ export const GridSchemasViewNew = (state) => {
 
 	const Render = () => {
 		const loadedSchemas = UseSelector(SelectLoadedSchemas);
-		
+
 		for (let index = 0; index < loadedSchemas.length; index++) {
 			const schema = loadedSchemas[index];
 			let sectionElement;
@@ -34,7 +35,7 @@ export const GridSchemasViewNew = (state) => {
 				} else if (schema.name === 'symbol') {
 					sectionElement = GridTextSchema(index, SetSelectedSchemaValue).element;					
 				} else if (schema.name === 'tile_index_background') {
-					sectionElement = GridColorSchema(index).element;					
+					sectionElement = GridBackgroundImageSchema(index, SetSelectedSchemaValue).element;					
 				}
 				renderedSections[schema.name] = sectionElement;
 				element.insertAdjacentElement("beforeend", sectionElement);

@@ -96,7 +96,10 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	// In order for 'drop' to trigger on an event, you must cancel the dragenter and dragover events.
 	element.addEventListener('dragover', (e) => e.preventDefault());
 	element.addEventListener('drop', handleFileDrop);
-	element.querySelector('#download-as-json').addEventListener('click', (e) => { const saveJson = DownloadJsonSave(); LoadGridJsonData(saveJson); });
+	element.querySelector('#download-as-json').addEventListener('click', (e) => { 
+		const saveJson = DownloadJsonSave();
+		LoadGridJsonData(saveJson); 
+	});
 	element.querySelector("#clear-all").addEventListener('click', (e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearAllCellData)() );
 	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", RefreshGridFromLoadedJson)() );
 	element.querySelector("#configure-colors").addEventListener('click', (e) => onConfigureColorsClicked());
