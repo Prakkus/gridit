@@ -1,6 +1,4 @@
 import { ApplyMutation, UseSelector, SelectSchema, SelectSchemaName, SelectLoadedSchemas, SelectCurrentlySelectedSchemaValue, SelectSchemaValue, AddAfterMutationListener, AddBeforeMutationListener, SelectGridDisplayOptions } from '../data/AppState.js';
-import { InjectStyles, MountElement } from '../DOMUtils.js';
-import { buildSchemaSection } from '../views/GridSchemasView.js';
 import { buildSchemaValueId } from '../Utils.js';
 import { SetSelectedSchemaValue, SetValuesForSchema, UpdateGridDisplayOptions } from '../Mutations.js';
 
