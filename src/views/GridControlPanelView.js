@@ -2,16 +2,16 @@ import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '.
 import { InjectStyles, MountElement } from '../DOMUtils.js';
 import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
-import SchemaControls, { style as schemaControlsStyle } from '../components/SchemaControls.js';
+// import GridSchemasView, { style as schemaControlsStyle } from './GridSchemasView.js';
+import GridSchemasViewNew, { style as schemaControlsStyle } from './GridSchemasViewNew.js';
 import TilesetEditor, { style as tilesetViewStyle } from '../components/TilesetEditor.js';
-import ColorSchemaEditor, {style as configureColorsStyle } from '../components/SchemaEditor.js';
 // import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
 import Modal, { style as modalViewStyle } from '../components/Modal.js';
 import { SetValuesForSchema } from '../Actions.js';
 
 export const GridControlPanelView = (state) => {
 	const element = document.createElement('div');
-	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, configureColorsStyle, modalViewStyle);
+	InjectStyles(persistenceViewStyle, gridConfigViewStyle, schemaControlsStyle, tilesetViewStyle, modalViewStyle);
 
 	// TilesetView
 	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetEditor();
@@ -59,9 +59,9 @@ export const GridControlPanelView = (state) => {
 	const { element: gridConfigElement } = GridConfigView(state);
 	MountElement(element, gridConfigElement);
 
-	// SchemaControls
-	const { element: schemaControlsElement } = SchemaControls(state);
-	MountElement(element, schemaControlsElement);
+	// Grid Schemas
+	const { element: schemasViewElement } = GridSchemasViewNew(state);
+	MountElement(element, schemasViewElement);
 	
 	const Render = () => {
 	}

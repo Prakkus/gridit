@@ -13,3 +13,6 @@ export const EventBus = () => {
 
     return {Trigger, AddListener};   
 }
+
+// Build a unique ID to refer to a schema value.
+export const buildSchemaValueId = (schemaName, valueIndex) => `${schemaName}-${valueIndex}`;

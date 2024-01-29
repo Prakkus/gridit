@@ -1,40 +1,7 @@
 import { SetSelectedSchemaValue } from '../Actions.js';
 import { SelectCurrentlySelectedSchemaValue, SelectLoadedSchemas, SelectSchema, UseSelector, AddAfterMutationListener, SelectGridDisplayOptions } from '../data/AppState.js';
 import { SetSelectedSchemaValue as SetSelectedSchemaValueMutation, AppendSchema, DeleteAllSchema, SetValuesForSchema, UpdateGridDisplayOptions } from '../Mutations.js';
-
-	
-// const getSchemaValue = (schemaIndex, valueIndex) => {
-// 	return UseSelector((state) => SelectSchemaValue(state, { schemaIndex, valueIndex }));
-// }
-// const getSchemaName = (schemaIndex) => {
-// 	return UseSelector((state) => SelectSchemaName(state, { schemaIndex }));
-// }
-	
-	//make sure to always have an 'empty' default
-	//how to handle title sections, made it so i can load a schema and have it replace that section
-// export const buildSchemaSection = ( schemaIndex, isSelected, selectedIndex, onValueClicked) => {
-// 	const schemaName = getSchemaName(schemaIndex);
-// 	const schemaValues = UseSelector((state) => SelectSchemaValues(state, { schemaIndex }));
-// 	//If a schema with this name already exists, we replace it
-// 	const sectionWrapper = document.createElement('div');
-
-// 	//Render a button for each schema value
-// 	schemaValues.forEach((schemaValue, valueIndex) => {
-// 		const button = buildBrushSelectionButton(schemaIndex, valueIndex, onValueClicked);
-// 		sectionWrapper.appendChild(button);
-
-// 		// If this one should be selected, show it as selected.
-// 		if (isSelected && selectedIndex == valueIndex) {
-// 			button.classList.add('active-color');
-// 		} else {
-// 			button.classList.remove('active-color');
-// 		}
-// 	})
-// 	sectionWrapper.classList.add( schemaName + '-toolbar');
-// 	sectionWrapper.classList.add('schema-toolbar');
-
-// 	return sectionWrapper;
-// }
+import { buildSchemaValueId } from '../Utils.js';
 
 export const buildSchemaSection = ( schema, schemaIndex, isSelected, selectedIndex, onValueClicked) => {
 	const schemaName = schema.name;
@@ -44,8 +11,8 @@ export const buildSchemaSection = ( schema, schemaIndex, isSelected, selectedInd
 
 	//Render a button for each schema value
 	schemaValues.forEach((schemaValue, valueIndex) => {
-		const button = buildBrushSelectionButton(schemaName, schemaValue, () => onValueClicked(schemaIndex, valueIndex));
-		button.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
+		const button = buildBrushSelectionButton(schemaName, schemaValue, (e) => onValueClicked(schemaIndex, valueIndex));
+		button.dataset.selectionId = buildSchemaValueId(schemaName, valueIndex);
 		sectionWrapper.appendChild(button);
 
 		// If this one should be selected, show it as selected.
@@ -61,67 +28,41 @@ export const buildSchemaSection = ( schema, schemaIndex, isSelected, selectedInd
 	return sectionWrapper;
 }
 
-
-
 const buildBrushSelectionButton = (schemaName, thisSchemaValue, onClick) => {
 	const swatchButton = document.createElement('button');
 	swatchButton.classList.add("brush-selection-button");
-
-		
-	if (schemaName === 'background_color') {
-		swatchButton.style.backgroundColor = '#' + thisSchemaValue.hex;
-	} else if (schemaName === 'symbol') {
-		swatchButton.textContent = thisSchemaValue.display;
-
-		// Size the preview of this piece of content relative to the actual difference
-		// in size between the cells and the preview swatch.
-		const { cellSize} = UseSelector(SelectGridDisplayOptions);
-		const symbolScale = thisSchemaValue.fontSize.split('%')[0] / 100;
-		const contentSizeFactor = 50 / cellSize * symbolScale;
-		swatchButton.style.fontSize = `${contentSizeFactor * 100}%`; 
-
-	} else if (schemaName === 'tile_index_background') {
-		swatchButton.style.backgroundImage = `url('${thisSchemaValue.imageDataUrl}')`;
-	} else {
-		console.warn("Unsupported tileset name: " + schemaName);
-	}
-
-	swatchButton.addEventListener("click", (e) => onClick());
-
 	return swatchButton;
 };
 
-// const buildBrushSelectionButton = (schemaIndex, valueIndex, onClick) => {
-// 	const swatchButton = document.createElement('button');
-// 	const schemaName = getSchemaName(schemaIndex);
-
-// 	swatchButton.classList.add("brush-selection-button");
-// 	swatchButton.dataset.selectionId = buildSchemaId(schemaName, valueIndex);
-// 	const thisSchemaValue = getSchemaValue(schemaIndex, valueIndex);
-
-		
-// 	if (schemaName === 'background_color') {
-// 		swatchButton.style.backgroundColor = '#' + thisSchemaValue.hex;
-// 	} else if (schemaName === 'symbol') {
-// 		swatchButton.textContent = thisSchemaValue.display;
-// 	} else if (schemaName === 'tile_index_background') {
-// 		swatchButton.style.backgroundImage = `url('${thisSchemaValue.imageDataUrl}')`;
-// 	} else {
-// 		console.warn("Unsupported tileset name: " + schemaName);
-// 	}
-
-// 	swatchButton.addEventListener("click", (e) => onClick(schemaIndex, valueIndex));
-
-// 	return swatchButton;
-// };
-
-// Build a unique ID to refer to this schema value.
-export const buildSchemaId = (schemaName, valueIndex) => `${schemaName}-${valueIndex}`;
-
-export const SchemaControls = (state) => {
+export const GridSchemasView = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('cursor-controls');
+
+	const renderSelectionButton = (schemaName, thisSchemaValue, valueIndex, onClick) => {
+		const swatchButton = element.querySelector(`[data-selection-id="${buildSchemaValueId(schemaName, valueIndex)}"]`);
+
+		if (schemaName === 'background_color') {
+			swatchButton.style.backgroundColor = '#' + thisSchemaValue.hex;
+		} else if (schemaName === 'symbol') {
+			swatchButton.textContent = thisSchemaValue.display;
+	
+			// Size the preview of this piece of content relative to the actual difference
+			// in size between the cells and the preview swatch.
+			const { cellSize} = UseSelector(SelectGridDisplayOptions);
+			const symbolScale = thisSchemaValue.fontSize.split('%')[0] / 100;
+			const contentSizeFactor = 50 / cellSize * symbolScale;
+			swatchButton.style.fontSize = `${contentSizeFactor * 100}%`; 
+	
+		} else if (schemaName === 'tile_index_background') {
+			swatchButton.style.backgroundImage = `url('${thisSchemaValue.imageDataUrl}')`;
+		} else {
+			console.warn("Unsupported tileset name: " + schemaName);
+		}
+	
+		swatchButton.addEventListener("click", onClick);
+	}
+	
 
 	// A set of all the mutations after which this component should re-sync data to the DOM.
 	const renderAfter = new Set([AppendSchema, SetValuesForSchema, DeleteAllSchema, SetSelectedSchemaValueMutation, UpdateGridDisplayOptions]);
@@ -170,7 +111,7 @@ export const SchemaControls = (state) => {
 	return { element }
 } 
 
-export default SchemaControls;
+export default GridSchemasView;
 
 const mapStateToProps = () => {
 	const loadedSchemas = UseSelector(SelectLoadedSchemas);
