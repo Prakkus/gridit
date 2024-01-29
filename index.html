@@ -25,7 +25,7 @@
 		import { SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
 		import { SetJsonData, UpdateCells } from './src/Mutations.js';
-		import { LoadGridJsonData, RefreshGridFromLoadedJson } from './src/Actions.js';
+		import { LoadGridJsonData, RefreshGridFromLoadedJson, SetSelectedSchemaValue } from './src/Actions.js';
 
 		const Main = () => {
 			// Inject the styles for all the loaded components.
@@ -55,6 +55,9 @@
 
 			// Load the default grid profile. This contains default schema information.
 			LoadGridJsonData(JSON.stringify(altSaveFile));
+			
+			// Select a default schema value.
+			SetSelectedSchemaValue(0,0);
 
 			// const DoAction = () => {
 			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 1 });
