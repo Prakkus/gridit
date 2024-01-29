@@ -1,13 +1,16 @@
 import { SetSelectedSchemaValue } from '../Actions.js';
+import { InjectStyles } from '../DOMUtils.js';
 import { SetValuesForSchema } from '../Mutations.js';
-import { GridColorSchema } from '../components/GridColorSchema.js';
+import GridColorSchema, { style as gridColorSchemaStyle } from '../components/GridColorSchema.js';
+import GridTextSchema, { style as gridTextSchemaStyle } from '../components/GridTextSchema.js';
 import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener } from '../data/AppState.js';
 
 export const GridSchemasViewNew = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	const renderedSections = {};
-	console.log("Setting up schema view");
+
+	InjectStyles(gridColorSchemaStyle, gridTextSchemaStyle);
 
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === SetValuesForSchema) {
@@ -17,8 +20,8 @@ export const GridSchemasViewNew = (state) => {
 
 
 	const Render = () => {
-		console.log("rendering schemas view");
 		const loadedSchemas = UseSelector(SelectLoadedSchemas);
+		
 		for (let index = 0; index < loadedSchemas.length; index++) {
 			const schema = loadedSchemas[index];
 			let sectionElement;
@@ -29,7 +32,7 @@ export const GridSchemasViewNew = (state) => {
 				if (schema.name == 'background_color') {
 					sectionElement = GridColorSchema(index, SetSelectedSchemaValue).element;					
 				} else if (schema.name === 'symbol') {
-					sectionElement = GridColorSchema(index).element;					
+					sectionElement = GridTextSchema(index, SetSelectedSchemaValue).element;					
 				} else if (schema.name === 'tile_index_background') {
 					sectionElement = GridColorSchema(index).element;					
 				}
@@ -54,6 +57,11 @@ export const style =
 		font-weight: normal;
 	}
 
+	.brush-selections-container {
+		display: flex;
+		flex-wrap: wrap;
+	}
+
 	.brush-selection-button:nth-child(6n) {
 		margin-right: 0;
 	}
@@ -68,6 +76,7 @@ export const style =
 		background-size: cover;
 		overflow: hidden;
 		text-align: initial;
+		font-size: 30px;
 	}
 	.color-swatch:hover, .active-color {
 		outline: 2px solid rgba(255,255,255, .7);

@@ -178,7 +178,9 @@ export const style =
 	.grid-cell-symbol {
 		color: #fff;
 		width: 100%;
+		height: 100%;
 		display: block;
+		pointer-events: none;
 	}
 
 	.grid-coords-display {
