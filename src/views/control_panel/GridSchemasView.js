@@ -1,10 +1,10 @@
 import { SetSelectedSchemaValue } from '../../Actions.js';
 import { InjectStyles } from '../../DOMUtils.js';
-import { SetValuesForSchema } from '../../Mutations.js';
+import { SetValuesForSchema, LoadCellData } from '../../Mutations.js';
 import GridBackgroundImageSchemaView, { style as gridBackgroundImageSchemaStyle } from './schemas/GridBackgroundImageSchemaView.js';
 import GridColorSchemaView, { style as gridColorSchemaStyle } from './schemas/GridColorSchemaView.js';
 import GridTextSchemaView, { style as gridTextSchemaStyle } from './schemas/GridTextSchemaView.js';
-import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener } from '../../data/AppState.js';
+import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener, SelectCurrentlySelectedSchemaValue, SelectSchema, NULL_SCHEMA } from '../../data/AppState.js';
 import { style as defaultSchemaStyles } from './schemas/GridSchemaView.js';
 
 export const GridSchemasView = (state) => {
@@ -17,6 +17,17 @@ export const GridSchemasView = (state) => {
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === SetValuesForSchema) {
 			Render();
+		}
+	});
+
+	// When a grid is loaded, select a new current schema value if the previously selected one is no longer valid.
+	AddAfterMutationListener((mutation, args) => {
+		if (mutation === LoadCellData) {
+			const {selectedSchemaIndex, selectedValueIndex} = UseSelector(SelectCurrentlySelectedSchemaValue);
+			const selectedSchema = UseSelector(state => SelectSchema(state, {schemaIndex: selectedSchemaIndex}));
+			if (selectedSchema === NULL_SCHEMA) {
+				SetSelectedSchemaValue(0,0);
+			}
 		}
 	});
 

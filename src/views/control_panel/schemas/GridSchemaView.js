@@ -37,7 +37,6 @@ export const GridSchemaView =  (schemaIndex, setSelectedSchemaValue, buildSchema
     });
 
     const ShowSelectionIndicatorForValue = (valueIndex) => {
-        console.log(schemaName, valueIndex);
         valuesContainer.querySelector(`[data-selection-id="${buildSchemaValueId(schemaName, valueIndex)}"]`).classList.add('active-color');
     }
 

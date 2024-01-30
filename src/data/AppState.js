@@ -11,7 +11,7 @@ export const SelectDefaultCellAttributes = (state) => {
 	return types;
 }
 
-const NULL_SCHEMA = {
+export const NULL_SCHEMA = {
 	name: '',
 	displayName: '',
 	cellAttribute: '',
@@ -57,7 +57,7 @@ export const SelectLoadedSchemas = (state) => {
 } 
 export const SelectSchema = (state, { schemaIndex }) => {
 	const schemas = SelectLoadedSchemas(state);
-	if (schemaIndex > schemas.length - 1) return NULL_SCHEMA;
+	if (schemaIndex < 0 || schemaIndex > schemas.length - 1) return NULL_SCHEMA;
 	return SelectLoadedSchemas(state)[schemaIndex];
 }
 export const SelectSchemaDisplayName = (state, { schemaIndex }) => {
@@ -144,8 +144,8 @@ const initialState = {
 	},
 	schema: {
 		tables: [],
-		selectedSchemaIndex: 0,
-		selectedValueIndex: 0,
+		selectedSchemaIndex: -1,
+		selectedValueIndex: -1,
 	},
 	cellData: new Map(),
 };

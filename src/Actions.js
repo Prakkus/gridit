@@ -1,5 +1,5 @@
-import { DeleteAllSchema, AppendSchema, LoadCellData, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
-import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, UseSelector, SelectGridSize, SelectGridDisplayOptions } from "./data/AppState.js";
+import { DeleteAllSchema, AppendSchema, LoadCellData, UpdateCells as UpdateCellsMutation, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
+import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectCurrentlySelectedAttributeUpdate, SelectDefaultCellAttributes, SelectCurrentlySelectedSchemaValue } from "./data/AppState.js";
  
 
 // Load a grid save file into the store.
@@ -53,7 +53,6 @@ export const UpdateGridName = (name) => {
 //// Schema
 export const ClearCurrentProfile = () => {
     ApplyMutation(DeleteAllSchema, {});
-    ApplyMutation(SetSelectedSchemaValue, { schemaIndex: 0, valueIndex: 0 });
 }
 
 export const AddSchema = (schema) => {
@@ -68,4 +67,13 @@ export const SetValuesForSchema = (index, values) => {
 
 export const SetSelectedSchemaValue = (schemaIndex, valueIndex) => {
     ApplyMutation(SetSelectedSchemaValueMutation, { schemaIndex, valueIndex });
+}
+
+//// Cells
+// Update a set of cells with a given set of attributes.
+export const ApplySelectedSchemaToCell = (cellId) => {
+    const cellIds = [cellId];
+    const attributeUpdates = UseSelector(SelectCurrentlySelectedAttributeUpdate);
+    const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
+    ApplyMutation(UpdateCellsMutation, { cellIds, attributeUpdates, defaultCellAttributes});
 }

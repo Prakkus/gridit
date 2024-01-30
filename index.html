@@ -16,49 +16,39 @@
 	</div>
 	<script type="module">
 		import { InjectStyles, MountElement } from './src/DOMUtils.js';
-		import { store, Connect, UseSelector, ApplyMutation } from './src/data/AppState.js'
 		import defaultSaveFile from './src/config/default-save.js';
 		import altSaveFile from './src/config/alt-save.js';
 		import GridDrag from './src/modules/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/views/GridView.js'
 		import GridControlPanelView, { style as gridControlPanelStyle} from './src/views/control_panel/GridControlPanelView.js';
-		import { SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes } from './src/data/AppState.js';
+		import { store, Connect, UseSelector, ApplyMutation, AddAfterMutationListener , SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
-		import { SetJsonData, UpdateCells } from './src/Mutations.js';
-		import { LoadGridJsonData, RefreshGridFromLoadedJson, SetSelectedSchemaValue } from './src/Actions.js';
+		import { UpdateCells, SetValuesForSchema } from './src/Mutations.js';
+		import { LoadGridJsonData, RefreshGridFromLoadedJson, ApplySelectedSchemaToCell } from './src/Actions.js';
 
 		const Main = () => {
 			// Inject the styles for all the loaded components.
 			InjectStyles(gridStyle, gridControlPanelStyle);
+
 			// Grab references to the parts of the page that we're going to mount elements to.
-			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			const gridMountElement = document.querySelector("#grid-mount-point");
+			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
 			
-			// Update a set of cells with a given set of attributes.
-			const HandleCellUpdate = (cellId) => {
-				const cellIds = [cellId];
-				const attributeUpdates = UseSelector(SelectCurrentlySelectedAttributeUpdate);
-				const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
-				ApplyMutation(UpdateCells, { cellIds, attributeUpdates, defaultCellAttributes});
-			}
-
-			const { BindDragEvents } = GridDrag(HandleCellUpdate);
-			BindDragEvents(window);
-
-			// Grid View
+			// Build and mount the Grid View.
 			const { element: gridElement } = GridView(store);
 			MountElement(gridMountElement, gridElement);
 
-			// Grid Control Panel
+			// Build and mount the Grid Control Panel.
 			const { element: gridControlPanelElement} = GridControlPanelView(store);
 			MountElement(controlPanelMountElement, gridControlPanelElement);	
 
-			// Load the default grid profile. This contains default schema information.
+			// Bind to mouse drag events for updating cells.
+			const { BindDragEvents } = GridDrag(ApplySelectedSchemaToCell);
+			BindDragEvents(window);
+
+			// Setup is done! Let's load an example schema.
 			LoadGridJsonData(JSON.stringify(altSaveFile));
 			
-			// Select a default schema value.
-			SetSelectedSchemaValue(0,0);
-
 			// const DoAction = () => {
 			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 1 });
 			// }
