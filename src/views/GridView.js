@@ -11,10 +11,14 @@ const UpdateDOMCell = (cellElement, cellAttributes) => {
 	const tileData = ResolveCellAttributeValue(2, cellAttributes.backgroundTileIndex);
 	symbolNode.innerHTML = symbolData.display;
 	symbolNode.style.left = symbolData.xOffset;
-	symbolNode.style.bottom = symbolData.yOffset;
+	symbolNode.style.top = symbolData.yOffset;
 	symbolNode.style.fontSize = symbolData.fontSize;
+	symbolNode.style.color = '#' + symbolData.color;
+	symbolNode.style.lineHeight = symbolData.lineHeight;
+	
 	cellElement.style.backgroundImage = `url(${tileData.imageDataUrl})`;
 	cellElement.style.backgroundSize = 'cover';
+
 }
 
 // Renders cells from Map of cellData.
@@ -179,6 +183,7 @@ export const style =
 		width: 100%;
 		height: 100%;
 		display: block;
+		position: relative;
 		pointer-events: none;
 	}
 

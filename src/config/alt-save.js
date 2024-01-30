@@ -39,97 +39,125 @@ const defaultProfile = {
 					display: '',
 					xOffset: 0,
 					yOffset: 0,
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'frank',
 					display: 'Frank',
-					xOffset: 0,
+					xOffset: '12%',
 					yOffset: 0,
+					color: '7fffd4',
+					lineHeight: '300%',
 					fontSize: '100%' 
 				},
 				{
 					name: 'testo',
 					display: 'just some testo stuff in here',
 					xOffset: 0,
-					yOffset: '-20%',
+					yOffset: '20%',
+					color: 'fff',
+					lineHeight: '90%',
 					fontSize: '50%' 
 				},
 				{
 					name: 'penguin',
 					display: '🐧',
-					xOffset: 0,
-					yOffset: '-20%',
-					fontSize: '60%' 
+					xOffset: '20%',
+					yOffset: '14%',
+					color: 'fff',
+					lineHeight: 'normal',
+					fontSize: '160%' 
 				},
 				{
 					name: 'sunWithFace',
 					display: '🌞',
-					xOffset: 0,
-					yOffset: '-20%',
-					fontSize: '60%' 
+					xOffset: '55%',
+					yOffset: '0',
+					color: 'fff',
+					lineHeight: 'normal',
+					fontSize: '90%' 
 				},
 				{
 					name: 'tulip',
 					display: '🌷',
-					xOffset: 0,
-					yOffset: '-20%',
-					fontSize: '60%' 
+					xOffset: '30%',
+					yOffset: '45%',
+					color: 'fff',
+					lineHeight: 'normal',
+					fontSize: '120%' 
 				},
 				{
 					name: 'north',
 					display: '🡱',
-					xOffset: 0,
-					yOffset: 0,
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'northEast',
 					display: '🡵',
-					xOffset: "2.5%",
-					yOffset: "-10%",
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'east',
 					display: '🡲',
-					xOffset: '5%',
-					yOffset: '-10%',
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'southEast',
 					display: '🡶',
-					xOffset: "2.5%",
-					yOffset: "-12.5%",
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'south',
 					display: '🡳',
-					xOffset: '2.5%',
-					yOffset: '-15%',
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'southWest',
 					display: '🡷',
-					xOffset: "2.5%",
-					yOffset: "-12.5%",
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'west',
 					display: '🡰',
-					xOffset: '-5%',
-					yOffset: '-10%',
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%' 
 				},
 				{
 					name: 'northWest',
 					display: '🡴',
-					xOffset: "2.5%",
-					yOffset: "-10%",
+					xOffset: '36%',
+					yOffset: '28%',
+					color: 'fff',
+					lineHeight: 'normal',
 					fontSize: '100%'
 				}
 			]
@@ -151,15 +179,5 @@ const defaultProfile = {
 	cellData: []
 };
 
-// const getSchemaValueId = (schema, index) => `${schema.name}-${index}`;
-// const getDefaultAttributes = () => {
-// 	const types = {};
-// 	defaultProfile.schema.forEach((schema) => {
-// 		types[schema.cellAttribute] = 0;
-// 	});
-
-// 	return types;
-// }
 
 export default defaultProfile;
-// export { getSchemaValueId, getDefaultAttributes };

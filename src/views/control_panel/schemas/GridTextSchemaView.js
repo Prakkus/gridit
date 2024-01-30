@@ -25,7 +25,11 @@ export const RenderTextContentSchemaButton = (buttonElement, schemaValue) => {
     const { cellSize } = UseSelector(SelectGridDisplayOptions);
     const symbolScale = schemaValue.fontSize.split('%')[0] / 100;
     const contentSizeFactor = 50 / cellSize * symbolScale;
-    buttonContent.style.fontSize = `${contentSizeFactor * 100}%`; 
+    buttonContent.style.fontSize = `${contentSizeFactor * 100}%`;
+    buttonContent.style.left = schemaValue.xOffset;
+    buttonContent.style.top = schemaValue.yOffset;
+    buttonContent.style.color = '#' + schemaValue.color;
+    buttonContent.style.lineHeight = schemaValue.lineHeight;
 }
 
 
@@ -51,5 +55,6 @@ export const style =
         display: block;
         width: 100%;
         height: 100%;
+        position: relative;
     }
 `;
