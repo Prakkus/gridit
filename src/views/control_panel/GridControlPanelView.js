@@ -1,10 +1,8 @@
-import { ApplyMutation,SelectCurrentlySelectedSchemaValue, UseSelector } from '../../data/AppState.js';
 import { InjectStyles, MountElement } from '../../DOMUtils.js';
 import PersistenceView, { style as persistenceViewStyle } from './PersistenceView.js';
 import GridConfigView, { style as gridConfigViewStyle } from './GridConfigView.js';
 import GridSchemasView, { style as schemaControlsStyle } from './GridSchemasView.js';
 import TilesetEditor, { style as tilesetViewStyle } from '../../components/TilesetEditor.js';
-// import GridControlsModal, { style as modalViewStyle } from './src/components/GridControlsModal.js';
 import Modal, { style as modalViewStyle } from '../../components/Modal.js';
 import { SetValuesForSchema } from '../../Actions.js';
 
@@ -24,20 +22,6 @@ export const GridControlPanelView = (state) => {
 	// Tileset Modal
 	const { element: tilesetModalElement, Render: RenderTilesetModal, Open: OpenTilesetModal, Close: CloseTiliesetModal } = Modal();
 	MountElement(document.body, tilesetModalElement);
-
-	// Configure Colors View
-	// const { element: configureColorsElement, Render: RenderConfigureColors } = ColorSchemaEditor();
-	// RenderConfigureColors({
-	// 	colorsSubmittedHandler: (colors) => {
-	// 		// Prepend an empty image cell to act as the default value.
-	// 		// ApplyMutation(LoadValuesIntoSchema, { schemaIndex: 0, schemaValues: [{ imageDataUrl: '' }, ...slices] });
-	// 		// CloseTiliesetModal();
-	// 	},
-	// 	schemaIndex: 0
-	// });
-	// Colors Modal
-	// const { element: colorsModalElement, Render: RenderColorsModal, Open: OpenColorsModal, Close: CloseColorsModal } = Modal();
-	// MountElement(document.body, colorsModalElement);
 
 	// Persistence View. 
 	const { element: persistenceElement } = PersistenceView( 

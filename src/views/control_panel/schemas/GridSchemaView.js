@@ -1,6 +1,6 @@
-import { ApplyMutation, UseSelector, SelectSchema, SelectSchemaName, SelectLoadedSchemas, SelectCurrentlySelectedSchemaValue, SelectSchemaValue, AddAfterMutationListener, AddBeforeMutationListener, SelectGridDisplayOptions } from '../../../data/AppState.js';
+import { UseSelector, SelectSchema, SelectSchemaName, SelectCurrentlySelectedSchemaValue, AddAfterMutationListener, AddBeforeMutationListener } from '../../../data/AppState.js';
 import { buildSchemaValueId } from '../../../Utils.js';
-import { SetSelectedSchemaValue, SetValuesForSchema, UpdateGridDisplayOptions } from '../../../Mutations.js';
+import { SetSelectedSchemaValue, SetValuesForSchema } from '../../../Mutations.js';
 
 export const GridSchemaView =  (schemaIndex, setSelectedSchemaValue, buildSchemaButton, renderSchemaButton ) => {
 	const element = document.createElement('div');

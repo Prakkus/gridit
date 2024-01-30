@@ -5,13 +5,14 @@ import GridBackgroundImageSchemaView, { style as gridBackgroundImageSchemaStyle 
 import GridColorSchemaView, { style as gridColorSchemaStyle } from './schemas/GridColorSchemaView.js';
 import GridTextSchemaView, { style as gridTextSchemaStyle } from './schemas/GridTextSchemaView.js';
 import { SelectLoadedSchemas, UseSelector, AddAfterMutationListener } from '../../data/AppState.js';
+import { style as defaultSchemaStyles } from './schemas/GridSchemaView.js';
 
 export const GridSchemasView = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	const renderedSections = {};
 
-	InjectStyles(gridColorSchemaStyle, gridTextSchemaStyle, gridBackgroundImageSchemaStyle);
+	InjectStyles(defaultSchemaStyles, gridColorSchemaStyle, gridTextSchemaStyle, gridBackgroundImageSchemaStyle);
 
 	AddAfterMutationListener((mutation, args) => {
 		if (mutation === SetValuesForSchema) {

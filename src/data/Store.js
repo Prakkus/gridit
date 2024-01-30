@@ -1,5 +1,8 @@
 import { EventBus } from "../Utils.js";
 
+// A generic store to contain the core app state. Consumers can apply mutations via
+// Apply if they want to trigger events or directly if not. Events can be hooked into
+// to react to the app state changing.
 export default (initialState) => {
 	const store = {...initialState};
 	// let OnMutationCompleted = new Set();

@@ -23,7 +23,6 @@ export const IsAnyCellDataLoaded = (state) => {
 	return SelectAllCellData(state).size > 0;
 }
 
-
 export const SelectCellById = (state) => {
 	return (cellId) => {
 		if (!state.cellData.has(cellId)) {
@@ -123,6 +122,8 @@ export const SelectGridName = (state) => {
 	return state.grid.name;
 }
 
+
+// App Data
 const initialState = {
 	loadedJson: {
 		title: '',

@@ -1,6 +1,6 @@
 import { UseSelector, AddAfterMutationListener, SelectGridDisplayOptions } from '../../../data/AppState.js';
 import {  UpdateGridDisplayOptions } from '../../../Mutations.js';
-import GridSchemaView, {style as gridSchemaStyle } from './GridSchemaView.js';
+import GridSchemaView from './GridSchemaView.js';
 
 export const buildTextSchemaValueButton  = (schemaValueID, onValueClicked) =>{
     const buttonElement = document.createElement('button');
@@ -46,7 +46,7 @@ export const GridTextSchemaView =  (schemaIndex, setSelectedSchemaValue) => {
 
 export default GridTextSchemaView;
 
-export const style = gridSchemaStyle +
+export const style = 
 `
     .content-preview {
         display: block;

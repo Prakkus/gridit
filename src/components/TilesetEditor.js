@@ -10,17 +10,17 @@ const getImageSlices = (image, numRowsToCut, numColsToCut, margin) => {
     //This is what a completely 'blank' image for this tileset looks like. We use it to compare slices and remove them if they are also blank.
     let emptyImage = canvas.toDataURL();
 
-	for(let x = 0; x < numColsToCut; x++) {
-    	for(let y = 0; y < numRowsToCut; y++) {
-    		context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(image, x * widthOfOnePiece + (margin * 2), y * heightOfOnePiece + (margin * 2), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-            let imageData = canvas.toDataURL();
-            //Only keep this slice if it isn't an empty image
-            if (imageData !== emptyImage) {
-            	imageSlices.push(canvas.toDataURL());            	
-            } 
-        }
-    }
+for(let x = 0; x < numColsToCut; x++) {
+	for(let y = 0; y < numRowsToCut; y++) {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.drawImage(image, x * widthOfOnePiece + (margin * 2), y * heightOfOnePiece + (margin * 2), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+		let imageData = canvas.toDataURL();
+		//Only keep this slice if it isn't an empty image
+		if (imageData !== emptyImage) {
+			imageSlices.push(canvas.toDataURL());            	
+		} 
+	}
+}
 
     return imageSlices;
 }
@@ -50,7 +50,7 @@ export const TilesetEditor = () => {
 	
 	const onImageSelected = (e) => {
 		let file = e.target.files[0];
-	    fileReader.readAsDataURL(file);
+		fileReader.readAsDataURL(file);
 	}
 
 	const previewSlices = (slices) => {

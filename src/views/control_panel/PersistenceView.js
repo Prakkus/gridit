@@ -100,12 +100,24 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 		const saveJson = DownloadJsonSave();
 		LoadGridJsonData(saveJson); 
 	});
-	element.querySelector("#clear-all").addEventListener('click', (e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearAllCellData)() );
-	element.querySelector("#reload-file").addEventListener('click', (e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", RefreshGridFromLoadedJson)() );
-	element.querySelector("#configure-colors").addEventListener('click', (e) => onConfigureColorsClicked());
-	element.querySelector("#import-tilesheet").addEventListener('click', (e) => onImportTilesetClicked());
-	element.querySelector("#import-from-json").addEventListener('click', (e) => loadSaveFileInputElement.click());
-	loadSaveFileInputElement.addEventListener("change", WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile));
+	element.querySelector("#clear-all").addEventListener('click', 
+		(e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearAllCellData)() 
+	);
+	element.querySelector("#reload-file").addEventListener('click', 
+		(e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", RefreshGridFromLoadedJson)()
+	);
+	element.querySelector("#configure-colors").addEventListener('click', 
+		(e) => onConfigureColorsClicked()
+	);
+	element.querySelector("#import-tilesheet").addEventListener('click', 
+		(e) => onImportTilesetClicked()
+	);
+	element.querySelector("#import-from-json").addEventListener('click', 
+		(e) => loadSaveFileInputElement.click()
+	);
+	loadSaveFileInputElement.addEventListener("change", 
+		WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile)
+	);
 	gridNameInput.addEventListener('blur', (e) => {
 		Submit();
 	});

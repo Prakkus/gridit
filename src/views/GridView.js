@@ -1,5 +1,4 @@
 import { UseSelector, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener } from '../data/AppState.js';
-import { UpdateGridConfig } from '../Actions.js';
 import { LoadCellData, UpdateGridSize, UpdateGridDisplayOptions, UpdateCells, ClearAllCellData as ClearAllCellDataMutation } from '../Mutations.js';
 // Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
 const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));

@@ -1,4 +1,4 @@
-import GridSchemaView, {style as gridSchemaStyle } from './GridSchemaView.js';
+import GridSchemaView from './GridSchemaView.js';
 
 const buildColorSchemaValueButton = (schemaValueID, onValueClicked) => {
     const buttonElement = document.createElement('button');
@@ -20,7 +20,7 @@ export const GridColorSchemaView =  (schemaIndex, setSelectedSchemaValue) => {
 
 export default GridColorSchemaView;
 
-export const style = gridSchemaStyle +
+export const style = 
 `
     .schema-color-picker {
         width: 100px;
