@@ -84,11 +84,7 @@ export default GridSchemaView;
 
 export const style =
 `
-    .content-preview {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
+
 `;
 
 const template = 

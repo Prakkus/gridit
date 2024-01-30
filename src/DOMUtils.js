@@ -9,6 +9,7 @@ export const InjectStyles = (...styleText) => {
         injectedStyles.add(style);
         if (oldSize === injectedStyles.size) {
             console.warn("Prevented styles from being injected twice. Check your style injections!");
+            console.warn(style);
             return;
         }
         const element = document.createElement('style');

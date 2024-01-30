@@ -2,7 +2,7 @@ import { UseSelector, AddAfterMutationListener, SelectGridDisplayOptions } from 
 import {  UpdateGridDisplayOptions } from '../../../Mutations.js';
 import GridSchemaView from './GridSchemaView.js';
 
-export const buildTextSchemaValueButton  = (schemaValueID, onValueClicked) =>{
+export const BuildTextSchemaValueButton  = (schemaValueID, onValueClicked) =>{
     const buttonElement = document.createElement('button');
     buttonElement.classList.add("brush-selection-button");
     buttonElement.dataset.selectionId = schemaValueID;
@@ -16,9 +16,8 @@ export const buildTextSchemaValueButton  = (schemaValueID, onValueClicked) =>{
     return buttonElement;
 }
 
-export const renderTextContentSchemaButton = (buttonElement, schemaValue) => {
+export const RenderTextContentSchemaButton = (buttonElement, schemaValue) => {
     const buttonContent = buttonElement.querySelector('.content-preview');
-    buttonContent.style.backgroundColor = '#' + schemaValue.hex;
     buttonContent.textContent = schemaValue.display;
 
     // Size the preview of this piece of content relative to the actual difference
@@ -31,7 +30,7 @@ export const renderTextContentSchemaButton = (buttonElement, schemaValue) => {
 
 
 export const GridTextSchemaView =  (schemaIndex, setSelectedSchemaValue) => {
-    const { element, Render } = GridSchemaView(schemaIndex, setSelectedSchemaValue, buildTextSchemaValueButton, renderTextContentSchemaButton);
+    const { element, Render } = GridSchemaView(schemaIndex, setSelectedSchemaValue, BuildTextSchemaValueButton, RenderTextContentSchemaButton);
 
     // In addition to rendering when schemas normally need to update, text schemas need
     // to render when the display options change so that they can update the scale of their content.

@@ -1,6 +1,6 @@
 import GridSchemaView from './GridSchemaView.js';
 
-const buildColorSchemaValueButton = (schemaValueID, onValueClicked) => {
+const BuildColorSchemaValueButton = (schemaValueID, onValueClicked) => {
     const buttonElement = document.createElement('button');
     buttonElement.classList.add("brush-selection-button");
     buttonElement.dataset.selectionId = schemaValueID;
@@ -8,12 +8,12 @@ const buildColorSchemaValueButton = (schemaValueID, onValueClicked) => {
     return buttonElement;
 }
 
-const renderColorSchemaValueButton = (buttonElement, schemaValue) => {
+const RenderColorSchemaValueButton = (buttonElement, schemaValue) => {
     buttonElement.style.backgroundColor = '#' + schemaValue.hex;
 }
 
 export const GridColorSchemaView =  (schemaIndex, setSelectedSchemaValue) => {
-    const { element } = GridSchemaView(schemaIndex, setSelectedSchemaValue, buildColorSchemaValueButton, renderColorSchemaValueButton);
+    const { element } = GridSchemaView(schemaIndex, setSelectedSchemaValue, BuildColorSchemaValueButton, RenderColorSchemaValueButton);
 
 	return { element }
 } 
