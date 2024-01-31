@@ -177,7 +177,7 @@ const defaultProfile = {
 					name: 'frank',
 					display: 'Frank',
 					xOffset: '12%',
-					yOffset: 0,
+					yOffset: '36%',
 					color: '7fffd4',
 					lineHeight: '300%',
 					fontSize: '100%' 
@@ -186,7 +186,7 @@ const defaultProfile = {
 					name: 'joe',
 					display: 'joe',
 					xOffset: '24%',
-					yOffset: 0,
+					yOffset: '36%',
 					color: '7fffd4',
 					lineHeight: '300%',
 					fontSize: '100%' 
@@ -195,7 +195,7 @@ const defaultProfile = {
 					name: 'sally',
 					display: 'sally',
 					xOffset: '14%',
-					yOffset: 0,
+					yOffset: '36%',
 					color: '7fffd4',
 					lineHeight: '300%',
 					fontSize: '100%' 

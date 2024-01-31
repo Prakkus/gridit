@@ -1,35 +1,33 @@
 import { UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectAllCellData, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, SelectSchemasOfType } from '../data/AppState.js';
-import { LoadCellData, UpdateGridSize, UpdateGridDisplayOptions, UpdateCells, ClearAllCellData as ClearAllCellDataMutation } from '../Mutations.js';
+import { LoadCellData, UpdateGridSize, UpdateGridDisplayOptions, UpdateCells, ClearAllCellData as ClearAllCellDataMutation, AppendSchema } from '../Mutations.js';
 
 // Update a given DOM node to reflect a given cellState.
 // cellAttributes is an object of schema_name: schema_index KVPs.
 const UpdateDOMCell = (cellElement, cellAttributes) => {
-	// console.log(cellAttributes);
+	// Background Color.
 	// We assume there's one color schema and one background schema until I can think of a reason to have multiple of them.
 	const colorSchema = UseSelector(state => SelectSchemasOfType(state, {schemaType: "color"}))[0];
 	const colorHex = colorSchema.values[cellAttributes.background_color].hex;
-	
+	cellElement.style.backgroundColor = '#' + colorHex;
+
+	// Background Image.
 	const backgroundSchema = UseSelector(state => SelectSchemasOfType(state, {schemaType: "background"}))[0];
 	const backgroundImage = backgroundSchema.values[cellAttributes.background_image];
-	console.log(cellAttributes);
-	// // Only text schemas support multiple sets.
-	// const textSchemas = UseSelector(state => SelectSchemasOfType(state, {schemaType: "color"}));
-	// // console.log(colorSchema, backgroundSchema, textSchemas);
-
-	cellElement.style.backgroundColor = '#' + colorHex;
-	// const symbolNode = cellElement.querySelector('.grid-cell-symbol');
-	// const symbolData = ResolveCellAttributeValue(1, cellAttributes.symbol);
-	// const tileData = ResolveCellAttributeValue(2, cellAttributes.backgroundTileIndex);
-	// symbolNode.innerHTML = symbolData.display;
-	// symbolNode.style.left = symbolData.xOffset;
-	// symbolNode.style.top = symbolData.yOffset;
-	// symbolNode.style.fontSize = symbolData.fontSize;
-	// symbolNode.style.color = '#' + symbolData.color;
-	// symbolNode.style.lineHeight = symbolData.lineHeight;
-	
 	cellElement.style.backgroundImage = `url(${backgroundImage.imageDataUrl})`;
-	cellElement.style.backgroundSize = 'cover';
 
+	// Text.
+	// Text schemas are the only ones where there may be multiple different ones applied to a cell.
+	const textSchemas = UseSelector(state => SelectSchemasOfType(state, {schemaType: "text"}));
+	textSchemas.forEach(schema => {
+		const textNode = cellElement.querySelector('.grid-cell-text-' + schema.name);
+		const schemaValueforThisCell = schema.values[cellAttributes[schema.name]];
+		textNode.innerHTML = schemaValueforThisCell.display;
+		textNode.style.left = schemaValueforThisCell.xOffset;
+		textNode.style.top = schemaValueforThisCell.yOffset;
+		textNode.style.fontSize = schemaValueforThisCell.fontSize;
+		textNode.style.color = '#' + schemaValueforThisCell.color;
+		textNode.style.lineHeight = schemaValueforThisCell.lineHeight;
+	});
 }
 
 // Renders cells from Map of cellData.
@@ -57,6 +55,15 @@ export const GridView = (state) => {
 			RenderGrid();
 			RenderCells();
 		}
+		// We also have to render the cells if a new text schema is added 
+		// so that they create a node for that content.
+		if (mutation === AppendSchema) {
+			const { schema } = args;
+			if (schema.type === 'text') {
+				RenderCells();
+			}
+		}
+
 		// If just the display options are changing, we can just update the grid css.
 		if (mutation === UpdateGridDisplayOptions) {
 			RenderGrid();
@@ -106,6 +113,9 @@ export const GridView = (state) => {
 	// Not responsible for actually keeping them synced with their cellData.
 	const RenderCells = () => {
 		const { x: width, y: height } = UseSelector(SelectGridSize);
+		// In addition to grid size, we need to know how many text schemas there are so that
+		// we can add an element for each one into the cells.
+		const textSchemas = UseSelector(state => SelectSchemasOfType(state, { schemaType: 'text' }));
 
 		// We'll build our grid and store it in a fragment, then append the fragment
 		// to the DOM all at once to minimize reflows.
@@ -117,12 +127,20 @@ export const GridView = (state) => {
 			for (var x = 0; x < width; x++) {
 				let cellId = x + ',' + y;
 				const thisCell = document.createElement('div');
-				const symbol = document.createElement('span');
-				symbol.classList.add('grid-cell-symbol');
+				
+				// Create a text node for each text schema.
+				for (let index = 0; index < textSchemas.length; index++) {
+					const schemaName = textSchemas[index].name;
+					const textNode = document.createElement('span');
+					textNode.classList.add('grid-cell-text-node');
+					textNode.classList.add('grid-cell-text-' + schemaName);
+					thisCell.insertAdjacentElement('beforeend', textNode);
+				}
+
+
 				const coords = document.createElement('span');
 				coords.classList.add('grid-coords-display');
 				coords.innerHTML = `(${x}, ${y})`;
-				thisCell.insertAdjacentElement('beforeend', symbol);
 				thisCell.insertAdjacentElement('beforeend', coords);
 				thisCell.classList.add('grid-cell');
 				thisCell.dataset.cellId = cellId;
@@ -189,12 +207,12 @@ export const style =
 	.grid-coords-hidden .grid-coords-display {
 		display: none;
 	}
-	.grid-cell-symbol {
+	.grid-cell-text-node {
 		color: #fff;
 		width: 100%;
 		height: 100%;
 		display: block;
-		position: relative;
+		position: absolute;
 		pointer-events: none;
 	}
 
@@ -218,6 +236,7 @@ export const style =
 		justify-content: space-around;
 		align-items: center;
 		overflow: hidden;
+		background-size: cover;
 	}
 
 	.grid-cell:hover {
