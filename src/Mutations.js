@@ -67,3 +67,5 @@ export const UpdateCells = (state, { cellIds, attributeUpdates, defaultCellAttri
 		}
 	});
 }
+
+export const SetEditLockTo = (state, { setTo }) => state.isEditLocked = setTo;

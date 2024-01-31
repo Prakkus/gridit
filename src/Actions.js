@@ -1,5 +1,5 @@
-import { DeleteAllSchema, AppendSchema, LoadCellData, UpdateCells as UpdateCellsMutation, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation } from "./Mutations.js";
-import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectCurrentlySelectedAttributeUpdate, SelectDefaultCellAttributes, SelectCurrentlySelectedSchemaValue } from "./data/AppState.js";
+import { DeleteAllSchema, AppendSchema, LoadCellData, UpdateCells as UpdateCellsMutation, SetSelectedSchemaValue as SetSelectedSchemaValueMutation, ClearAllCellData as ClearAllCellDataMutation, UpdateGridSize, UpdateGridDisplayOptions, UpdateGridName as UpdateGridNameMutation, SetJsonData, SetValuesForSchema as SetValuesForSchemaMutation, SetEditLockTo } from "./Mutations.js";
+import { ApplyMutation, SelectLoadedSchemas, SelectLoadedJsonData, UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectCurrentlySelectedAttributeUpdate, SelectDefaultCellAttributes, SelectIsEditLocked } from "./data/AppState.js";
  
 
 // Load a grid save file into the store.
@@ -77,4 +77,8 @@ export const ApplySelectedSchemaToCell = (cellId) => {
     const attributeUpdates = UseSelector(SelectCurrentlySelectedAttributeUpdate);
     const defaultCellAttributes = UseSelector(SelectDefaultCellAttributes);
     ApplyMutation(UpdateCellsMutation, { cellIds, attributeUpdates, defaultCellAttributes});
+}
+
+export const SetEditLock = (setTo) => {
+    ApplyMutation(SetEditLockTo, { setTo });
 }

@@ -47,3 +47,12 @@ button:hover {
 #grid-mount-point {
     display: grid;
   }
+
+#floating-corner-menu-left {
+    color: #fff;
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    padding: 8px;
+    background: var(--darker);
+}

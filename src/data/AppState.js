@@ -90,6 +90,7 @@ export const SelectCurrentlySelectedAttributeUpdate = state => {
 		[loadedSchemas[selectedSchemaIndex].name] : selectedValueIndex
 	};
 }
+export const SelectIsEditLocked = state => state.isEditLocked;
 export const SelectSaveData = (state) => {
 	const gridName = SelectGridName(state);
 	const gridSize = SelectGridSize(state);
@@ -133,6 +134,7 @@ const initialState = {
 		rawJson: '',
 		parsedJson: '',
 	},
+	isEditLocked: false,
 	grid: {
 		name: 'untitled',
 		size: {

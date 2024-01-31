@@ -10,6 +10,7 @@ import { style as defaultSchemaStyles } from './schemas/GridSchemaView.js';
 export const GridSchemasView = (state) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
+	element.classList.add('grid-schema-controls');
 	const renderedSections = {};
 
 	InjectStyles(defaultSchemaStyles, gridColorSchemaStyle, gridTextSchemaStyle, gridBackgroundImageSchemaStyle);
@@ -61,6 +62,10 @@ export default GridSchemasView;
 
 export const style =
 `
+	.grid-schema-controls {
+		position: relative;	
+	}
+
 	.toolbar-section-title {
 		display: flex;
 		margin-top: 24px;
@@ -97,8 +102,13 @@ export const style =
 	.schema-toolbar {
 		font-size: 30px;
 	}
+
+	.schema-controls-sticky-bar {
+		position: absolute;
+		top: 0px;
+		right: 0px;
+	}
 `;
 const template = 
 `
-
 `;

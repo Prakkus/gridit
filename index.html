@@ -9,7 +9,7 @@
 </head>
 <body>
 	<div class="grid-container">
-		<div id="control-panel-mount-point"  class="control-panel">
+		<div id="control-panel-mount-point" class="control-panel">
 		</div>
 		<div id="grid-mount-point">
 		</div>
@@ -21,10 +21,10 @@
 		import GridDrag from './src/modules/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/views/GridView.js'
 		import GridControlPanelView, { style as gridControlPanelStyle} from './src/views/control_panel/GridControlPanelView.js';
-		import { store, Connect, UseSelector, ApplyMutation, AddAfterMutationListener , SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes } from './src/data/AppState.js';
+		import { store, Connect, UseSelector, ApplyMutation, AddAfterMutationListener, SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes, SelectIsEditLocked } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
-		import { UpdateCells, SetValuesForSchema } from './src/Mutations.js';
-		import { LoadGridJsonData, RefreshGridFromLoadedJson, ApplySelectedSchemaToCell } from './src/Actions.js';
+		import { UpdateCells, SetValuesForSchema, SetEditLockTo } from './src/Mutations.js';
+		import { LoadGridJsonData, RefreshGridFromLoadedJson, ApplySelectedSchemaToCell, SetEditLock } from './src/Actions.js';
 
 		const Main = () => {
 			// Inject the styles for all the loaded components.
@@ -33,7 +33,18 @@
 			// Grab references to the parts of the page that we're going to mount elements to.
 			const gridMountElement = document.querySelector("#grid-mount-point");
 			const controlPanelMountElement = document.getElementById("control-panel-mount-point");
-			
+			const editLockControlInput = document.querySelector("input[name='editLock']");
+			editLockControlInput.addEventListener('change', (e) => {
+				SetEditLock(e.target.checked);
+			});
+
+			AddAfterMutationListener((mutation, args) => {
+				if (mutation === SetEditLockTo) {
+					const { setTo } = args;
+					editLockControlInput.checked = setTo;
+				}
+			});
+						
 			// Build and mount the Grid View.
 			const { element: gridElement } = GridView(store);
 			MountElement(gridMountElement, gridElement);
@@ -43,12 +54,19 @@
 			MountElement(controlPanelMountElement, gridControlPanelElement);	
 
 			// Bind to mouse drag events for updating cells.
-			const { BindDragEvents } = GridDrag(ApplySelectedSchemaToCell);
+			const { BindDragEvents } = GridDrag(cellId => {
+				const isEditLocked = UseSelector(SelectIsEditLocked);
+    			if (isEditLocked) return;
+				ApplySelectedSchemaToCell(cellId);
+			});
 			BindDragEvents(window);
 
 			// Setup is done! Let's load an example schema.
 			LoadGridJsonData(JSON.stringify(altSaveFile));
-			
+			// And ensure the grid is editable. This shouldn't be necessary but the browser likes
+			// to sometimes preserve input values in a way that desyncs the checkbox.
+			SetEditLock(false);
+
 			// const DoAction = () => {
 			// 	UpdateAndRenderCells(["2,2", "1,0", "0,3"], { fillColor: 1 });
 			// }
@@ -63,5 +81,16 @@
 
 		document.addEventListener('DOMContentLoaded', Main);
 	</script>
+	<div id="floating-corner-menu-left">
+		<button title="Help/Info" id="help-button">
+			<span class="material-icons">help</span>
+		</button>
+		<label>
+			<span>
+				Lock:
+			</span>
+			<input name="editLock" type="checkbox" />
+		</label>
+	</div>
 </body>
 </html>
