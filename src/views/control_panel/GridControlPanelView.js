@@ -5,6 +5,7 @@ import GridSchemasView, { style as schemaControlsStyle } from './GridSchemasView
 import TilesetEditor, { style as tilesetViewStyle } from '../../components/TilesetEditor.js';
 import Modal, { style as modalViewStyle } from '../../components/Modal.js';
 import { SetValuesForSchema } from '../../Actions.js';
+import { SelectLoadedSchemas, UseSelector } from '../../data/AppState.js';
 
 export const GridControlPanelView = (state) => {
 	const element = document.createElement('div');
@@ -14,8 +15,10 @@ export const GridControlPanelView = (state) => {
 	const { element: tilesetViewElement, Render: RenderTilesetView } = TilesetEditor();
 	RenderTilesetView({
 		slicesExtractedHandler: (slices) => {
-			// Prepend an empty image cell to act as the default value.
-			SetValuesForSchema(2, [{ imageDataUrl: '' }, ...slices]);
+			// Assume there is only one background schema and find its index.
+			const backgroundSchemaIndex = UseSelector(SelectLoadedSchemas).findIndex(schema => schema.type === 'background');
+			// We also prepend an empty image cell to act as the default value.
+			SetValuesForSchema(backgroundSchemaIndex, [{ imageDataUrl: '' }, ...slices]);
 			CloseTiliesetModal();
 		} 
 	});

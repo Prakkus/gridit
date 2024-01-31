@@ -14,7 +14,6 @@ const defaultProfile = {
 			name: 'background_color',
 			type: 'color',
 			displayName: 'Fill Colors: ',
-			cellAttribute: 'fillColor',
 			values : [
 				{
 					name: 'defaultColor',
@@ -27,39 +26,20 @@ const defaultProfile = {
 			]
 		},
 
-		//Symbols
+		// Text Content schemas
 		{
-			name: 'symbol',
+			name: 'characters',
 			type: 'text',
-			displayName: 'Symbols: ',
-			cellAttribute: 'symbol',
+			displayName: 'Characters: ',
 			values : [
 				{
-					name: 'defaultSymbol',
+					name: 'default',
 					display: '',
 					xOffset: 0,
 					yOffset: 0,
 					color: 'fff',
 					lineHeight: 'normal',
 					fontSize: '100%' 
-				},
-				{
-					name: 'frank',
-					display: 'Frank',
-					xOffset: '12%',
-					yOffset: 0,
-					color: '7fffd4',
-					lineHeight: '300%',
-					fontSize: '100%' 
-				},
-				{
-					name: 'testo',
-					display: 'just some testo stuff in here',
-					xOffset: 0,
-					yOffset: '20%',
-					color: 'fff',
-					lineHeight: '90%',
-					fontSize: '50%' 
 				},
 				{
 					name: 'penguin',
@@ -87,6 +67,23 @@ const defaultProfile = {
 					color: 'fff',
 					lineHeight: 'normal',
 					fontSize: '120%' 
+				}
+			]
+		},
+
+		{
+			name: 'directions',
+			type: 'text',
+			displayName: 'Directions: ',
+			values : [
+				{
+					name: 'default',
+					display: '',
+					xOffset: 0,
+					yOffset: 0,
+					color: 'fff',
+					lineHeight: 'normal',
+					fontSize: '100%' 
 				},
 				{
 					name: 'north',
@@ -162,13 +159,55 @@ const defaultProfile = {
 				}
 			]
 		},
+		{
+			name: 'names',
+			type: 'text',
+			displayName: 'Names: ',
+			values : [
+				{
+					name: 'default',
+					display: '',
+					xOffset: 0,
+					yOffset: 0,
+					color: 'fff',
+					lineHeight: 'normal',
+					fontSize: '100%' 
+				},
+				{
+					name: 'frank',
+					display: 'Frank',
+					xOffset: '12%',
+					yOffset: 0,
+					color: '7fffd4',
+					lineHeight: '300%',
+					fontSize: '100%' 
+				},
+				{
+					name: 'joe',
+					display: 'joe',
+					xOffset: '24%',
+					yOffset: 0,
+					color: '7fffd4',
+					lineHeight: '300%',
+					fontSize: '100%' 
+				},
+				{
+					name: 'sally',
+					display: 'sally',
+					xOffset: '14%',
+					yOffset: 0,
+					color: '7fffd4',
+					lineHeight: '300%',
+					fontSize: '100%' 
+				},
 
+			]
+		},
 		//Tiles
 		{
-			name: 'tile_index_background',
+			name: 'background_image',
 			type: 'background',
 			displayName: 'Tiles: ',
-			cellAttribute: 'backgroundTileIndex',
 			values : [
 				{
 					imageDataUrl: ''

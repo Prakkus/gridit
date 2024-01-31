@@ -1,22 +1,33 @@
-import { UseSelector, SelectGridSize, SelectSchemaValue, SelectGridDisplayOptions, SelectAllCellData, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener } from '../data/AppState.js';
+import { UseSelector, SelectGridSize, SelectGridDisplayOptions, SelectAllCellData, SelectCellById, AddBeforeMutationListener, AddAfterMutationListener, SelectSchemasOfType } from '../data/AppState.js';
 import { LoadCellData, UpdateGridSize, UpdateGridDisplayOptions, UpdateCells, ClearAllCellData as ClearAllCellDataMutation } from '../Mutations.js';
-// Get the value in a schema at valueIndex, e.g. a color in colors or an image in tiles.
-const ResolveCellAttributeValue = (schemaIndex, valueIndex) => UseSelector(state => SelectSchemaValue(state, {schemaIndex, valueIndex}));
 
 // Update a given DOM node to reflect a given cellState.
+// cellAttributes is an object of schema_name: schema_index KVPs.
 const UpdateDOMCell = (cellElement, cellAttributes) => {
-	cellElement.style.backgroundColor = '#' + ResolveCellAttributeValue(0, cellAttributes.fillColor).hex;
-	const symbolNode = cellElement.querySelector('.grid-cell-symbol');
-	const symbolData = ResolveCellAttributeValue(1, cellAttributes.symbol);
-	const tileData = ResolveCellAttributeValue(2, cellAttributes.backgroundTileIndex);
-	symbolNode.innerHTML = symbolData.display;
-	symbolNode.style.left = symbolData.xOffset;
-	symbolNode.style.top = symbolData.yOffset;
-	symbolNode.style.fontSize = symbolData.fontSize;
-	symbolNode.style.color = '#' + symbolData.color;
-	symbolNode.style.lineHeight = symbolData.lineHeight;
+	// console.log(cellAttributes);
+	// We assume there's one color schema and one background schema until I can think of a reason to have multiple of them.
+	const colorSchema = UseSelector(state => SelectSchemasOfType(state, {schemaType: "color"}))[0];
+	const colorHex = colorSchema.values[cellAttributes.background_color].hex;
 	
-	cellElement.style.backgroundImage = `url(${tileData.imageDataUrl})`;
+	const backgroundSchema = UseSelector(state => SelectSchemasOfType(state, {schemaType: "background"}))[0];
+	const backgroundImage = backgroundSchema.values[cellAttributes.background_image];
+	console.log(cellAttributes);
+	// // Only text schemas support multiple sets.
+	// const textSchemas = UseSelector(state => SelectSchemasOfType(state, {schemaType: "color"}));
+	// // console.log(colorSchema, backgroundSchema, textSchemas);
+
+	cellElement.style.backgroundColor = '#' + colorHex;
+	// const symbolNode = cellElement.querySelector('.grid-cell-symbol');
+	// const symbolData = ResolveCellAttributeValue(1, cellAttributes.symbol);
+	// const tileData = ResolveCellAttributeValue(2, cellAttributes.backgroundTileIndex);
+	// symbolNode.innerHTML = symbolData.display;
+	// symbolNode.style.left = symbolData.xOffset;
+	// symbolNode.style.top = symbolData.yOffset;
+	// symbolNode.style.fontSize = symbolData.fontSize;
+	// symbolNode.style.color = '#' + symbolData.color;
+	// symbolNode.style.lineHeight = symbolData.lineHeight;
+	
+	cellElement.style.backgroundImage = `url(${backgroundImage.imageDataUrl})`;
 	cellElement.style.backgroundSize = 'cover';
 
 }

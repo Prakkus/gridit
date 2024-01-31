@@ -5,7 +5,7 @@ import InitStore from './Store.js';
 export const SelectDefaultCellAttributes = (state) => {
 	const types = {};
 	state.schema.tables.forEach((schema) => {
-		types[schema.cellAttribute] = 0;
+		types[schema.name] = 0;
 	});
 
 	return types;
@@ -14,7 +14,6 @@ export const SelectDefaultCellAttributes = (state) => {
 export const NULL_SCHEMA = {
 	name: '',
 	displayName: '',
-	cellAttribute: '',
 	values : [
 	]	
 }
@@ -75,6 +74,9 @@ export const SelectSchemaName = (state, { schemaIndex }) => {
 export const SelectSchemaTables = (state, { schemaIndex }) => {
 	return SelectSchema(state, { schemaIndex }).tables;
 }
+export const SelectSchemasOfType = (state, { schemaType }) => {
+	return SelectLoadedSchemas(state).filter(schema => schema.type === schemaType);
+}
 export const SelectCurrentlySelectedSchemaValue = (state) => {
 	return {
 		selectedSchemaIndex: state.schema.selectedSchemaIndex,
@@ -85,7 +87,7 @@ export const SelectCurrentlySelectedAttributeUpdate = state => {
 	const { selectedSchemaIndex, selectedValueIndex } = SelectCurrentlySelectedSchemaValue(state);
 	const loadedSchemas = SelectLoadedSchemas(state);
 	return { 
-		[loadedSchemas[selectedSchemaIndex].cellAttribute] : selectedValueIndex
+		[loadedSchemas[selectedSchemaIndex].name] : selectedValueIndex
 	};
 }
 export const SelectSaveData = (state) => {
