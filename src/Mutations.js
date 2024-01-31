@@ -17,9 +17,10 @@ export const UpdateGridSize = (state, { width, height }) => {
 	state.grid.size.x = width;
 	state.grid.size.y = height;
 }
-export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, showCoords }) => {
+export const UpdateGridDisplayOptions = (state, { cellSize, cellGap, backgroundColor, showCoords }) => {
 	state.grid.displayOptions.cellSize = cellSize;
 	state.grid.displayOptions.cellGap = cellGap;
+	state.grid.displayOptions.backgroundColor = backgroundColor;
 	state.grid.displayOptions.showCoords = showCoords;
 }
 

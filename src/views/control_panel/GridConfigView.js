@@ -12,19 +12,8 @@ export const GridConfigView = (state) => {
 		}
 	});
 
-	const OnSubmit = ({rowCount, columnCount, cellSize, cellGap, showCoords}) => {
-		UpdateGridConfig(columnCount, rowCount, cellSize, cellGap, showCoords);
-	}
-
-	const Submit = () => {
-		const formData = {
-			rowCount: parseInt(rowCountInput.value),
-			columnCount: parseInt(columnCountInput.value),
-			cellSize: parseInt(cellSizeInput.value),
-			cellGap: parseInt(cellGapInput.value),
-			showCoords: showCoordsInput.checked
-		}
-		OnSubmit(formData);
+	const OnSubmit = ({rowCount, columnCount, cellSize, cellGap, backgroundColor, showCoords}) => {
+		UpdateGridConfig(columnCount, rowCount, cellSize, cellGap, backgroundColor, showCoords);
 	}
 
 	// Submit if they press ENTER with this element focused.
@@ -35,18 +24,30 @@ export const GridConfigView = (state) => {
 	});
 
 	const rowCountInput = element.querySelector('input[name=rowCount]');
-	rowCountInput.addEventListener('blur', Submit);
-
 	const columnCountInput = element.querySelector('input[name=columnCount]');
-	columnCountInput.addEventListener('blur', Submit);
-
 	const cellSizeInput = element.querySelector('input[name=cellSize]');
-	cellSizeInput.addEventListener('blur', Submit);
-
 	const cellGapInput = element.querySelector('input[name=cellGap]');
-	cellGapInput.addEventListener('blur', Submit);
-
+	const backgroundColorInput = element.querySelector('input[name=backgroundColor]');
 	const showCoordsInput = element.querySelector('input[name=showCoords]');
+
+	
+	const Submit = () => {
+		const formData = {
+			rowCount: parseInt(rowCountInput.value),
+			columnCount: parseInt(columnCountInput.value),
+			cellSize: parseInt(cellSizeInput.value),
+			cellGap: parseInt(cellGapInput.value),
+			backgroundColor: backgroundColorInput.value,
+			showCoords: showCoordsInput.checked
+		}
+		OnSubmit(formData);
+	}
+
+	rowCountInput.addEventListener('blur', Submit);
+	columnCountInput.addEventListener('blur', Submit);
+	cellSizeInput.addEventListener('blur', Submit);
+	cellGapInput.addEventListener('blur', Submit);
+	backgroundColorInput.addEventListener('change', Submit);
 	showCoordsInput.addEventListener('change', Submit);
 
 	const Render = () => {
@@ -57,6 +58,7 @@ export const GridConfigView = (state) => {
 		columnCountInput.value =  gridSize.x;
 		cellSizeInput.value = gridDisplayOptions.cellSize;
 		cellGapInput.value = gridDisplayOptions.cellGap;
+		backgroundColorInput.value = gridDisplayOptions.backgroundColor;
 		showCoordsInput.checked = gridDisplayOptions.showCoords;
 	}
 
@@ -128,11 +130,19 @@ const template =
 			<input name="cellGap" type="number" step="1" />
 		</label>
 	</div>
-				<label>
+	<div class="cell-config">
+		<label>
 			<span>
-				Show Coords:
+				Base Color:
+			</span>
+			<input name="backgroundColor" type="color" />
+		</label>	
+		<label>
+			<span>
+				Coords:
 			</span>
 			<input name="showCoords" type="checkbox" />
 		</label>
+	</div>
 </div>
 `;

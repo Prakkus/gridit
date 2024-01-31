@@ -6,6 +6,7 @@ const defaultProfile = {
 			rowCount: 5, 
 			cellSize: 100,
 			cellGap: 2,
+			backgroundColor: '#18181B',
 			showCoords: true
 		},
 	schema: [

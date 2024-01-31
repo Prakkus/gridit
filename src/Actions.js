@@ -13,7 +13,7 @@ const LoadGridProfile = ({title, config, schema}) => {
     // Clear the current profile.
     ApplyMutation(ClearCurrentProfile);
     // Update grid attributes.
-    ApplyMutation(UpdateGridDisplayOptions, { cellSize: config.cellSize, cellGap: config.cellGap, showCoords: config.showCoords });
+    ApplyMutation(UpdateGridDisplayOptions, { cellSize: config.cellSize, cellGap: config.cellGap, backgroundColor: config.backgroundColor, showCoords: config.showCoords });
     ApplyMutation(UpdateGridSize, { width: config.columnCount, height: config.rowCount });
     UpdateGridName(title);
     // Load schema.
@@ -24,15 +24,16 @@ const LoadGridProfile = ({title, config, schema}) => {
 
 
  //// Grid
- export const UpdateGridConfig = (width, height, cellSize, cellGap, showCoords) => {
-    // Only dispatch these if they actually will change.
+ export const UpdateGridConfig = (width, height, cellSize, cellGap, backgroundColor, showCoords) => {
+    // Only dispatch these if they actually will change since building the grid is expensive.
     let currentSize = UseSelector(SelectGridSize);
+
     if (width != currentSize.x || height != currentSize.y) {
         ApplyMutation(UpdateGridSize, { width, height });
     }
     let currentOptions = UseSelector(SelectGridDisplayOptions);
-    if (cellSize != currentOptions.cellSize || cellGap != currentOptions.cellGap || showCoords != currentOptions.showCoords) {
-        ApplyMutation(UpdateGridDisplayOptions, { cellSize, cellGap, showCoords });
+    if (cellSize != currentOptions.cellSize || cellGap != currentOptions.cellGap || backgroundColor != currentOptions.backgroundColor || showCoords != currentOptions.showCoords) {
+        ApplyMutation(UpdateGridDisplayOptions, { cellSize, cellGap, backgroundColor, showCoords });
     }
 }
 

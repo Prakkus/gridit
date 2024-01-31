@@ -92,9 +92,11 @@ export const GridView = (state) => {
 	// Updates the grid itself, which uses css to handle most of the grid logic.
 	const RenderGrid = () => {
 		const { x: width, y: height } = UseSelector(SelectGridSize);
-		const { cellSize, cellGap, showCoords } = UseSelector(SelectGridDisplayOptions);
+		const { cellSize, cellGap, backgroundColor, showCoords } = UseSelector(SelectGridDisplayOptions);
 		
 		// Update the grid CSS
+		// Todo: it'd be better to not have to write to the body tag here.
+		document.body.style.backgroundColor = backgroundColor;
 		element.style.width = `${width * (cellSize + cellGap)}px`;
 		element.style.height = `${height * (cellSize + cellGap)}px`;
 		element.style.display = 'grid';

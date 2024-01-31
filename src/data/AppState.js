@@ -93,7 +93,7 @@ export const SelectCurrentlySelectedAttributeUpdate = state => {
 export const SelectSaveData = (state) => {
 	const gridName = SelectGridName(state);
 	const gridSize = SelectGridSize(state);
-	const { cellSize, cellGap, showCoords } = SelectGridDisplayOptions(state);
+	const { cellSize, cellGap, backgroundColor, showCoords } = SelectGridDisplayOptions(state);
 	const schemaTables = SelectLoadedSchemas(state);
 	const cellData = Array.from(SelectAllCellData(state).values());
 	return {
@@ -103,6 +103,7 @@ export const SelectSaveData = (state) => {
 			rowCount: gridSize.y, 
 			cellSize,
 			cellGap,
+			backgroundColor,
 			showCoords
 		},
 		schema: schemaTables, 
@@ -141,6 +142,7 @@ const initialState = {
 		displayOptions: {
 			cellSize: 0,
 			cellGap: 0,
+			backgroundColor: '000',
 			showCoords: false			
 		}
 	},
