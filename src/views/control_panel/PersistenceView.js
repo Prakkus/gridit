@@ -1,27 +1,27 @@
-import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, AddAfterMutationListener  } from "../../data/AppState.js";
+import { UseSelector, SelectSaveData, SelectGridName, IsAnyCellDataLoaded, AddAfterMutationListener } from "../../data/AppState.js";
 import { UpdateGridName, RefreshGridFromLoadedJson, ClearAllCellData, LoadGridJsonData } from "../../Actions.js";
 import { UpdateGridName as UpdateGridNameMutation } from "../../Mutations.js";
 
-	const downloadBlob = (blob, fileName) => {
-		const blobUrl = URL.createObjectURL(blob);
-	
-		const anchor = document.createElement('a');
-		anchor.href = blobUrl;
-		anchor.target = "_blank";
-		anchor.download = `grid-${fileName}.json`;
-	
-		// Auto click on a element, trigger the file download
-		anchor.click();
-	
-		// This is required
-		URL.revokeObjectURL(blobUrl);
-	}
-	
+const downloadBlob = (blob, fileName) => {
+	const blobUrl = URL.createObjectURL(blob);
+
+	const anchor = document.createElement('a');
+	anchor.href = blobUrl;
+	anchor.target = "_blank";
+	anchor.download = `grid-${fileName}.json`;
+
+	// Auto click on a element, trigger the file download
+	anchor.click();
+
+	// This is required
+	URL.revokeObjectURL(blobUrl);
+}
+
 const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) => {
 	const element = document.createElement('div');
 	element.innerHTML = template;
 	element.classList.add('persistence-view-wrapper');
-	
+
 	const dropPreview = element.querySelector('.persistence-drop-preview');
 	const mainPanel = element.querySelector('.persistence-panel-main');
 	const ShowDropPreview = () => {
@@ -30,7 +30,7 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 	}
 	const HideDropPreview = () => {
 		mainPanel.classList.remove('hidden');
-		dropPreview.classList.add('hidden');	
+		dropPreview.classList.add('hidden');
 	}
 
 	const loadSaveFileInputElement = element.querySelector("input[name=save_file_upload]");
@@ -49,15 +49,15 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 		}
 	}
 
-	const LoadJsonFile = (event) => {
-		let file = event.target.files[0];
+	const LoadJsonFile = (file) => {
+		// let file = event.target.files[0];
 		if (!file.type.match('^application/json')) return;
 		file.text().then(value => {
 			// Loads the json and imports the data.
 			LoadGridJsonData(value);
 		});
 	}
-	
+
 	const handleFileDragEnter = (event) => {
 		event.preventDefault();
 		ShowDropPreview();
@@ -82,41 +82,44 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 		UpdateGridName(gridNameInput.value);
 	}
 
-	const DownloadJsonSave = () =>
-	{
+	const DownloadJsonSave = () => {
 		const saveData = UseSelector(SelectSaveData);
 		const json = JSON.stringify(saveData) + '\n';
-		const blob = new Blob([json], {type : 'application/json'});
+		const blob = new Blob([json], { type: 'application/json' });
 		downloadBlob(blob, saveData.title || 'untitled');
 		return json;
 	}
 	element.addEventListener('dragenter', handleFileDragEnter);
 	element.addEventListener('dragleave', handleFileDragLeave);
-	
+
 	// In order for 'drop' to trigger on an event, you must cancel the dragenter and dragover events.
 	element.addEventListener('dragover', (e) => e.preventDefault());
 	element.addEventListener('drop', handleFileDrop);
-	element.querySelector('#download-as-json').addEventListener('click', (e) => { 
+	element.querySelector('#download-as-json').addEventListener('click', (e) => {
 		const saveJson = DownloadJsonSave();
-		LoadGridJsonData(saveJson); 
+		LoadGridJsonData(saveJson);
 	});
-	element.querySelector("#clear-all").addEventListener('click', 
-		(e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearAllCellData)() 
+	element.querySelector("#clear-all").addEventListener('click',
+		(e) => WithOverwriteConfirmation("Really clear this grid? All cell data will be deleted.", ClearAllCellData)()
 	);
-	element.querySelector("#reload-file").addEventListener('click', 
+	element.querySelector("#reload-file").addEventListener('click',
 		(e) => WithOverwriteConfirmation("Really reload the current save file? You will lose unsaved changes.", RefreshGridFromLoadedJson)()
 	);
-	element.querySelector("#configure-colors").addEventListener('click', 
+	element.querySelector("#configure-colors").addEventListener('click',
 		(e) => onConfigureColorsClicked()
 	);
-	element.querySelector("#import-tilesheet").addEventListener('click', 
+	element.querySelector("#import-tilesheet").addEventListener('click',
 		(e) => onImportTilesetClicked()
 	);
-	element.querySelector("#import-from-json").addEventListener('click', 
+	element.querySelector("#import-from-json").addEventListener('click',
 		(e) => loadSaveFileInputElement.click()
 	);
-	loadSaveFileInputElement.addEventListener("change", 
-		WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", LoadJsonFile)
+	loadSaveFileInputElement.addEventListener("change",
+		WithOverwriteConfirmation("Really load this grid? Your current grid will be overwritten.", e => {
+			const file = e.target.files[0];
+			if (!file.type.match('^application/json')) return;
+			LoadJsonFile(file);
+		})
 	);
 	gridNameInput.addEventListener('blur', (e) => {
 		Submit();
@@ -136,8 +139,8 @@ const PersistenceView = ({ onImportTilesetClicked, onConfigureColorsClicked }) =
 
 export default PersistenceView;
 
-export const style = 
-`
+export const style =
+	`
 	.title {
 		padding-bottom: 16px;
 		display: flex;
@@ -199,8 +202,8 @@ export const style =
 	
 
 `
-const template = 
-`
+const template =
+	`
 <div class="persistence-panel">
 	<input name="save_file_upload" class="hidden" type="file" accept="application/json">
 	<div class="persistence-drop-preview hidden">

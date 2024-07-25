@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link href="./style.css" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet"> 
+	<link href="https://fonts.googleapis.com/css2?family=Manrope&display=swap" rel="stylesheet">
 	<title>Gridit</title>
 </head>
+
 <body>
 	<div class="grid-container">
 		<div id="control-panel-mount-point" class="control-panel">
@@ -16,11 +18,11 @@
 	</div>
 	<script type="module">
 		import { InjectStyles, MountElement } from './src/DOMUtils.js';
-		import defaultSaveFile from './src/config/default-save.js';
-		import altSaveFile from './src/config/alt-save.js';
+		import defaultSaveFile from './src/config/dnd-demo.js';
+		import { save as demoSave } from './src/config/saves/grid-map-demo.js';
 		import GridDrag from './src/modules/GridDrag.js';
 		import GridView, { style as gridStyle } from './src/views/GridView.js'
-		import GridControlPanelView, { style as gridControlPanelStyle} from './src/views/control_panel/GridControlPanelView.js';
+		import GridControlPanelView, { style as gridControlPanelStyle } from './src/views/control_panel/GridControlPanelView.js';
 		import { store, Connect, UseSelector, ApplyMutation, AddAfterMutationListener, SelectCurrentlySelectedAttributeUpdate, SelectCellById, SelectDefaultCellAttributes, SelectIsEditLocked } from './src/data/AppState.js';
 		import { RecordAction, IncrementUpdateBatch, Redo, Undo } from './src/modules/UndoSystem.js';
 		import { UpdateCells, SetValuesForSchema, SetEditLockTo } from './src/Mutations.js';
@@ -44,25 +46,26 @@
 					editLockControlInput.checked = setTo;
 				}
 			});
-						
+
 			// Build and mount the Grid View.
 			const { element: gridElement } = GridView(store);
 			MountElement(gridMountElement, gridElement);
 
 			// Build and mount the Grid Control Panel.
-			const { element: gridControlPanelElement} = GridControlPanelView(store);
-			MountElement(controlPanelMountElement, gridControlPanelElement);	
+			const { element: gridControlPanelElement } = GridControlPanelView(store);
+			MountElement(controlPanelMountElement, gridControlPanelElement);
 
 			// Bind to mouse drag events for updating cells.
 			const { BindDragEvents } = GridDrag(cellId => {
 				const isEditLocked = UseSelector(SelectIsEditLocked);
-    			if (isEditLocked) return;
+				if (isEditLocked) return;
 				ApplySelectedSchemaToCell(cellId);
 			});
 			BindDragEvents(window);
 
 			// Setup is done! Let's load an example schema.
-			LoadGridJsonData(JSON.stringify(altSaveFile));
+			// LoadGridJsonData(JSON.stringify(defaultSaveFile));
+			LoadGridJsonData(demoSave);
 			// And ensure the grid is editable. This shouldn't be necessary but the browser likes
 			// to sometimes preserve input values in a way that desyncs the checkbox.
 			SetEditLock(false);
@@ -93,4 +96,5 @@
 		</label>
 	</div>
 </body>
+
 </html>
